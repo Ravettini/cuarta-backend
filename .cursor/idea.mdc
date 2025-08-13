@@ -1,0 +1,144 @@
+---
+description: >
+  Backend mínimo en ExpressJS + Sequelize + PostgreSQL para un front existente (index.html, app.js, styles.css,
+  img/, Mapas Estaciones/, Mapas Sanfer/). Mantener el front tal cual. El backend expone una API REST para
+  listar/subir/borrar/descargar archivos y guarda los metadatos en Postgres. Los binarios, por defecto, se guardan
+  en el disco local en /uploads (con Multer). Estructura simple, sin autenticación, con CORS restringido al origen
+  del sitio. Cambios mínimos en app.js para consumir la API.
+globs:
+  - "index.html"
+  - "app.js"
+  - "styles.css"
+  - "img/**"
+  - "Mapas Estaciones/**"
+  - "Mapas Sanfer/**"
+  - "server/**"
+  - "uploads/**"
+  - "migrations/**"
+  - "seeders/**"
+  - ".sequelizerc"
+  - "package.json"
+  - ".env.example"
+  - "README.md"
+alwaysApply: true
+---
+
+# Lineas Generales
+
+* NO reestructurar el front ni renombrar archivos. Mantener: index.html, app.js, styles.css, img/, Mapas Estaciones/, Mapas Sanfer/.
+* Crear un backend Express en carpeta /server que sirva la API en /api/v1.
+* Guardar archivos subidos en /uploads (disco local). Metadatos en PostgreSQL con Sequelize.
+* Límite de subida: 150 MB por archivo. Whitelist de MIME: pdf, zip, csv, xlsx, imágenes.
+* CORS: permitir solo el origen del sitio (ALLOWED_ORIGIN). Sin auth por ahora (dejar middleware listo para agregar API Key si se pide).
+* El front seguirá siendo estático; solo se agregan llamadas desde app.js hacia la API.
+
+# Modelo de datos (PostgreSQL, Sequelize)
+
+* File
+  - id (UUID pk)
+  - name (STRING)                  # nombre visible
+  - file_name (STRING)             # nombre físico en disco (único)
+  - path (STRING)                  # ruta relativa, ej: "uploads/2025-08/<uuid>.ext"
+  - content_type (STRING)
+  - size (INTEGER)
+  - tags (TEXT)                    # CSV o JSON simple
+  - folder (STRING)                # "Mapas Estaciones" | "Mapas Sanfer" | "img" | etc.
+  - created_at (DATE)
+  - updated_at (DATE)
+
+Índices: por (folder), por (created_at DESC), por (name ILIKE).
+
+# Endpoints (Express, /api/v1)
+
+* `GET /files?folder=&q=&limit=&offset=` → lista paginada con filtros.
+* `POST /files` (multipart/form-data) → campos: file (input), folder?, tags? → guarda binario en /uploads y metadatos en DB.
+* `GET /files/:id/download` → descarga el binario desde /uploads.
+* `DELETE /files/:id` → borra registro y archivo físico.
+* `GET /health` → ok.
+
+# Estructura del proyecto
+
+/server
+index.js # bootstrap Express + rutas
+/config
+db.js # Sequelize init (DATABASE_URL)
+cors.js # CORS con ALLOWED_ORIGIN
+/models
+file.js # modelo File
+index.js # loader de modelos
+/migrations
+YYYYMMDDHHMM-create-file.js
+/routes
+files.js # rutas /api/v1/files
+health.js
+/controllers
+files.controller.js
+/middlewares
+upload.js # Multer config (dest, limits, fileFilter)
+error.js # manejador de errores
+/services
+files.service.js # lógica CRUD y acceso a disco
+/uploads # destino de archivos (gitignored)
+index.html
+app.js
+styles.css
+img/**
+Mapas Estaciones/**
+Mapas Sanfer/**
+.env.example
+README.md
+package.json
+.sequelizerc
+
+shell
+Copiar
+Editar
+
+# Variables de entorno (.env)
+
+NODE_ENV=development
+PORT=3000
+ALLOWED_ORIGIN=http://localhost:3000
+
+Postgres
+DATABASE_URL=postgres://user:pass@host:5432/dbname
+
+Uploads
+UPLOAD_DIR=uploads
+MAX_UPLOAD_BYTES=157286400 # 150 MB
+ALLOWED_MIME=application/pdf,application/zip,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/
+
+
+# Reglas de implementación
+
+* Usar Sequelize con migraciones y seed mínimo (opcional).
+* Multer para multipart/form-data; validar tamaño y MIME antes de aceptar.
+* Guardar archivo con nombre seguro: `<uuid>.<ext>` dentro de `/uploads/YYYY-MM/`.
+* En `DELETE`, borrar primero el archivo físico; si no existe, continuar y dejar registro consistente.
+* En `GET /files` soportar:
+  - `q` → búsqueda en `name` y `tags`
+  - `folder` → filtro exacto
+  - `limit` (por defecto 20) y `offset` (por defecto 0)
+  - ordenar por `created_at DESC`
+* Servir /uploads como estático solo para `GET /files/:id/download` (no indexar la carpeta).
+
+# Cambios en el front (app.js)
+
+* Agregar funciones:
+  - `listFiles({folder,q,limit,offset})` → GET `/api/v1/files`
+  - `uploadFile(file, {folder, tags})` → POST multipart `/api/v1/files`
+  - `deleteFile(id)` → DELETE `/api/v1/files/:id`
+  - `downloadFile(id)` → abre `/api/v1/files/:id/download`
+* Integrar estos métodos donde hoy manejás archivos localmente. NO mover HTML ni CSS.
+
+# Scripts npm
+
+* `npm run dev` → nodemon ./server/index.js
+* `npm run migrate` → sequelize-cli db:migrate
+* `npm run seed` → sequelize-cli db:seed:all
+* `npm run start` → node ./server/index.js
+
+# Entregable
+
+* Backend Express funcional con endpoints arriba, modelo/migración Sequelize, carpeta /uploads, CORS, manejo de errores y README con pasos (instalar, .env, migrar, correr).
+* Cambios mínimos en app.js para consumir la API.

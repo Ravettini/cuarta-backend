@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Almacén de Desarrollos</title>
+
+  <link rel="icon" href="img/favicon-square-64x64-fixed.png" type="image/png" sizes="64x64">
+
+
+
+  <!-- Tipografía Archivo (Manual GCBA) -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <!-- CSS externo -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- AppBar / Marca GCBA -->
+  <header class="appbar" aria-label="Barra superior">
+    <div class="brand" aria-label="Marca GCBA">
+      <div class="brand-logo" aria-hidden="true">
+        <img src="https://www.estadisticaciudad.gob.ar/eyc/wp-content/uploads/2024/07/logo-BA-Azul.png" alt="">
+      </div>
+      <div class="brand-title">Almacén de desarrollos</div>
+    </div>
+    <div class="toolbar">
+      <button class="btn btn-secondary" id="btnNewWorld" title="Crear nuevo mundo">+ Mundo</button>
+      <button class="btn btn-secondary" id="btnNewSubWorld" title="Crear sub-mundo">+ Sub-mundo</button>
+      <button class="btn btn-primary" id="btnAddDev" title="Agregar desarrollo">+ Desarrollo</button>
+      <button class="btn btn-ghost" id="btnBack" title="Volver">Volver</button>
+      <button class="btn btn-ghost" id="btnAdmin" title="Panel de control">Panel de control</button>
+      <button class="btn btn-danger" id="btnLogout" title="Cerrar sesión">Cerrar sesión</button>
+    </div>
+  </header>
+
+  <main class="container" id="app" role="main">
+    <!-- HERO -->
+    <section class="hero" id="hero" aria-label="Cabecera">
+      <h1 id="heroTitle" class="t-title">Bienvenido</h1>
+      <p id="heroDesc" class="t-bajada">Ingresá con tu usuario para explorar los mundos autorizados.</p>
+      <nav class="nav-pills" id="breadcrumbs" aria-label="Ruta de navegación"></nav>
+    </section>
+
+    <!-- SECCIÓN AUTH -->
+    <section id="authSection" class="active" aria-label="Autenticación">
+      <div class="auth-card" id="loginCard" role="region" aria-labelledby="loginTitle">
+        <h2 id="loginTitle" class="t-title" style="margin:0 0 12px; color:var(--ba-off);">Ingresar</h2>
+        <div class="field">
+          <label for="loginUser">Usuario</label>
+          <input id="loginUser" placeholder="ej: admin" autocomplete="username">
+        </div>
+        <div class="field">
+          <label for="loginPass">Contraseña</label>
+          <input id="loginPass" type="password" placeholder="••••••••" autocomplete="current-password">
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" id="doLogin">Ingresar</button>
+        </div>
+        <p id="authMsg" class="t-body muted" role="status"></p>
+        <p class="t-body muted" style="margin-top:10px">
+          * El alta de usuarios la realiza un ADMIN en el Panel de control.
+        </p>
+      </div>
+    </section>
+
+    <!-- SECCIÓN MUNDOS -->
+    <section id="worldsSection" aria-label="Mundos">
+      <h2 class="t-title section-title">Mundos</h2>
+      <div id="worldsGrid" class="grid cols-4"></div>
+      <div id="worldsEmpty" class="empty" style="display:none">
+        No hay mundos visibles para tu usuario. Pedí acceso a un ADMIN.
+      </div>
+    </section>
+
+    <!-- SECCIÓN SUB-MUNDOS -->
+    <section id="subWorldsSection" aria-label="Sub-mundos">
+      <h2 class="t-title section-title">Sub-mundos</h2>
+      <div id="subWorldsGrid" class="grid cols-4"></div>
+      <div id="subWorldsEmpty" class="empty" style="display:none">Este mundo todavía no tiene sub-mundos.</div>
+    </section>
+
+    <!-- SECCIÓN DESARROLLOS -->
+    <section id="devsSection" aria-label="Desarrollos">
+      <h2 class="t-title section-title">Desarrollos</h2>
+
+      <!-- Drag & Drop -->
+      <div class="dropzone" id="dropzone" aria-label="Zona para arrastrar archivos o enlaces">
+        Arrastrá archivos o pegá enlaces aquí para agregarlos a este sub-mundo.
+        <br><span class="muted t-body">También podés usar “+ Desarrollo”.</span>
+      </div>
+
+      <div id="devsGrid" class="grid cols-4" style="margin-top:14px"></div>
+      <div id="devsEmpty" class="empty" style="display:none">Aún no hay desarrollos en este sub-mundo.</div>
+    </section>
+
+    <!-- PANEL DE CONTROL (solo ADMIN) -->
+    <section id="adminSection" aria-label="Panel de control">
+      <h2 class="t-title section-title">Panel de control</h2>
+
+      <div class="admin-grid">
+        <div class="card">
+          <h3 class="t-title" style="font-size:clamp(18px,2.4vw,22px)">Usuarios</h3>
+          <p class="t-body muted">Crear, editar y asignar permisos de mundos.</p>
+
+          <div class="admin-actions">
+            <button id="btnAddUser" class="btn btn-secondary">+ Nuevo usuario</button>
+          </div>
+
+          <div id="usersList" class="users-list"></div>
+        </div>
+
+        <div class="card">
+          <h3 class="t-title" style="font-size:clamp(18px,2.4vw,22px)">Mundos disponibles</h3>
+          <p class="t-body muted">Resumen de mundos actuales. Los permisos se asignan en cada usuario.</p>
+          <div id="worldsSummary" class="worlds-summary"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>CREADO POR GO INNOVACIÓN CULTURAL</footer>
+
+  <!-- Modal (reutilizable) -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal__header">
+        <h3 id="modalTitle" class="t-title">Título</h3>
+        <button class="icon-btn" id="modalClose" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="modalBody" class="modal__body"></div>
+      <div class="modal__footer">
+        <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
+        <button class="btn btn-primary" id="modalSubmit">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JS externo -->
+  <script src="app.js" defer></script>
+</body>
+</html>

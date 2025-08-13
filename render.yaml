@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: cuarta-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: ALLOWED_ORIGIN
+        value: "*"
+      - key: MAX_UPLOAD_BYTES
+        value: "157286400"
+      - key: UPLOAD_DIR
+        value: "uploads"
+      - key: ALLOWED_MIME_TYPES
+        value: "application/pdf,application/zip,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*"
+    databases:
+      - name: cuarta-postgres
+        databaseName: cuarta_db
+        user: cuarta_user

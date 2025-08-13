@@ -1,0 +1,2222 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_32e035743bde3b158130a2966fd62442 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>
+    
+    
+            <div class="folium-map" id="map_32e035743bde3b158130a2966fd62442" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_32e035743bde3b158130a2966fd62442 = L.map(
+                "map_32e035743bde3b158130a2966fd62442",
+                {
+                    center: [-34.443082578303034, -58.56176196175548],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+            L.control.scale().addTo(map_32e035743bde3b158130a2966fd62442);
+
+            
+
+        
+    
+            var tile_layer_d4386dc32d96512e76d13205e564fdb4 = L.tileLayer(
+                "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 19,
+  "maxNativeZoom": 19,
+  "noWrap": false,
+  "attribution": "\u0026copy; \u003ca href=\"https://www.openstreetmap.org/copyright\"\u003eOpenStreetMap\u003c/a\u003e contributors",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_d4386dc32d96512e76d13205e564fdb4.addTo(map_32e035743bde3b158130a2966fd62442);
+        
+    
+            var marker_cluster_f02a6c35c2842ad35e8489a81711a00a = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var marker_966a1f9d47771b47093a82ecc052317f = L.marker(
+                [-34.446323, -58.551256],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_f54e88389a122945176e177b66c96137 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1764b30f6c8a1696ce011ce5da19ab0c = $(`<div id="html_1764b30f6c8a1696ce011ce5da19ab0c" style="width: 100.0%; height: 100.0%;"><b>INST.N.S.DE LA MISERICORDIA (EP/ES)</b><br>MADERO JUAN NEPOMUCENO 1334 E/ 3 DE FEBRERO Y LAVALLE JUAN GALO GRAL.</div>`)[0];
+                popup_f54e88389a122945176e177b66c96137.setContent(html_1764b30f6c8a1696ce011ce5da19ab0c);
+            
+        
+
+        marker_966a1f9d47771b47093a82ecc052317f.bindPopup(popup_f54e88389a122945176e177b66c96137)
+        ;
+
+        
+    
+    
+            marker_966a1f9d47771b47093a82ecc052317f.bindTooltip(
+                `<div>
+                     INST.N.S.DE LA MISERICORDIA (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_d87bb6d649efbe21a26d841c4f139e59 = L.marker(
+                [-34.441957, -58.557561],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_fb93271c3f9e82b21d7f9a2c6ddd1011 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_76f725c9d52ee66667fdcd21fc94f5ee = $(`<div id="html_76f725c9d52ee66667fdcd21fc94f5ee" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?1/ES N?12</b><br>9 DE JULIO 1327 E/ 9 DE JULIO Y MADERO JUAN NEPOMUCENO</div>`)[0];
+                popup_fb93271c3f9e82b21d7f9a2c6ddd1011.setContent(html_76f725c9d52ee66667fdcd21fc94f5ee);
+            
+        
+
+        marker_d87bb6d649efbe21a26d841c4f139e59.bindPopup(popup_fb93271c3f9e82b21d7f9a2c6ddd1011)
+        ;
+
+        
+    
+    
+            marker_d87bb6d649efbe21a26d841c4f139e59.bindTooltip(
+                `<div>
+                     ESCUELA EP N?1/ES N?12
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_7426e585538d30c0072906815829e79e = L.marker(
+                [-34.440615, -58.553121],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_7ef0f048c5a87dd03a50e7091cdae836 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5a52e1afe284cb101b4d7341155dd2b5 = $(`<div id="html_5a52e1afe284cb101b4d7341155dd2b5" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EST N?2</b><br>AYACUCHO 937 E/ Y</div>`)[0];
+                popup_7ef0f048c5a87dd03a50e7091cdae836.setContent(html_5a52e1afe284cb101b4d7341155dd2b5);
+            
+        
+
+        marker_7426e585538d30c0072906815829e79e.bindPopup(popup_7ef0f048c5a87dd03a50e7091cdae836)
+        ;
+
+        
+    
+    
+            marker_7426e585538d30c0072906815829e79e.bindTooltip(
+                `<div>
+                     ESCUELA EST N?2
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_c057a4d4976b0a891f9bea78e42403f1 = L.marker(
+                [-34.444354, -58.550923],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_8ff75b18c0339d913f4d50cea3f9ebdf = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_8eb4513e76798f3a84fcd21ebbb34490 = $(`<div id="html_8eb4513e76798f3a84fcd21ebbb34490" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?6/ES N?23</b><br>AV. PERON JUAN D. TTE. GRAL. 1727 E/ Y</div>`)[0];
+                popup_8ff75b18c0339d913f4d50cea3f9ebdf.setContent(html_8eb4513e76798f3a84fcd21ebbb34490);
+            
+        
+
+        marker_c057a4d4976b0a891f9bea78e42403f1.bindPopup(popup_8ff75b18c0339d913f4d50cea3f9ebdf)
+        ;
+
+        
+    
+    
+            marker_c057a4d4976b0a891f9bea78e42403f1.bindTooltip(
+                `<div>
+                     ESCUELA EP N?6/ES N?23
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0a5351ecf6121c07880756881c95f2b0 = L.marker(
+                [-34.435014, -58.561847],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_de5d4bf372fd71d61dc5385074538939 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f82efaa19d7dd44508328d3c4a7294bc = $(`<div id="html_f82efaa19d7dd44508328d3c4a7294bc" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?2</b><br>RUTA PROV RP 27 - DEL LIBERTADOR SAN MARTIN AV. 263 E/ Y</div>`)[0];
+                popup_de5d4bf372fd71d61dc5385074538939.setContent(html_f82efaa19d7dd44508328d3c4a7294bc);
+            
+        
+
+        marker_0a5351ecf6121c07880756881c95f2b0.bindPopup(popup_de5d4bf372fd71d61dc5385074538939)
+        ;
+
+        
+    
+    
+            marker_0a5351ecf6121c07880756881c95f2b0.bindTooltip(
+                `<div>
+                     ESCUELA EP N?2
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_dddf990dd5970b097f5470371792f6b3 = L.marker(
+                [-34.436639, -58.560376],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_737929b67e654f6c305297ea6709d967 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_52858e9d3d647f397ef5542881a14891 = $(`<div id="html_52858e9d3d647f397ef5542881a14891" style="width: 100.0%; height: 100.0%;"><b>COLEGIO SAN MARTIN DE TOURS ES</b><br>ITUZAINGO 1081 E/ Y</div>`)[0];
+                popup_737929b67e654f6c305297ea6709d967.setContent(html_52858e9d3d647f397ef5542881a14891);
+            
+        
+
+        marker_dddf990dd5970b097f5470371792f6b3.bindPopup(popup_737929b67e654f6c305297ea6709d967)
+        ;
+
+        
+    
+    
+            marker_dddf990dd5970b097f5470371792f6b3.bindTooltip(
+                `<div>
+                     COLEGIO SAN MARTIN DE TOURS ES
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0d457c7eebc97ee683042f35e436deae = L.marker(
+                [-34.437722, -58.564342],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_4fd0131c29c86c8d9e942b58679a3150 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_118a63e52584ca18eb664c0eb39ba048 = $(`<div id="html_118a63e52584ca18eb664c0eb39ba048" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?8/ES N?21</b><br>JUNIN 1412 E/ Y</div>`)[0];
+                popup_4fd0131c29c86c8d9e942b58679a3150.setContent(html_118a63e52584ca18eb664c0eb39ba048);
+            
+        
+
+        marker_0d457c7eebc97ee683042f35e436deae.bindPopup(popup_4fd0131c29c86c8d9e942b58679a3150)
+        ;
+
+        
+    
+    
+            marker_0d457c7eebc97ee683042f35e436deae.bindTooltip(
+                `<div>
+                     ESCUELA EP N?8/ES N?21
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_3aa68c3406ad1bf752e6c40829e5e53c = L.marker(
+                [-34.436708, -58.560266],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_185fe619bd0bf068ca158130b33e06a3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_fb9728a3e8b0c3cf36d4cae3076040ae = $(`<div id="html_fb9728a3e8b0c3cf36d4cae3076040ae" style="width: 100.0%; height: 100.0%;"><b>COLEGIO SAN MARTIN DE TOURS EP</b><br>ITUZAINGO 1080 E/ Y</div>`)[0];
+                popup_185fe619bd0bf068ca158130b33e06a3.setContent(html_fb9728a3e8b0c3cf36d4cae3076040ae);
+            
+        
+
+        marker_3aa68c3406ad1bf752e6c40829e5e53c.bindPopup(popup_185fe619bd0bf068ca158130b33e06a3)
+        ;
+
+        
+    
+    
+            marker_3aa68c3406ad1bf752e6c40829e5e53c.bindTooltip(
+                `<div>
+                     COLEGIO SAN MARTIN DE TOURS EP
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0b9599bec983b6ddcfe775b4093da17f = L.marker(
+                [-34.44436, -58.554145],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_9b00c6040450a19d758960f71aef5223 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_511e670c745d96f4f26d55f0593d8235 = $(`<div id="html_511e670c745d96f4f26d55f0593d8235" style="width: 100.0%; height: 100.0%;"><b>ESCUELA DE EDUC.ESPECIAL N?501</b><br>3 DE FEBRERO 1501 Y MAIPU</div>`)[0];
+                popup_9b00c6040450a19d758960f71aef5223.setContent(html_511e670c745d96f4f26d55f0593d8235);
+            
+        
+
+        marker_0b9599bec983b6ddcfe775b4093da17f.bindPopup(popup_9b00c6040450a19d758960f71aef5223)
+        ;
+
+        
+    
+    
+            marker_0b9599bec983b6ddcfe775b4093da17f.bindTooltip(
+                `<div>
+                     ESCUELA DE EDUC.ESPECIAL N?501
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_15b5859ae89e9b8c80834f045e77b029 = L.marker(
+                [-34.447969, -58.578565],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_cb3f5a3bd981444b0c516d68c5e0e9b5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5fdd5d46418c52ebd0eb9617e209f948 = $(`<div id="html_5fdd5d46418c52ebd0eb9617e209f948" style="width: 100.0%; height: 100.0%;"><b>COLEGIO NTRA.SRA.DEL ROSARIO (EP/ES)</b><br>HUEYO ALBERTO 525 E/ LAS HERAS GREGORIO GRAL. Y JUNIN</div>`)[0];
+                popup_cb3f5a3bd981444b0c516d68c5e0e9b5.setContent(html_5fdd5d46418c52ebd0eb9617e209f948);
+            
+        
+
+        marker_15b5859ae89e9b8c80834f045e77b029.bindPopup(popup_cb3f5a3bd981444b0c516d68c5e0e9b5)
+        ;
+
+        
+    
+    
+            marker_15b5859ae89e9b8c80834f045e77b029.bindTooltip(
+                `<div>
+                     COLEGIO NTRA.SRA.DEL ROSARIO (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_cc6857d417049fce73fa2b12d549d2a5 = L.marker(
+                [-34.437835, -58.559307],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_98b5eca1aec41e2284b6b8512ca6be84 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1fe11442ddd630d09ef2d8f54728e22c = $(`<div id="html_1fe11442ddd630d09ef2d8f54728e22c" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES N?927</b><br>QUIRNO COSTA NORBERTO 3383 E/ Y</div>`)[0];
+                popup_98b5eca1aec41e2284b6b8512ca6be84.setContent(html_1fe11442ddd630d09ef2d8f54728e22c);
+            
+        
+
+        marker_cc6857d417049fce73fa2b12d549d2a5.bindPopup(popup_98b5eca1aec41e2284b6b8512ca6be84)
+        ;
+
+        
+    
+    
+            marker_cc6857d417049fce73fa2b12d549d2a5.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES N?927
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_275d8808951ed98a336d7e698a71bf33 = L.marker(
+                [-34.449551, -58.575053],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_3e2de947c60b783fdd18edca29da882c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_932eedb4f6cdeafd5e3062d32eb517e0 = $(`<div id="html_932eedb4f6cdeafd5e3062d32eb517e0" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?35</b><br>QUIRNO COSTA NORBERTO 3353 E/ Y</div>`)[0];
+                popup_3e2de947c60b783fdd18edca29da882c.setContent(html_932eedb4f6cdeafd5e3062d32eb517e0);
+            
+        
+
+        marker_275d8808951ed98a336d7e698a71bf33.bindPopup(popup_3e2de947c60b783fdd18edca29da882c)
+        ;
+
+        
+    
+    
+            marker_275d8808951ed98a336d7e698a71bf33.bindTooltip(
+                `<div>
+                     ESCUELA EP N?35
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_44721f0fade0bd771c34e5e43b4ee882 = L.marker(
+                [-34.438024, -58.560131],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_248a945932be9a51df456d9624936465 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_a82d70a2b5111bd4392d5d23897b73ac = $(`<div id="html_a82d70a2b5111bd4392d5d23897b73ac" style="width: 100.0%; height: 100.0%;"><b>COLEGIO ASUNCION DE LA VIRGEN (EP/ES)</b><br>MADERO JUAN NEPOMUCENO 3231 E/ SUIPACHA Y FALUCHO</div>`)[0];
+                popup_248a945932be9a51df456d9624936465.setContent(html_a82d70a2b5111bd4392d5d23897b73ac);
+            
+        
+
+        marker_44721f0fade0bd771c34e5e43b4ee882.bindPopup(popup_248a945932be9a51df456d9624936465)
+        ;
+
+        
+    
+    
+            marker_44721f0fade0bd771c34e5e43b4ee882.bindTooltip(
+                `<div>
+                     COLEGIO ASUNCION DE LA VIRGEN (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_10c43c379f2d9fd4c21a7aa0e52b911e = L.marker(
+                [-34.44808, -58.573911],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_c1416bcae57dca6ef9717b3731ee1f27 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_4c34dc350faa172d9f748c60248ae1c9 = $(`<div id="html_4c34dc350faa172d9f748c60248ae1c9" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?1</b><br>PASAJE PJE.ARANZAZU 2800 E/ Y</div>`)[0];
+                popup_c1416bcae57dca6ef9717b3731ee1f27.setContent(html_4c34dc350faa172d9f748c60248ae1c9);
+            
+        
+
+        marker_10c43c379f2d9fd4c21a7aa0e52b911e.bindPopup(popup_c1416bcae57dca6ef9717b3731ee1f27)
+        ;
+
+        
+    
+    
+            marker_10c43c379f2d9fd4c21a7aa0e52b911e.bindTooltip(
+                `<div>
+                     ESCUELA ES N?1
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_df46ec8a5b54c2f3c56c93a4f3a25b9a = L.marker(
+                [-34.445727, -58.56685],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_2388da139befb5b2ed1636f6581ce942 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_17d9aecb4c7d24392ac2e9a7abe844fa = $(`<div id="html_17d9aecb4c7d24392ac2e9a7abe844fa" style="width: 100.0%; height: 100.0%;"><b>CENTRO CULTURAL SAN RAFAEL</b><br>ENTRE RIOS 777 E/ Y</div>`)[0];
+                popup_2388da139befb5b2ed1636f6581ce942.setContent(html_17d9aecb4c7d24392ac2e9a7abe844fa);
+            
+        
+
+        marker_df46ec8a5b54c2f3c56c93a4f3a25b9a.bindPopup(popup_2388da139befb5b2ed1636f6581ce942)
+        ;
+
+        
+    
+    
+            marker_df46ec8a5b54c2f3c56c93a4f3a25b9a.bindTooltip(
+                `<div>
+                     CENTRO CULTURAL SAN RAFAEL
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2c5b9335f2f9bc8f178d60a3621d77fd = L.marker(
+                [-34.445654, -58.566759],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_aefca3c9be925ee52ac6714ae62a05fc = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_95842e5ac64711debe525ab0160ce9fd = $(`<div id="html_95842e5ac64711debe525ab0160ce9fd" style="width: 100.0%; height: 100.0%;"><b>INSTITUTO MADRE RAFAELA</b><br>ENTRE RIOS 751 E/ Y</div>`)[0];
+                popup_aefca3c9be925ee52ac6714ae62a05fc.setContent(html_95842e5ac64711debe525ab0160ce9fd);
+            
+        
+
+        marker_2c5b9335f2f9bc8f178d60a3621d77fd.bindPopup(popup_aefca3c9be925ee52ac6714ae62a05fc)
+        ;
+
+        
+    
+    
+            marker_2c5b9335f2f9bc8f178d60a3621d77fd.bindTooltip(
+                `<div>
+                     INSTITUTO MADRE RAFAELA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_53d746da9b916930ca239c2d2e526128 = L.marker(
+                [-34.440525, -58.563899],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_e3fd7dd3aa3deb594deac288a21edac5 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f0ada2c758984e26a1ed901aa0b30f52 = $(`<div id="html_f0ada2c758984e26a1ed901aa0b30f52" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?22/ES N?27</b><br>BRANDSEN CARLOS LUIS F. C 555 E/ Y</div>`)[0];
+                popup_e3fd7dd3aa3deb594deac288a21edac5.setContent(html_f0ada2c758984e26a1ed901aa0b30f52);
+            
+        
+
+        marker_53d746da9b916930ca239c2d2e526128.bindPopup(popup_e3fd7dd3aa3deb594deac288a21edac5)
+        ;
+
+        
+    
+    
+            marker_53d746da9b916930ca239c2d2e526128.bindTooltip(
+                `<div>
+                     ESCUELA EP N?22/ES N?27
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_bcf3a68c1a730f3cc1d12a6e1cd6bc09 = L.marker(
+                [-34.447034, -58.561572],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_08e0a8254851534f4e7673d41bdd5322 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e35c31ba60fcc50c08945a0dae0181ce = $(`<div id="html_e35c31ba60fcc50c08945a0dae0181ce" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?11/EP N?36</b><br>DIAZ SGTO. 1990 E/ Y</div>`)[0];
+                popup_08e0a8254851534f4e7673d41bdd5322.setContent(html_e35c31ba60fcc50c08945a0dae0181ce);
+            
+        
+
+        marker_bcf3a68c1a730f3cc1d12a6e1cd6bc09.bindPopup(popup_08e0a8254851534f4e7673d41bdd5322)
+        ;
+
+        
+    
+    
+            marker_bcf3a68c1a730f3cc1d12a6e1cd6bc09.bindTooltip(
+                `<div>
+                     ESCUELA ES N?11/EP N?36
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_86ff73c1e4ab7c9de803eadc49fe62b2 = L.marker(
+                [-34.451828, -58.562836],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_28a315159783dce5ccd11091f941da4c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_aad5b36b1357aa247876170e4774d878 = $(`<div id="html_aad5b36b1357aa247876170e4774d878" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES N?933</b><br>MAIPU 2409 E/ Y</div>`)[0];
+                popup_28a315159783dce5ccd11091f941da4c.setContent(html_aad5b36b1357aa247876170e4774d878);
+            
+        
+
+        marker_86ff73c1e4ab7c9de803eadc49fe62b2.bindPopup(popup_28a315159783dce5ccd11091f941da4c)
+        ;
+
+        
+    
+    
+            marker_86ff73c1e4ab7c9de803eadc49fe62b2.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES N?933
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_b3916884db373eb95188487cf2bfda2b = L.marker(
+                [-34.449307, -58.542266],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_ef65c302a2acc28bff359390b57353f0 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_42512339b1d5119a9abf64de1645d894 = $(`<div id="html_42512339b1d5119a9abf64de1645d894" style="width: 100.0%; height: 100.0%;"><b>POLIDEPORTIVO N?8</b><br>SARGENTO D?AZ E/ CHACABUCO Y MAIP? E/ Y</div>`)[0];
+                popup_ef65c302a2acc28bff359390b57353f0.setContent(html_42512339b1d5119a9abf64de1645d894);
+            
+        
+
+        marker_b3916884db373eb95188487cf2bfda2b.bindPopup(popup_ef65c302a2acc28bff359390b57353f0)
+        ;
+
+        
+    
+    
+            marker_b3916884db373eb95188487cf2bfda2b.bindTooltip(
+                `<div>
+                     POLIDEPORTIVO N?8
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_fd9297259a9c4c76f20cf1f1d12e8b99 = L.marker(
+                [-34.4677908615365, -58.5722395649092],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_31250e25bcdbc758ee5419813842235a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1ae5634cfe42a54e3e4dcaca1a609b22 = $(`<div id="html_1ae5634cfe42a54e3e4dcaca1a609b22" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES N?907</b><br>URQUIZA JUSTO JOSE GRAL. 2914 E/ Y</div>`)[0];
+                popup_31250e25bcdbc758ee5419813842235a.setContent(html_1ae5634cfe42a54e3e4dcaca1a609b22);
+            
+        
+
+        marker_fd9297259a9c4c76f20cf1f1d12e8b99.bindPopup(popup_31250e25bcdbc758ee5419813842235a)
+        ;
+
+        
+    
+    
+            marker_fd9297259a9c4c76f20cf1f1d12e8b99.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES N?907
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_b9db696a645148d37f50503e70fd8879 = L.marker(
+                [-34.45071, -58.570129],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_cfc7cbb776957193ce95a8aa2b2c5a27 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_2b20dbe9f8629261c36c1388a26e43fe = $(`<div id="html_2b20dbe9f8629261c36c1388a26e43fe" style="width: 100.0%; height: 100.0%;"><b>ESC.DE LA COMUNIDAD CRISTIANA</b><br>RUTA PROV RP 23 - YRIGOYEN HIPOLITO AV. 2890 E/ Y</div>`)[0];
+                popup_cfc7cbb776957193ce95a8aa2b2c5a27.setContent(html_2b20dbe9f8629261c36c1388a26e43fe);
+            
+        
+
+        marker_b9db696a645148d37f50503e70fd8879.bindPopup(popup_cfc7cbb776957193ce95a8aa2b2c5a27)
+        ;
+
+        
+    
+    
+            marker_b9db696a645148d37f50503e70fd8879.bindTooltip(
+                `<div>
+                     ESC.DE LA COMUNIDAD CRISTIANA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_abd5a55aa267a52fe515de3fcb85482f = L.marker(
+                [-34.450238, -58.567166],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_a6315f6bc521248ee2e32146426862bf = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3586a4fbecdd002d4a4415f9b7e249b9 = $(`<div id="html_3586a4fbecdd002d4a4415f9b7e249b9" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?38/ES N?17</b><br>PERDRIEL 2664 E/ Y</div>`)[0];
+                popup_a6315f6bc521248ee2e32146426862bf.setContent(html_3586a4fbecdd002d4a4415f9b7e249b9);
+            
+        
+
+        marker_abd5a55aa267a52fe515de3fcb85482f.bindPopup(popup_a6315f6bc521248ee2e32146426862bf)
+        ;
+
+        
+    
+    
+            marker_abd5a55aa267a52fe515de3fcb85482f.bindTooltip(
+                `<div>
+                     ESCUELA EP N?38/ES N?17
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_27cbb5857b76562aa2c21d43262ed4db = L.marker(
+                [-34.450545, -58.563597],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_69a153783c82f2f2590f152891e21fd4 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_040041dd678520e6597cdf2be32ff243 = $(`<div id="html_040041dd678520e6597cdf2be32ff243" style="width: 100.0%; height: 100.0%;"><b>ESCUELA DE EDUC.ESPECIAL N?502</b><br>DIAZ SGTO. 1325 E/ POCITOS Y URQUIZA JUSTO JOSE GRAL.</div>`)[0];
+                popup_69a153783c82f2f2590f152891e21fd4.setContent(html_040041dd678520e6597cdf2be32ff243);
+            
+        
+
+        marker_27cbb5857b76562aa2c21d43262ed4db.bindPopup(popup_69a153783c82f2f2590f152891e21fd4)
+        ;
+
+        
+    
+    
+            marker_27cbb5857b76562aa2c21d43262ed4db.bindTooltip(
+                `<div>
+                     ESCUELA DE EDUC.ESPECIAL N?502
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_a59dfebf2db8f121e55f754e31d3e2b3 = L.marker(
+                [-34.4468, -58.557158],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_3c5b102caa1fa770ac4b243d3a293ae6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_1776d5342a6385dfb12578368902fc19 = $(`<div id="html_1776d5342a6385dfb12578368902fc19" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?32</b><br>MAIPU 1691 E/ Y</div>`)[0];
+                popup_3c5b102caa1fa770ac4b243d3a293ae6.setContent(html_1776d5342a6385dfb12578368902fc19);
+            
+        
+
+        marker_a59dfebf2db8f121e55f754e31d3e2b3.bindPopup(popup_3c5b102caa1fa770ac4b243d3a293ae6)
+        ;
+
+        
+    
+    
+            marker_a59dfebf2db8f121e55f754e31d3e2b3.bindTooltip(
+                `<div>
+                     ESCUELA EP N?32
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0f4eb6de7a6b77606632b4115cadfb18 = L.marker(
+                [-34.438024, -58.560131],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_baf9b6e847920d48d238be8185e67ad4 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_388a39de3d92ac3bfa15f1c9d42b39e2 = $(`<div id="html_388a39de3d92ac3bfa15f1c9d42b39e2" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES SAN JORGE</b><br>MADERO JUAN NEPOMUCENO 3380 E/ Y</div>`)[0];
+                popup_baf9b6e847920d48d238be8185e67ad4.setContent(html_388a39de3d92ac3bfa15f1c9d42b39e2);
+            
+        
+
+        marker_0f4eb6de7a6b77606632b4115cadfb18.bindPopup(popup_baf9b6e847920d48d238be8185e67ad4)
+        ;
+
+        
+    
+    
+            marker_0f4eb6de7a6b77606632b4115cadfb18.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES SAN JORGE
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_96f66a3ee3d82c1f30853e69584c394e = L.marker(
+                [-34.457283, -58.578077],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_02eb2b5d0318e665f93ea907a0484275 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_47ce95412d2dbc75acc1e4dd1694fd9c = $(`<div id="html_47ce95412d2dbc75acc1e4dd1694fd9c" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?7</b><br>CHACABUCO 3975 E/ Y</div>`)[0];
+                popup_02eb2b5d0318e665f93ea907a0484275.setContent(html_47ce95412d2dbc75acc1e4dd1694fd9c);
+            
+        
+
+        marker_96f66a3ee3d82c1f30853e69584c394e.bindPopup(popup_02eb2b5d0318e665f93ea907a0484275)
+        ;
+
+        
+    
+    
+            marker_96f66a3ee3d82c1f30853e69584c394e.bindTooltip(
+                `<div>
+                     ESCUELA EP N?7
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_d75e06b206b6f70ece4f3047fa3ee13f = L.marker(
+                [-34.447747, -58.552357],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_986f337b5b39db009766058df39d07f7 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_44d80a9408b3c60aad4e47b7dfda8ac9 = $(`<div id="html_44d80a9408b3c60aad4e47b7dfda8ac9" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?16</b><br>AZCUENAGA MIGUEL DE 1489 E/ Y</div>`)[0];
+                popup_986f337b5b39db009766058df39d07f7.setContent(html_44d80a9408b3c60aad4e47b7dfda8ac9);
+            
+        
+
+        marker_d75e06b206b6f70ece4f3047fa3ee13f.bindPopup(popup_986f337b5b39db009766058df39d07f7)
+        ;
+
+        
+    
+    
+            marker_d75e06b206b6f70ece4f3047fa3ee13f.bindTooltip(
+                `<div>
+                     ESCUELA ES N?16
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_11e560eeb7fa1fd5ecaf6825e46ff48d = L.marker(
+                [-34.466083, -58.585769],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_48d5b4bd33ccdf8d6af96d2ee985546a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_377386e01ae06590fd276bb6814ae8a3 = $(`<div id="html_377386e01ae06590fd276bb6814ae8a3" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?5/ES N?19</b><br>CORDERO FERNANDO 4725 E/ Y</div>`)[0];
+                popup_48d5b4bd33ccdf8d6af96d2ee985546a.setContent(html_377386e01ae06590fd276bb6814ae8a3);
+            
+        
+
+        marker_11e560eeb7fa1fd5ecaf6825e46ff48d.bindPopup(popup_48d5b4bd33ccdf8d6af96d2ee985546a)
+        ;
+
+        
+    
+    
+            marker_11e560eeb7fa1fd5ecaf6825e46ff48d.bindTooltip(
+                `<div>
+                     ESCUELA EP N?5/ES N?19
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_3eb3d70a5c818e26d306425c1a307303 = L.marker(
+                [-34.4634902272134, -58.5830862461571],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_528945dd38f05645cf01c7e4a43fa812 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_920b4f97c6d97061a2a16ef78f02c472 = $(`<div id="html_920b4f97c6d97061a2a16ef78f02c472" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EST N?3</b><br>CANE MIGUEL 4565 E/ Y</div>`)[0];
+                popup_528945dd38f05645cf01c7e4a43fa812.setContent(html_920b4f97c6d97061a2a16ef78f02c472);
+            
+        
+
+        marker_3eb3d70a5c818e26d306425c1a307303.bindPopup(popup_528945dd38f05645cf01c7e4a43fa812)
+        ;
+
+        
+    
+    
+            marker_3eb3d70a5c818e26d306425c1a307303.bindTooltip(
+                `<div>
+                     ESCUELA EST N?3
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_64ed43aa23a087ddb7c26b4748ad5e17 = L.marker(
+                [-34.467945, -58.59202],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_be17b6fa59bb40139a46ecba3ef1a42b = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_43b6c914f2b31fd01530aeb463220e9a = $(`<div id="html_43b6c914f2b31fd01530aeb463220e9a" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES N?932</b><br>PAYRO ROBERTO J. 1874 E/ CANE MIGUEL Y PASAJE PJE.DE LOS NI?OS</div>`)[0];
+                popup_be17b6fa59bb40139a46ecba3ef1a42b.setContent(html_43b6c914f2b31fd01530aeb463220e9a);
+            
+        
+
+        marker_64ed43aa23a087ddb7c26b4748ad5e17.bindPopup(popup_be17b6fa59bb40139a46ecba3ef1a42b)
+        ;
+
+        
+    
+    
+            marker_64ed43aa23a087ddb7c26b4748ad5e17.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES N?932
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_9378b8c658a8174f019720e3d1646ed3 = L.marker(
+                [-34.446215, -58.559817],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_ee0bd94f54ff4d271a24f46504bc2af0 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_88a1d6885fcec339d350ba79b9bfe483 = $(`<div id="html_88a1d6885fcec339d350ba79b9bfe483" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?28/ES N?20</b><br>RUTA PROV RP 23 - YRIGOYEN HIPOLITO AV. 5564 E/ Y</div>`)[0];
+                popup_ee0bd94f54ff4d271a24f46504bc2af0.setContent(html_88a1d6885fcec339d350ba79b9bfe483);
+            
+        
+
+        marker_9378b8c658a8174f019720e3d1646ed3.bindPopup(popup_ee0bd94f54ff4d271a24f46504bc2af0)
+        ;
+
+        
+    
+    
+            marker_9378b8c658a8174f019720e3d1646ed3.bindTooltip(
+                `<div>
+                     ESCUELA EP N?28/ES N?20
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0c9855ff03e4bf498ee860ad1db51319 = L.marker(
+                [-34.446215, -58.559817],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_a57d9f3f2a595b51f6bf675bfcf4cd4e = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_9063d51b8e40b8b47fb6306a1011a509 = $(`<div id="html_9063d51b8e40b8b47fb6306a1011a509" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES N?902</b><br>RUTA PROV RP 23 - YRIGOYEN HIPOLITO AV. 5744 E/ ALEGRIA Y BELLA VISTA</div>`)[0];
+                popup_a57d9f3f2a595b51f6bf675bfcf4cd4e.setContent(html_9063d51b8e40b8b47fb6306a1011a509);
+            
+        
+
+        marker_0c9855ff03e4bf498ee860ad1db51319.bindPopup(popup_a57d9f3f2a595b51f6bf675bfcf4cd4e)
+        ;
+
+        
+    
+    
+            marker_0c9855ff03e4bf498ee860ad1db51319.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES N?902
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_7449649fc11804533391103b06ebdb39 = L.marker(
+                [-34.472345, -58.595097],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_2db0e918ef1114a6611a30c27c52612f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_18aab2ca655b94c3a993e0fb3e12842d = $(`<div id="html_18aab2ca655b94c3a993e0fb3e12842d" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?14</b><br>QUINTANA MANUEL PDTE. 5800 ESQ. DARRAGUEIRA E/ Y</div>`)[0];
+                popup_2db0e918ef1114a6611a30c27c52612f.setContent(html_18aab2ca655b94c3a993e0fb3e12842d);
+            
+        
+
+        marker_7449649fc11804533391103b06ebdb39.bindPopup(popup_2db0e918ef1114a6611a30c27c52612f)
+        ;
+
+        
+    
+    
+            marker_7449649fc11804533391103b06ebdb39.bindTooltip(
+                `<div>
+                     ESCUELA ES N?14
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_9fc1c72bda74878e6144ef7217fc49c4 = L.marker(
+                [-34.452982, -58.548325],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_6023c25d2fbeac511dd9ba080da60299 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6da34c03185644d63352079fe765f7bb = $(`<div id="html_6da34c03185644d63352079fe765f7bb" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?21</b><br>BRANDSEN CARLOS LUIS F. C 2587 E/ Y</div>`)[0];
+                popup_6023c25d2fbeac511dd9ba080da60299.setContent(html_6da34c03185644d63352079fe765f7bb);
+            
+        
+
+        marker_9fc1c72bda74878e6144ef7217fc49c4.bindPopup(popup_6023c25d2fbeac511dd9ba080da60299)
+        ;
+
+        
+    
+    
+            marker_9fc1c72bda74878e6144ef7217fc49c4.bindTooltip(
+                `<div>
+                     ESCUELA EP N?21
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_56e1618503ac118e61902d239125297d = L.marker(
+                [-34.4531997561589, -58.5486335688516],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_ecda3106cfbb35045849c99d77348202 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_5f33aaf7247d57f07addab1e692f1595 = $(`<div id="html_5f33aaf7247d57f07addab1e692f1595" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?10</b><br>ACEVEDO MANUEL 2574 E/ Y</div>`)[0];
+                popup_ecda3106cfbb35045849c99d77348202.setContent(html_5f33aaf7247d57f07addab1e692f1595);
+            
+        
+
+        marker_56e1618503ac118e61902d239125297d.bindPopup(popup_ecda3106cfbb35045849c99d77348202)
+        ;
+
+        
+    
+    
+            marker_56e1618503ac118e61902d239125297d.bindTooltip(
+                `<div>
+                     ESCUELA ES N?10
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_06d816c70d14fc09ea4b1e47468281f1 = L.marker(
+                [-34.45557, -58.553502],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_c1f3b7cfbbad6207e3c57c15dcd2039d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7fc0f60e45495351cf9c413ac5340ef4 = $(`<div id="html_7fc0f60e45495351cf9c413ac5340ef4" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?27</b><br>PASTEUR LUIS DR. 2260 E/ MENDOZA Y URCOLA JUAN F. INT.</div>`)[0];
+                popup_c1f3b7cfbbad6207e3c57c15dcd2039d.setContent(html_7fc0f60e45495351cf9c413ac5340ef4);
+            
+        
+
+        marker_06d816c70d14fc09ea4b1e47468281f1.bindPopup(popup_c1f3b7cfbbad6207e3c57c15dcd2039d)
+        ;
+
+        
+    
+    
+            marker_06d816c70d14fc09ea4b1e47468281f1.bindTooltip(
+                `<div>
+                     ESCUELA EP N?27
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_6db9b14f5d5f56dc4720f758cb98681e = L.marker(
+                [-34.456002, -58.554502],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_44773408b06acc8eacf0d1719d812a7f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f622d3e9c4b5e7203750c3d55e9a342b = $(`<div id="html_f622d3e9c4b5e7203750c3d55e9a342b" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?8</b><br>PASTEUR LUIS DR. 2440 E/ Y</div>`)[0];
+                popup_44773408b06acc8eacf0d1719d812a7f.setContent(html_f622d3e9c4b5e7203750c3d55e9a342b);
+            
+        
+
+        marker_6db9b14f5d5f56dc4720f758cb98681e.bindPopup(popup_44773408b06acc8eacf0d1719d812a7f)
+        ;
+
+        
+    
+    
+            marker_6db9b14f5d5f56dc4720f758cb98681e.bindTooltip(
+                `<div>
+                     ESCUELA ES N?8
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_ff6938bb9dedfc2897175a59172db608 = L.marker(
+                [-34.453358, -58.557374],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_856f02c5bdb780c0cb3c224482cac901 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7bd41852bf98937e8889fcc49014026e = $(`<div id="html_7bd41852bf98937e8889fcc49014026e" style="width: 100.0%; height: 100.0%;"><b>CENTRO UNIVERSITARIO MUNICIPALIDAD</b><br>AVENIDA AVELLANEDA NICOLAS 2270 E/ Y</div>`)[0];
+                popup_856f02c5bdb780c0cb3c224482cac901.setContent(html_7bd41852bf98937e8889fcc49014026e);
+            
+        
+
+        marker_ff6938bb9dedfc2897175a59172db608.bindPopup(popup_856f02c5bdb780c0cb3c224482cac901)
+        ;
+
+        
+    
+    
+            marker_ff6938bb9dedfc2897175a59172db608.bindTooltip(
+                `<div>
+                     CENTRO UNIVERSITARIO MUNICIPALIDAD
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_bca0c6f1e7fdfb6cf5c5085375475394 = L.marker(
+                [-34.458773, -58.560487],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_092c43078e25ce3f6490d2498d35caf6 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_53915b3cd3cd0d7e1a7e3f9a76846faf = $(`<div id="html_53915b3cd3cd0d7e1a7e3f9a76846faf" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?17/ES N?24</b><br>PASTEUR LUIS DR. 2810 E/ Y</div>`)[0];
+                popup_092c43078e25ce3f6490d2498d35caf6.setContent(html_53915b3cd3cd0d7e1a7e3f9a76846faf);
+            
+        
+
+        marker_bca0c6f1e7fdfb6cf5c5085375475394.bindPopup(popup_092c43078e25ce3f6490d2498d35caf6)
+        ;
+
+        
+    
+    
+            marker_bca0c6f1e7fdfb6cf5c5085375475394.bindTooltip(
+                `<div>
+                     ESCUELA EP N?17/ES N?24
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2214053436e2a096d939c00f7375a9c0 = L.marker(
+                [-34.458773, -58.560487],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_de281a3ea427c0656ebeac97802052eb = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_0cf6d2f07e78c5c728f848d95230d144 = $(`<div id="html_0cf6d2f07e78c5c728f848d95230d144" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES N?929</b><br>PASTEUR LUIS DR. 2810 E/ Y</div>`)[0];
+                popup_de281a3ea427c0656ebeac97802052eb.setContent(html_0cf6d2f07e78c5c728f848d95230d144);
+            
+        
+
+        marker_2214053436e2a096d939c00f7375a9c0.bindPopup(popup_de281a3ea427c0656ebeac97802052eb)
+        ;
+
+        
+    
+    
+            marker_2214053436e2a096d939c00f7375a9c0.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES N?929
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_174c34221b398015e908412d6e6c5203 = L.marker(
+                [-34.463171, -58.569589],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_8a0212f61d2f607cea1a57bb59ba1130 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_ecfe0794986a65873771e22578e6af39 = $(`<div id="html_ecfe0794986a65873771e22578e6af39" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ALFONSINA STORNI (EP/ES)</b><br>PASTEUR LUIS DR. 3668 E/ Y</div>`)[0];
+                popup_8a0212f61d2f607cea1a57bb59ba1130.setContent(html_ecfe0794986a65873771e22578e6af39);
+            
+        
+
+        marker_174c34221b398015e908412d6e6c5203.bindPopup(popup_8a0212f61d2f607cea1a57bb59ba1130)
+        ;
+
+        
+    
+    
+            marker_174c34221b398015e908412d6e6c5203.bindTooltip(
+                `<div>
+                     ESCUELA ALFONSINA STORNI (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_3aa94001935e11bb2c4af7e60a6cbd31 = L.marker(
+                [-34.463248, -58.575363],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_2b8daf3172f2a629e16174cb099c768f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6f8aec5af54c4ef35db790ece0e284ea = $(`<div id="html_6f8aec5af54c4ef35db790ece0e284ea" style="width: 100.0%; height: 100.0%;"><b>COLEGIO PARROQUIAL SAN PABLO (EP/ES)</b><br>PUEYRREDON JUAN MARTIN DE 2211 E/ Y</div>`)[0];
+                popup_2b8daf3172f2a629e16174cb099c768f.setContent(html_6f8aec5af54c4ef35db790ece0e284ea);
+            
+        
+
+        marker_3aa94001935e11bb2c4af7e60a6cbd31.bindPopup(popup_2b8daf3172f2a629e16174cb099c768f)
+        ;
+
+        
+    
+    
+            marker_3aa94001935e11bb2c4af7e60a6cbd31.bindTooltip(
+                `<div>
+                     COLEGIO PARROQUIAL SAN PABLO (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0996f387ed5350d478022e42624f7141 = L.marker(
+                [-34.466495, -58.572526],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_1761d73ed02f8ab6c0e789b790008d6d = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3ad8bfd1ae9386e3db5d7315d9c40c34 = $(`<div id="html_3ad8bfd1ae9386e3db5d7315d9c40c34" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?37</b><br>CARLOS CASARES Y PUEYRREDON S/N E/ Y</div>`)[0];
+                popup_1761d73ed02f8ab6c0e789b790008d6d.setContent(html_3ad8bfd1ae9386e3db5d7315d9c40c34);
+            
+        
+
+        marker_0996f387ed5350d478022e42624f7141.bindPopup(popup_1761d73ed02f8ab6c0e789b790008d6d)
+        ;
+
+        
+    
+    
+            marker_0996f387ed5350d478022e42624f7141.bindTooltip(
+                `<div>
+                     ESCUELA EP N?37
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_ecbffaa9a3326768d550760ab8b32758 = L.marker(
+                [-34.466748, -58.572989],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_531ac062b019d897355b8a56fddcffd4 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e8bf4d93e739ee949b9ad43ea843de8f = $(`<div id="html_e8bf4d93e739ee949b9ad43ea843de8f" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?2</b><br>CASARES CARLOS 3979 E/ Y</div>`)[0];
+                popup_531ac062b019d897355b8a56fddcffd4.setContent(html_e8bf4d93e739ee949b9ad43ea843de8f);
+            
+        
+
+        marker_ecbffaa9a3326768d550760ab8b32758.bindPopup(popup_531ac062b019d897355b8a56fddcffd4)
+        ;
+
+        
+    
+    
+            marker_ecbffaa9a3326768d550760ab8b32758.bindTooltip(
+                `<div>
+                     ESCUELA ES N?2
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_397d37e99257dafbd52755ca076f7e9f = L.marker(
+                [-34.466999, -58.573384],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_99bdfe411110da58516239c759f572bf = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_07ea956d728ff33514525f3002afe756 = $(`<div id="html_07ea956d728ff33514525f3002afe756" style="width: 100.0%; height: 100.0%;"><b>JARDIN DE INFANTES N?909</b><br>CASARES CARLOS 3991 E/ Y</div>`)[0];
+                popup_99bdfe411110da58516239c759f572bf.setContent(html_07ea956d728ff33514525f3002afe756);
+            
+        
+
+        marker_397d37e99257dafbd52755ca076f7e9f.bindPopup(popup_99bdfe411110da58516239c759f572bf)
+        ;
+
+        
+    
+    
+            marker_397d37e99257dafbd52755ca076f7e9f.bindTooltip(
+                `<div>
+                     JARDIN DE INFANTES N?909
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_6f1b2beff013f178c06c691e7d641e20 = L.marker(
+                [-34.4667, -58.585076],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_7ee48048466bc98c50494c30be1693c0 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_c69e0bb1bbf886dcdf31cc35e03bb2bd = $(`<div id="html_c69e0bb1bbf886dcdf31cc35e03bb2bd" style="width: 100.0%; height: 100.0%;"><b>POLIDEPORTIVO N?6</b><br>AVENIDA AVELLANEDA NICOLAS 4848 E/ FRANCIA Y CHILE</div>`)[0];
+                popup_7ee48048466bc98c50494c30be1693c0.setContent(html_c69e0bb1bbf886dcdf31cc35e03bb2bd);
+            
+        
+
+        marker_6f1b2beff013f178c06c691e7d641e20.bindPopup(popup_7ee48048466bc98c50494c30be1693c0)
+        ;
+
+        
+    
+    
+            marker_6f1b2beff013f178c06c691e7d641e20.bindTooltip(
+                `<div>
+                     POLIDEPORTIVO N?6
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_bd405acf3a54e2f40bc9e1d476c73797 = L.marker(
+                [-34.469734, -58.588427],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_7ea96e5b5a01802b33758088589a2cb3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_f11f15a1feae2b1a1b0ab60136e2a963 = $(`<div id="html_f11f15a1feae2b1a1b0ab60136e2a963" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?15/ES N?26</b><br>GANDOLFO VICENTE DR. 5241 E/ Y</div>`)[0];
+                popup_7ea96e5b5a01802b33758088589a2cb3.setContent(html_f11f15a1feae2b1a1b0ab60136e2a963);
+            
+        
+
+        marker_bd405acf3a54e2f40bc9e1d476c73797.bindPopup(popup_7ea96e5b5a01802b33758088589a2cb3)
+        ;
+
+        
+    
+    
+            marker_bd405acf3a54e2f40bc9e1d476c73797.bindTooltip(
+                `<div>
+                     ESCUELA EP N?15/ES N?26
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_90ec1a31bfd84c46fae4d0f0ce904ca7 = L.marker(
+                [-34.472425, -58.588138],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_ffbf7f7ce2056f182b7da13cd8ad4bc3 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_b08ab0736cf1efc9f5133bfec5635f37 = $(`<div id="html_b08ab0736cf1efc9f5133bfec5635f37" style="width: 100.0%; height: 100.0%;"><b>COLEGIO SECUND.MADRE TERESA</b><br>PASTEUR LUIS DR. 5350 E/ Y</div>`)[0];
+                popup_ffbf7f7ce2056f182b7da13cd8ad4bc3.setContent(html_b08ab0736cf1efc9f5133bfec5635f37);
+            
+        
+
+        marker_90ec1a31bfd84c46fae4d0f0ce904ca7.bindPopup(popup_ffbf7f7ce2056f182b7da13cd8ad4bc3)
+        ;
+
+        
+    
+    
+            marker_90ec1a31bfd84c46fae4d0f0ce904ca7.bindTooltip(
+                `<div>
+                     COLEGIO SECUND.MADRE TERESA
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0e6fef37bed1c7100b1a6ad71276350a = L.marker(
+                [-34.4727488937865, -58.5950583615009],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_bd6644e4a7f5a97add107647ba46206f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_50cccbd703770b64d03b1f5c41b836e0 = $(`<div id="html_50cccbd703770b64d03b1f5c41b836e0" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?3</b><br>DARRAGUEIRA JOSE- 2277 E/ Y</div>`)[0];
+                popup_bd6644e4a7f5a97add107647ba46206f.setContent(html_50cccbd703770b64d03b1f5c41b836e0);
+            
+        
+
+        marker_0e6fef37bed1c7100b1a6ad71276350a.bindPopup(popup_bd6644e4a7f5a97add107647ba46206f)
+        ;
+
+        
+    
+    
+            marker_0e6fef37bed1c7100b1a6ad71276350a.bindTooltip(
+                `<div>
+                     ESCUELA EP N?3
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0125cf1f8e713019932ce6a026aa03d5 = L.marker(
+                [-34.453243, -58.540385],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_938ce931a950322a4be9d4d1e256886f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_99f4a7c16035858cd5d32e4c1561ac9c = $(`<div id="html_99f4a7c16035858cd5d32e4c1561ac9c" style="width: 100.0%; height: 100.0%;"><b>COLEGIO SAN JOSE/INSTITUTO DON ORIONE</b><br>IRIONDO SIMON DE 1177 E/ SAN JOSE Y CONSTITUCION</div>`)[0];
+                popup_938ce931a950322a4be9d4d1e256886f.setContent(html_99f4a7c16035858cd5d32e4c1561ac9c);
+            
+        
+
+        marker_0125cf1f8e713019932ce6a026aa03d5.bindPopup(popup_938ce931a950322a4be9d4d1e256886f)
+        ;
+
+        
+    
+    
+            marker_0125cf1f8e713019932ce6a026aa03d5.bindTooltip(
+                `<div>
+                     COLEGIO SAN JOSE/INSTITUTO DON ORIONE
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_1373bf8ec3fdf3adb5bed04c90766815 = L.marker(
+                [-34.452288, -58.540924],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_70a4d8c991da121fb8822a2e673228de = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7095e7cc985502ac43f1d1d14708c8e2 = $(`<div id="html_7095e7cc985502ac43f1d1d14708c8e2" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?9/ES N?13</b><br>WHITE ING. 1147 E/ Y</div>`)[0];
+                popup_70a4d8c991da121fb8822a2e673228de.setContent(html_7095e7cc985502ac43f1d1d14708c8e2);
+            
+        
+
+        marker_1373bf8ec3fdf3adb5bed04c90766815.bindPopup(popup_70a4d8c991da121fb8822a2e673228de)
+        ;
+
+        
+    
+    
+            marker_1373bf8ec3fdf3adb5bed04c90766815.bindTooltip(
+                `<div>
+                     ESCUELA EP N?9/ES N?13
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_95b49db537c3ada531445cacc4ea0ec7 = L.marker(
+                [-34.453271, -58.536865],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_f598a47732e3c4efb3dd008ab0b1b369 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_bed91525a4836921225a1f0724eb59a9 = $(`<div id="html_bed91525a4836921225a1f0724eb59a9" style="width: 100.0%; height: 100.0%;"><b>ESCUELA JARDIN DE INVIERNO (EP/ES)</b><br>DON ORIONE 1018 E/ Y</div>`)[0];
+                popup_f598a47732e3c4efb3dd008ab0b1b369.setContent(html_bed91525a4836921225a1f0724eb59a9);
+            
+        
+
+        marker_95b49db537c3ada531445cacc4ea0ec7.bindPopup(popup_f598a47732e3c4efb3dd008ab0b1b369)
+        ;
+
+        
+    
+    
+            marker_95b49db537c3ada531445cacc4ea0ec7.bindTooltip(
+                `<div>
+                     ESCUELA JARDIN DE INVIERNO (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0922225b69f9b4e6007bede48e0bdc6a = L.marker(
+                [-34.450809, -58.530522],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_85ff5ef4b45fad00ede29936e73df7f2 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3bd213623e41b9fd3cbe798c1745af8f = $(`<div id="html_3bd213623e41b9fd3cbe798c1745af8f" style="width: 100.0%; height: 100.0%;"><b>COLEGIO CARDENAL COPELLO (EP/ES)</b><br>RUTA PROV ROP 27 - DEL LIBERTADOR SAN MARTIN AV. 3675 E/ Y</div>`)[0];
+                popup_85ff5ef4b45fad00ede29936e73df7f2.setContent(html_3bd213623e41b9fd3cbe798c1745af8f);
+            
+        
+
+        marker_0922225b69f9b4e6007bede48e0bdc6a.bindPopup(popup_85ff5ef4b45fad00ede29936e73df7f2)
+        ;
+
+        
+    
+    
+            marker_0922225b69f9b4e6007bede48e0bdc6a.bindTooltip(
+                `<div>
+                     COLEGIO CARDENAL COPELLO (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_77453d2668a41ffac972160309abe052 = L.marker(
+                [-34.4487608812351, -58.5366501038138],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_5f4416365602851cf2b8ebca5f3d074c = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_3c8211882bbdb9cc09f29e7695a49cf3 = $(`<div id="html_3c8211882bbdb9cc09f29e7695a49cf3" style="width: 100.0%; height: 100.0%;"><b>COLEGIO PRADERE (EP/ES)</b><br>CASARES CARLOS 662 E/ Y</div>`)[0];
+                popup_5f4416365602851cf2b8ebca5f3d074c.setContent(html_3c8211882bbdb9cc09f29e7695a49cf3);
+            
+        
+
+        marker_77453d2668a41ffac972160309abe052.bindPopup(popup_5f4416365602851cf2b8ebca5f3d074c)
+        ;
+
+        
+    
+    
+            marker_77453d2668a41ffac972160309abe052.bindTooltip(
+                `<div>
+                     COLEGIO PRADERE (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_3e9ef2c1db42ac675e8ddd2468b49bf0 = L.marker(
+                [-34.4485610906438, -58.5403385856191],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_2c38826722fb182beb96dc6cd9ca5773 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_e36704ea20b34db0c3a98583216d1eed = $(`<div id="html_e36704ea20b34db0c3a98583216d1eed" style="width: 100.0%; height: 100.0%;"><b>INSTITUTO SAN LUIS (EP/ES)</b><br>VELEZ SARSFIELD DALMACIO 2645 E/ Y</div>`)[0];
+                popup_2c38826722fb182beb96dc6cd9ca5773.setContent(html_e36704ea20b34db0c3a98583216d1eed);
+            
+        
+
+        marker_3e9ef2c1db42ac675e8ddd2468b49bf0.bindPopup(popup_2c38826722fb182beb96dc6cd9ca5773)
+        ;
+
+        
+    
+    
+            marker_3e9ef2c1db42ac675e8ddd2468b49bf0.bindTooltip(
+                `<div>
+                     INSTITUTO SAN LUIS (EP/ES)
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_79859ed40459b6a3356995a395bc31e1 = L.marker(
+                [-34.446124, -58.551682],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_3e52e1faaf2858d41a3a5a6cf8e160ec = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_6d2a92f807eb9d17ee692ca1344b3496 = $(`<div id="html_6d2a92f807eb9d17ee692ca1344b3496" style="width: 100.0%; height: 100.0%;"><b>ESCUELA ES N?3/EP N?40</b><br>3 DE FEBRERO 1810 E/ Y</div>`)[0];
+                popup_3e52e1faaf2858d41a3a5a6cf8e160ec.setContent(html_6d2a92f807eb9d17ee692ca1344b3496);
+            
+        
+
+        marker_79859ed40459b6a3356995a395bc31e1.bindPopup(popup_3e52e1faaf2858d41a3a5a6cf8e160ec)
+        ;
+
+        
+    
+    
+            marker_79859ed40459b6a3356995a395bc31e1.bindTooltip(
+                `<div>
+                     ESCUELA ES N?3/EP N?40
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_8d6f1344e08633d648d227f9276fe509 = L.marker(
+                [-34.455161, -58.56715],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_bb25f3b704c4f9a835f2f659ad38f6b4 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_81dc8dfa89dd008dff0196c2ea2e85b7 = $(`<div id="html_81dc8dfa89dd008dff0196c2ea2e85b7" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?23/ES N?15</b><br>GUATEMALA 3061 E/ Y</div>`)[0];
+                popup_bb25f3b704c4f9a835f2f659ad38f6b4.setContent(html_81dc8dfa89dd008dff0196c2ea2e85b7);
+            
+        
+
+        marker_8d6f1344e08633d648d227f9276fe509.bindPopup(popup_bb25f3b704c4f9a835f2f659ad38f6b4)
+        ;
+
+        
+    
+    
+            marker_8d6f1344e08633d648d227f9276fe509.bindTooltip(
+                `<div>
+                     ESCUELA EP N?23/ES N?15
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_2770ad7deafca3d2aae2ae7e60c709a9 = L.marker(
+                [-34.441788, -58.571648],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_a559b4539dd3d160f6587c43a667daa9 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_7f6fd74e93d85468b78501936e6ebd23 = $(`<div id="html_7f6fd74e93d85468b78501936e6ebd23" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?33/ES N?18</b><br>FERRANTE AQUILES 119 E/ Y</div>`)[0];
+                popup_a559b4539dd3d160f6587c43a667daa9.setContent(html_7f6fd74e93d85468b78501936e6ebd23);
+            
+        
+
+        marker_2770ad7deafca3d2aae2ae7e60c709a9.bindPopup(popup_a559b4539dd3d160f6587c43a667daa9)
+        ;
+
+        
+    
+    
+            marker_2770ad7deafca3d2aae2ae7e60c709a9.bindTooltip(
+                `<div>
+                     ESCUELA EP N?33/ES N?18
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_46903c359b0ddca242c54ef1fc5e0ca4 = L.marker(
+                [-34.450818, -58.570381],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_ffdcbf0f142b8bef521ae7f9b361dc8f = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_188a89548ed62e1120b1255267ea0a77 = $(`<div id="html_188a89548ed62e1120b1255267ea0a77" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?4</b><br>RODRIGUEZ MARTIN 2940 E/ Y</div>`)[0];
+                popup_ffdcbf0f142b8bef521ae7f9b361dc8f.setContent(html_188a89548ed62e1120b1255267ea0a77);
+            
+        
+
+        marker_46903c359b0ddca242c54ef1fc5e0ca4.bindPopup(popup_ffdcbf0f142b8bef521ae7f9b361dc8f)
+        ;
+
+        
+    
+    
+            marker_46903c359b0ddca242c54ef1fc5e0ca4.bindTooltip(
+                `<div>
+                     ESCUELA EP N?4
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_e99c646064adb64c51f526eee4431bd5 = L.marker(
+                [-34.1504031442138, -58.5190051979879],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_ce55470053d651491c0ec5b2d4ad4fa9 = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_bb3f5a2d855680b83351aa20c2b89cbd = $(`<div id="html_bb3f5a2d855680b83351aa20c2b89cbd" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EST N?1</b><br>RIO PARANA MINI Y CANAL 4 S/N E/ Y</div>`)[0];
+                popup_ce55470053d651491c0ec5b2d4ad4fa9.setContent(html_bb3f5a2d855680b83351aa20c2b89cbd);
+            
+        
+
+        marker_e99c646064adb64c51f526eee4431bd5.bindPopup(popup_ce55470053d651491c0ec5b2d4ad4fa9)
+        ;
+
+        
+    
+    
+            marker_e99c646064adb64c51f526eee4431bd5.bindTooltip(
+                `<div>
+                     ESCUELA EST N?1
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            var marker_0d063a0a1772de1b7d7739486748b0e8 = L.marker(
+                [-34.186309, -58.498383],
+                {
+}
+            ).addTo(marker_cluster_f02a6c35c2842ad35e8489a81711a00a);
+        
+    
+        var popup_55dba3d7ee983fa077e523f2a17f1c0a = L.popup({
+  "maxWidth": 300,
+});
+
+        
+            
+                var html_34c585e129aa02076b192773b823a47c = $(`<div id="html_34c585e129aa02076b192773b823a47c" style="width: 100.0%; height: 100.0%;"><b>ESCUELA EP N?20</b><br>RIO PARANA MINI S/N E/ Y</div>`)[0];
+                popup_55dba3d7ee983fa077e523f2a17f1c0a.setContent(html_34c585e129aa02076b192773b823a47c);
+            
+        
+
+        marker_0d063a0a1772de1b7d7739486748b0e8.bindPopup(popup_55dba3d7ee983fa077e523f2a17f1c0a)
+        ;
+
+        
+    
+    
+            marker_0d063a0a1772de1b7d7739486748b0e8.bindTooltip(
+                `<div>
+                     ESCUELA EP N?20
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+            marker_cluster_f02a6c35c2842ad35e8489a81711a00a.addTo(map_32e035743bde3b158130a2966fd62442);
+        
+</script>
+</html>
