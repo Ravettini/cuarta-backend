@@ -545,8 +545,14 @@ async function renderWorlds() {
       };
       
       if (isAdmin()) {
-        card.querySelector(".btn.btn-rename").onclick = () => showWorldForm({mode: "rename", worldId: w.id});
-        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete({scope: "world", id: w.id, name: w.nombre});
+        card.querySelector(".btn.btn-rename").onclick = () => {
+          alert(`Renombrar mundo: ${w.nombre} (ID: ${w.id})`);
+          showWorldForm({mode: "rename", worldId: w.id});
+        };
+        card.querySelector(".btn.btn-danger").onclick = () => {
+          alert(`Eliminar mundo: ${w.nombre} (ID: ${w.id})`);
+          confirmDelete({scope: "world", id: w.id, name: w.nombre});
+        };
       }
       
       grid.appendChild(card);
@@ -597,8 +603,14 @@ async function renderSubWorlds(mundoId) {
       };
       
       if (isAdmin()) {
-        card.querySelector(".btn.btn-rename").onclick = () => showSubWorldForm({mode: "rename", subId: sw.id});
-        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete({scope: "sub", id: sw.id, name: sw.nombre});
+        card.querySelector(".btn.btn-rename").onclick = () => {
+          alert(`Renombrar sub-mundo: ${sw.nombre} (ID: ${sw.id})`);
+          showSubWorldForm({mode: "rename", subId: sw.id});
+        };
+        card.querySelector(".btn.btn-danger").onclick = () => {
+          alert(`Eliminar sub-mundo: ${sw.nombre} (ID: ${sw.id})`);
+          confirmDelete({scope: "sub", id: sw.id, name: sw.nombre});
+        };
       }
       
       grid.appendChild(card);
@@ -731,10 +743,17 @@ function goAdmin() {
 function showWorldForm({mode = "create", worldId = null} = {}) {
   if (!isAdmin()) return;
   
+  alert(`showWorldForm llamado con: mode="${mode}", worldId="${worldId}"`);
+  
   const existing = worldId ? state.data.worlds?.find(w => w.id === worldId) : null;
   
+  const modalTitle = mode === "create" ? "Nuevo mundo" : "Renombrar mundo";
+  const submitLabel = mode === "create" ? "Crear" : "Guardar";
+  
+  alert(`Modal configurado: title="${modalTitle}", submitLabel="${submitLabel}"`);
+  
   modal.show({
-    title: mode === "create" ? "Nuevo mundo" : "Renombrar mundo",
+    title: modalTitle,
     bodyHTML: `
       <div class="field">
         <label for="worldName">Nombre del mundo</label>
@@ -760,20 +779,27 @@ function showWorldForm({mode = "create", worldId = null} = {}) {
       }
     },
     initialFocus: "#worldName",
-    submitLabel: mode === "create" ? "Crear" : "Guardar"
+    submitLabel: submitLabel
   });
 }
 
 function showSubWorldForm({mode = "create", subId = null} = {}) {
   if (!isAdmin()) return;
   
+  alert(`showSubWorldForm llamado con: mode="${mode}", subId="${subId}"`);
+  
   const w = getCurrentWorld();
   if (!w) return;
   
   const existing = subId ? w.subMundos?.find(s => s.id === subId) : null;
   
+  const modalTitle = mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo";
+  const submitLabel = mode === "create" ? "Crear" : "Guardar";
+  
+  alert(`Modal configurado: title="${modalTitle}", submitLabel="${submitLabel}"`);
+  
   modal.show({
-    title: mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo",
+    title: modalTitle,
     bodyHTML: `
       <div class="field">
         <label for="subName">Nombre del sub-mundo</label>
@@ -798,7 +824,7 @@ function showSubWorldForm({mode = "create", subId = null} = {}) {
       }
     },
     initialFocus: "#subName",
-    submitLabel: mode === "create" ? "Crear" : "Guardar"
+    submitLabel: submitLabel
   });
 }
 
