@@ -723,12 +723,20 @@ function showWorldForm({mode = "create", worldId = null} = {}) {
   if (!isAdmin()) return;
   
   console.log(`🔧 showWorldForm - mode: ${mode}, worldId: ${worldId}`);
+  console.log(`🔧 showWorldForm - mode === "create": ${mode === "create"}`);
+  console.log(`🔧 showWorldForm - mode === "rename": ${mode === "rename"}`);
   
   const existing = worldId ? state.data.worlds?.find(w => w.id === worldId) : null;
   console.log(`🔧 Mundo existente:`, existing);
   
+  const modalTitle = mode === "create" ? "Nuevo mundo" : "Renombrar mundo";
+  const submitLabel = mode === "create" ? "Crear" : "Guardar";
+  
+  console.log(`🔧 Modal title: ${modalTitle}`);
+  console.log(`🔧 Submit label: ${submitLabel}`);
+  
   modal.show({
-    title: mode === "create" ? "Nuevo mundo" : "Renombrar mundo",
+    title: modalTitle,
     bodyHTML: `
       <div class="field">
         <label for="worldName">Nombre del mundo</label>
@@ -758,7 +766,7 @@ function showWorldForm({mode = "create", worldId = null} = {}) {
       }
     },
     initialFocus: "#worldName",
-    submitLabel: mode === "create" ? "Crear" : "Guardar"
+    submitLabel: submitLabel
   });
 }
 
@@ -766,6 +774,8 @@ function showSubWorldForm({mode = "create", subId = null} = {}) {
   if (!isAdmin()) return;
   
   console.log(`🔧 showSubWorldForm - mode: ${mode}, subId: ${subId}`);
+  console.log(`🔧 showSubWorldForm - mode === "create": ${mode === "create"}`);
+  console.log(`🔧 showSubWorldForm - mode === "rename": ${mode === "rename"}`);
   
   const w = getCurrentWorld();
   if (!w) return;
@@ -773,8 +783,14 @@ function showSubWorldForm({mode = "create", subId = null} = {}) {
   const existing = subId ? w.subMundos?.find(s => s.id === subId) : null;
   console.log(`🔧 Sub-mundo existente:`, existing);
   
+  const modalTitle = mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo";
+  const submitLabel = mode === "create" ? "Crear" : "Guardar";
+  
+  console.log(`🔧 Modal title: ${modalTitle}`);
+  console.log(`🔧 Submit label: ${submitLabel}`);
+  
   modal.show({
-    title: mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo",
+    title: modalTitle,
     bodyHTML: `
       <div class="field">
         <label for="subName">Nombre del sub-mundo</label>
@@ -803,7 +819,7 @@ function showSubWorldForm({mode = "create", subId = null} = {}) {
       }
     },
     initialFocus: "#subName",
-    submitLabel: mode === "create" ? "Crear" : "Guardar"
+    submitLabel: submitLabel
   });
 }
 
