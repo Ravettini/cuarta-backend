@@ -529,13 +529,13 @@ async function renderWorlds() {
 
 // Función para renderizar sub-mundos
 async function renderSubWorlds(mundoId) {
-  const subWorldsContainer = $("#subWorldsContainer");
-  if (!subWorldsContainer) return;
+  const subWorldsGrid = $("#subWorldsGrid");
+  if (!subWorldsGrid) return;
   
   try {
     const subMundos = await loadSubMundosForMundo(mundoId);
     
-    subWorldsContainer.innerHTML = subMundos.map(subMundo => `
+    subWorldsGrid.innerHTML = subMundos.map(subMundo => `
       <div class="sub-world-card" onclick="selectSubWorld('${subMundo.id}')">
         <h4>${subMundo.nombre}</h4>
         <p>${subMundo.descripcion || ''}</p>
@@ -543,19 +543,19 @@ async function renderSubWorlds(mundoId) {
     `).join('');
   } catch (error) {
     console.error('Error renderizando sub-mundos:', error);
-    subWorldsContainer.innerHTML = '<p>Error cargando sub-mundos</p>';
+    subWorldsGrid.innerHTML = '<p>Error cargando sub-mundos</p>';
   }
 }
 
 // Función para renderizar desarrollos
 async function renderDesarrollos(subMundoId) {
-  const devsContainer = $("#devsContainer");
-  if (!devsContainer) return;
+  const devsGrid = $("#devsGrid");
+  if (!devsGrid) return;
   
   try {
     const desarrollos = await loadDesarrollosForSubMundo(subMundoId);
     
-    devsContainer.innerHTML = desarrollos.map(desarrollo => `
+    devsGrid.innerHTML = desarrollos.map(desarrollo => `
       <div class="dev-card" onclick="openDev('${desarrollo.url}')">
         <h5>${desarrollo.titulo}</h5>
         <p>${desarrollo.descripcion || ''}</p>
@@ -566,7 +566,7 @@ async function renderDesarrollos(subMundoId) {
     `).join('');
   } catch (error) {
     console.error('Error renderizando desarrollos:', error);
-    devsContainer.innerHTML = '<p>Error cargando desarrollos</p>';
+    devsGrid.innerHTML = '<p>Error cargando desarrollos</p>';
   }
 }
 
