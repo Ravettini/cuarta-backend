@@ -245,6 +245,58 @@ footer{
   margin-top: 16px;
 }
 
+/* Estilos del original para user-item y user-row */
+.user-item {
+  border: 1px solid rgba(255,255,255,.14);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  background: rgba(255,255,255,.04);
+  transition: .2s background ease, .2s border-color ease;
+}
+
+.user-item:hover {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(141,226,214,.4);
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0,1fr));
+  gap: 8px;
+}
+
+.user-row .t-body {
+  margin: 0;
+  color: #cfe9e5;
+  font-size: 13px;
+}
+
+/* Estilos para worlds-summary (badges de mundos) */
+.worlds-summary {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+/* Estilos para badges de mundos */
+.worlds-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(141,226,214,.18);
+  color: var(--ba-off);
+  border: 1px solid rgba(141,226,214,.35);
+}
+
 .world-card {
   background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.1);

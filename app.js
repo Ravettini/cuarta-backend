@@ -1707,16 +1707,30 @@ async function renderAdmin() {
       adminHTML += '<p class="empty-message">No hay usuarios registrados. Crea el primer usuario.</p>';
     } else {
       users.forEach(user => {
+        // Crear badges de mundos permitidos (igual que en el original)
+        let worldsBadgesHTML = "";
+        if (user.permittedWorldIds === "*") {
+          worldsBadgesHTML = `<span class="badge">Todos los mundos</span>`;
+        } else {
+          try {
+            const permittedIds = typeof user.permittedWorldIds === 'string' ? JSON.parse(user.permittedWorldIds) : user.permittedWorldIds;
+            const names = mundos.filter(w => permittedIds?.includes(w.id)).map(w => w.name || w.nombre);
+            worldsBadgesHTML = names.length ? names.map(n => `<span class="badge">${n}</span>`).join("") : `<span class="badge">Sin acceso</span>`;
+          } catch (e) {
+            worldsBadgesHTML = `<span class="badge">Sin acceso</span>`;
+          }
+        }
+        
         adminHTML += `
-          <div class="user-card">
-            <div class="user-info">
-              <h4>${user.username}</h4>
-              <p>Rol: ${user.role || 'user'}</p>
-              <p>Permisos: ${user.permittedWorldIds === '*' ? 'Todos' : (user.permittedWorldIds && user.permittedWorldIds.length > 0 ? user.permittedWorldIds.join(', ') : 'Ninguno')}</p>
+          <div class="user-item">
+            <div class="user-row">
+              <div class="t-body"><strong>Usuario:</strong> ${user.username}</div>
+              <div class="t-body"><strong>Rol:</strong> ${(user.role || 'user').toUpperCase()}</div>
             </div>
+            <div class="worlds-badges">${worldsBadgesHTML}</div>
             <div class="user-actions">
-              <button onclick="openUserForm('${user.id}')" class="btn btn-small">Editar</button>
-              <button onclick="confirmDeleteUser('${user.id}')" class="btn btn-small btn-danger">Eliminar</button>
+              <button class="btn btn-edit" onclick="openUserForm('${user.id}')">Editar</button>
+              ${user.username !== "admin" ? `<button class="btn btn-danger" onclick="confirmDeleteUser('${user.id}')">Eliminar</button>` : ''}
             </div>
           </div>
         `;
@@ -1731,22 +1745,15 @@ async function renderAdmin() {
         <div class="admin-section">
           <h3>Mundos disponibles</h3>
           <p class="section-description">Resumen de mundos actuales. Los permisos se asignan en cada usuario.</p>
-          <div class="worlds-list">
+          <div class="worlds-summary">
     `;
     
     if (!mundos || mundos.length === 0) {
       adminHTML += '<p class="empty-message">No hay mundos creados. Crea el primer mundo desde la vista principal.</p>';
     } else {
       mundos.forEach(mundo => {
-        adminHTML += `
-          <div class="world-card">
-            <div class="world-info">
-              <h4>${mundo.name || mundo.nombre || 'Sin nombre'}</h4>
-              <p>Descripción: ${mundo.descripcion || 'Sin descripción'}</p>
-              <p>Sub-mundos: ${(mundo.subMundos && mundo.subMundos.length) || (mundo.subWorlds && mundo.subWorlds.length) || 0}</p>
-            </div>
-          </div>
-        `;
+        const subMundosCount = (mundo.subMundos && mundo.subMundos.length) || (mundo.subWorlds && mundo.subWorlds.length) || 0;
+        adminHTML += `<span class="badge">${mundo.name || mundo.nombre} (${subMundosCount} sub-mundos)</span>`;
       });
     }
     
