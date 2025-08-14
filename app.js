@@ -646,6 +646,17 @@ async function renderWorlds() {
     console.log('🎯 Renderizando mundos desde estado local:', mundos);
     console.log('👁️ Mundos visibles para el usuario:', visible);
     
+    // Debug: mostrar estructura de cada mundo
+    mundos.forEach((mundo, index) => {
+      console.log(`🌍 Mundo ${index}:`, {
+        id: mundo.id,
+        nombre: mundo.nombre,
+        name: mundo.name,
+        subMundos: mundo.subMundos,
+        subWorlds: mundo.subWorlds
+      });
+    });
+    
     grid.innerHTML = "";
     $("#worldsEmpty").style.display = visible.length ? "none" : "block";
     
@@ -653,8 +664,8 @@ async function renderWorlds() {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <h3>${w.nombre}</h3>
-        <p class="muted t-body">Sub-mundos: ${w.subMundos ? w.subMundos.length : 0}</p>
+        <h3>${w.name || w.nombre || 'Sin nombre'}</h3>
+        <p class="muted t-body">Sub-mundos: ${w.subWorlds ? w.subWorlds.length : (w.subMundos ? w.subMundos.length : 0)}</p>
         <div class="tags"><span class="tag cyan">mundo</span></div>
         <div class="actions">
           <button class="btn btn-secondary">Abrir</button>
@@ -669,7 +680,7 @@ async function renderWorlds() {
       
       if (isAdmin()) {
         card.querySelector(".btn.btn-rename").onclick = () => renameWorld(w.id);
-        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("world", w.id, w.nombre);
+        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("world", w.id, w.name || w.nombre || 'Sin nombre');
       }
       
       grid.appendChild(card);
@@ -706,7 +717,7 @@ async function renderSubWorlds(mundoId) {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <h3>${sw.nombre}</h3>
+        <h3>${sw.name || sw.nombre || 'Sin nombre'}</h3>
         <p class="muted t-body">Desarrollos: ${sw.desarrollos ? sw.desarrollos.length : 0}</p>
         <div class="tags"><span class="tag cyan">sub-mundo</span></div>
         <div class="actions">
@@ -722,7 +733,7 @@ async function renderSubWorlds(mundoId) {
       
       if (isAdmin()) {
         card.querySelector(".btn.btn-rename").onclick = () => renameSub(sw.id);
-        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("sub", sw.id, sw.nombre);
+        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("sub", sw.id, sw.name || sw.nombre || 'Sin nombre');
       }
       
       grid.appendChild(card);
@@ -763,7 +774,7 @@ async function renderDesarrollos(subMundoId) {
         </div>`;
       
       card.querySelector(".btn.btn-edit").onclick = () => showDevForm({mode: "edit", devId: d.id});
-      card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("dev", d.id, d.titulo);
+      card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("dev", d.id, d.titulo || d.title || 'Sin título');
       
       grid.appendChild(card);
     });
@@ -775,12 +786,31 @@ async function renderDesarrollos(subMundoId) {
 
 // ===== Funciones auxiliares =====
 function getCurrentWorld() { 
-  return state.data.worlds ? state.data.worlds.find(w => w.id === state.currentWorldId) : null; 
+  if (!state.data?.worlds) return null;
+  const mundo = state.data.worlds.find(w => w.id === state.currentWorldId);
+  if (!mundo) return null;
+  
+  // Asegurar que tenga la estructura correcta
+  if (!mundo.subMundos && mundo.subWorlds) {
+    mundo.subMundos = mundo.subWorlds;
+  }
+  
+  return mundo;
 }
 
 function getCurrentSub() { 
   const w = getCurrentWorld(); 
-  return w && w.subMundos ? w.subMundos.find(s => s.id === state.currentSubId) : null; 
+  if (!w) return null;
+  
+  // Buscar en subMundos o subWorlds
+  const subMundos = w.subMundos || w.subWorlds || [];
+  const subMundo = subMundos.find(s => s.id === state.currentSubId);
+  
+  if (subMundo && !subMundo.desarrollos && subMundo.subWorlds) {
+    subMundo.desarrollos = subMundo.subWorlds;
+  }
+  
+  return subMundo;
 }
 
 function setSection(id) { 
