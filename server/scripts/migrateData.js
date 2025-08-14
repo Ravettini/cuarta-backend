@@ -1,4 +1,5 @@
 const { Mundo, SubMundo, Desarrollo, Estacion } = require('../models');
+const { migrateUsers } = require('./migrateUsers');
 
 // Datos existentes extraídos de app.js
 const DEFAULT_DATA = {
@@ -260,6 +261,9 @@ async function migrateData() {
       });
     }
     
+    // Migrar usuarios
+    await migrateUsers();
+
     console.log('✅ Migración completada exitosamente!');
     console.log(`📊 Resumen:`);
     console.log(`   - Mundos: ${DEFAULT_DATA.worlds.length}`);

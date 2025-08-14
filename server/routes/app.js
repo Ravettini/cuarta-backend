@@ -1,12 +1,11 @@
 const express = require('express');
-const { 
-  estacionesController, 
-  mundosController, 
-  subMundosController, 
-  desarrollosController 
-} = require('../controllers/appController');
+const { estacionesController, mundosController, subMundosController, desarrollosController } = require('../controllers/appController');
+const userRoutes = require('./users');
 
 const router = express.Router();
+
+// ===== RUTAS PARA USUARIOS =====
+router.use('/users', userRoutes);
 
 // ===== RUTAS PARA ESTACIONES =====
 router.get('/estaciones', estacionesController.listarEstaciones);

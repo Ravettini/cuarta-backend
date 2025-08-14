@@ -11,6 +11,7 @@
     "migrate:undo": "sequelize-cli db:migrate:undo",
     "migrate:undo:all": "sequelize-cli db:migrate:undo:all",
     "migrate:data": "node server/scripts/migrateData.js",
+    "migrate:users": "node server/scripts/migrateUsers.js",
     "test:api": "node server/scripts/testAPI.js",
     "build": "echo 'No build step required'",
     "postinstall": "echo 'Post-install complete'"

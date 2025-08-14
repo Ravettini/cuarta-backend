@@ -4,6 +4,7 @@ const Estacion = require('./estacion')(sequelize);
 const Mundo = require('./mundo')(sequelize);
 const SubMundo = require('./subMundo')(sequelize);
 const Desarrollo = require('./desarrollo')(sequelize);
+const User = require('./user')(sequelize);
 
 // Definir asociaciones
 Mundo.hasMany(SubMundo, { foreignKey: 'mundoId', as: 'subMundos' });
@@ -29,5 +30,6 @@ module.exports = {
   Mundo,
   SubMundo,
   Desarrollo,
+  User,
   syncModels
 };
