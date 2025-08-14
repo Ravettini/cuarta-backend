@@ -14,6 +14,15 @@ const modal = {
     document.addEventListener("keydown", (e)=>{ if(e.key==="Escape" && this.el.classList.contains("open")) this.hide(); });
   },
   show({title, bodyHTML, onSubmit, initialFocus="#modalSubmit", submitLabel="Guardar"}){
+    console.log(`🎭 Modal.show() - title: "${title}", submitLabel: "${submitLabel}"`);
+    console.log(`🎭 Modal.show() - bodyHTML length: ${bodyHTML ? bodyHTML.length : 0}`);
+    
+    // Limpiar modal antes de mostrar uno nuevo
+    if (this.el.classList.contains("open")) {
+      console.log(`🎭 Modal ya está abierto, limpiando antes de mostrar nuevo`);
+      this.hide();
+    }
+    
     this.titleEl.textContent = title||"";
     this.bodyEl.innerHTML = bodyHTML||"";
     this.onSubmit = onSubmit;
@@ -21,7 +30,12 @@ const modal = {
     this.el.classList.add("open");
     setTimeout(()=>{ const f = this.el.querySelector(initialFocus); if(f) f.focus(); }, 0);
   },
-  hide(){ this.el.classList.remove("open"); this.bodyEl.innerHTML=""; this.onSubmit=null; }
+  hide(){ 
+    console.log(`🎭 Modal.hide() - limpiando modal`);
+    this.el.classList.remove("open"); 
+    this.bodyEl.innerHTML=""; 
+    this.onSubmit=null; 
+  }
 };
 
 // ===== Configuración API =====
