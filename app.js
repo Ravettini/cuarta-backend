@@ -73,10 +73,26 @@ function persistSession(){
 // Función para cargar usuarios desde la API
 async function loadUserListFromAPI() {
   try {
+    console.log('👥 Cargando usuarios desde la API...');
     const response = await api('/users');
-    return response.data;
+    
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Usuarios cargados desde API:', data);
+      return data.data || [];
+    } else {
+      console.log('⚠️ API de usuarios no disponible, usando usuarios por defecto');
+      // Fallback a usuarios por defecto
+      return [
+        { username:"admin", password:"1234", role:"admin", permittedWorldIds:"*" },
+        { username:"estaciones", password:"est2025",role:"user", permittedWorldIds:[] },
+        { username:"sanfer", password:"sf2025", role:"user", permittedWorldIds:[] },
+        { username:"ambos", password:"fullaccess", role:"user", permittedWorldIds:"[]" }
+      ];
+    }
   } catch (error) {
     console.error('Error cargando usuarios desde API:', error);
+    console.log('🔄 Usando usuarios por defecto como fallback');
     // Fallback a usuarios por defecto
     return [
       { username:"admin", password:"1234", role:"admin", permittedWorldIds:"*" },
@@ -99,21 +115,38 @@ async function login(username, password) {
   try {
     console.log('🔐 Intentando login con:', { username, password });
     
-    const response = await api('/users/auth', {
-      method: 'POST',
-      body: JSON.stringify({ username, password })
-    });
+    // Primero intentar con la API
+    try {
+      const response = await api('/users/auth', {
+        method: 'POST',
+        body: JSON.stringify({ username, password })
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          state.user = data.data;
+          persistSession();
+          console.log('✅ Login exitoso via API, usuario:', state.user);
+          return true;
+        }
+      }
+    } catch (apiError) {
+      console.log('⚠️ API no disponible, usando autenticación local');
+    }
     
-    console.log('📡 Respuesta de la API:', response);
+    // Fallback a autenticación local
+    const users = await loadUserListFromAPI();
+    const user = users.find(u => u.username === username && u.password === password);
     
-    if (response.success) {
-      state.user = response.data;
+    if (user) {
+      state.user = user;
       persistSession();
-      console.log('✅ Login exitoso, usuario:', state.user);
+      console.log('✅ Login exitoso local, usuario:', state.user);
       return true;
     }
     
-    console.log('❌ Login fallido, respuesta:', response);
+    console.log('❌ Login fallido, credenciales inválidas');
     return false;
   } catch (error) {
     console.error('💥 Error en login:', error);
@@ -370,6 +403,37 @@ async function createDefaultMundos() {
     console.log('Mundos por defecto creados exitosamente');
   } catch (error) {
     console.error('Error creando mundos por defecto:', error);
+  }
+}
+
+// Función para crear usuarios por defecto en la base de datos
+async function createDefaultUsers() {
+  try {
+    console.log('👥 Creando usuarios por defecto en la base de datos...');
+    
+    const defaultUsers = [
+      { username: "admin", password: "1234", role: "admin", permittedWorldIds: "*" },
+      { username: "estaciones", password: "est2025", role: "user", permittedWorldIds: [] },
+      { username: "sanfer", password: "sf2025", role: "user", permittedWorldIds: [] },
+      { username: "ambos", password: "fullaccess", role: "user", permittedWorldIds: [] }
+    ];
+    
+    // Intentar crear usuarios via API
+    for (const user of defaultUsers) {
+      try {
+        await api('/users', {
+          method: 'POST',
+          body: JSON.stringify(user)
+        });
+        console.log(`✅ Usuario ${user.username} creado en la base de datos`);
+      } catch (error) {
+        console.log(`⚠️ No se pudo crear usuario ${user.username} en la base de datos:`, error.message);
+      }
+    }
+    
+    console.log('Usuarios por defecto procesados');
+  } catch (error) {
+    console.error('Error creando usuarios por defecto:', error);
   }
 }
 
@@ -1836,6 +1900,13 @@ async function initializeApp() {
       state.data = getDefaultDataStructure();
     }
     
+    // Intentar crear usuarios por defecto en la base de datos
+    try {
+      await createDefaultUsers();
+    } catch (error) {
+      console.error('Error creando usuarios por defecto:', error);
+    }
+    
     // Configurar permisos por defecto
     try {
       const users = await loadUserListFromAPI();
@@ -1885,6 +1956,63 @@ async function initializeApp() {
     goAuth();
   }
 }
+
+// ===== Event Listeners =====
+
+// Event listener para el botón de inicializar usuarios
+document.addEventListener('DOMContentLoaded', function() {
+  const btnInitUsers = document.getElementById('btnInitUsers');
+  if (btnInitUsers) {
+    btnInitUsers.addEventListener('click', async function() {
+      try {
+        this.disabled = true;
+        this.textContent = '🔄 Inicializando...';
+        
+        await createDefaultUsers();
+        
+        this.textContent = '✅ Usuarios Inicializados';
+        this.style.backgroundColor = '#4CAF50';
+        this.style.color = 'white';
+        
+        // Mostrar mensaje de éxito
+        const authMsg = document.getElementById('authMsg');
+        if (authMsg) {
+          authMsg.textContent = 'Usuarios inicializados correctamente. Ahora puedes hacer login con admin/1234';
+          authMsg.className = 't-body success';
+        }
+        
+        // Resetear botón después de 3 segundos
+        setTimeout(() => {
+          this.disabled = false;
+          this.textContent = '🔧 Inicializar Usuarios';
+          this.style.backgroundColor = '';
+          this.style.color = '';
+        }, 3000);
+        
+      } catch (error) {
+        console.error('Error inicializando usuarios:', error);
+        this.textContent = '❌ Error';
+        this.style.backgroundColor = '#f44336';
+        this.style.color = 'white';
+        
+        // Mostrar mensaje de error
+        const authMsg = document.getElementById('authMsg');
+        if (authMsg) {
+          authMsg.textContent = 'Error inicializando usuarios: ' + error.message;
+          authMsg.className = 't-body error';
+        }
+        
+        // Resetear botón después de 3 segundos
+        setTimeout(() => {
+          this.disabled = false;
+          this.textContent = '🔧 Inicializar Usuarios';
+          this.style.backgroundColor = '';
+          this.style.color = '';
+        }, 3000);
+      }
+    });
+  }
+});
 
 // ===== Init =====
 (function init(){
