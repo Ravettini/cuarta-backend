@@ -844,6 +844,8 @@ function showDevForm({mode = "create", devId = null} = {}) {
 function confirmDelete({scope, id, name}) {
   const labels = {world: "mundo", sub: "sub-mundo", dev: "desarrollo"};
   
+  console.log(`🗑️ Eliminando ${labels[scope]} "${name}" con ID: ${id}`);
+  
   modal.show({
     title: `Eliminar ${labels[scope]}`,
     bodyHTML: `<p class="t-body">¿Seguro querés eliminar <strong>${name}</strong>? Esta acción no se puede deshacer.</p>`,
@@ -853,18 +855,19 @@ function confirmDelete({scope, id, name}) {
           await deleteMundo(id);
           state.currentWorldId = null;
           state.currentSubId = null;
-          goWorlds();
+          await goWorlds();
         } else if (scope === "sub") {
           await deleteSubMundo(id);
           state.currentSubId = null;
-          goSubWorlds();
+          await goSubWorlds();
         } else if (scope === "dev") {
           await deleteDesarrollo(id);
-          renderDesarrollos();
+          await renderDesarrollos();
         }
         modal.hide();
       } catch (error) {
         console.error('Error eliminando:', error);
+        alert(`Error al eliminar: ${error.message}`);
       }
     },
     submitLabel: "Eliminar"
@@ -1054,13 +1057,17 @@ function openUserForm(user = null) {
 // ===== Funciones de eliminación =====
 async function deleteMundo(id) {
   try {
-    const response = await api(`/files/${id}`, { method: 'DELETE' });
+    console.log(`🗑️ Eliminando mundo con ID: ${id}`);
+    
+    const response = await api(`/mundos/${id}`, { method: 'DELETE' });
     if (response.ok) {
+      console.log('✅ Mundo eliminado correctamente');
       // Recargar datos desde la API
       state.data = await loadDataFromAPI();
       return true;
     } else {
-      throw new Error('Error eliminando mundo');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error eliminando mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error eliminando mundo:', error);
@@ -1070,13 +1077,17 @@ async function deleteMundo(id) {
 
 async function deleteSubMundo(id) {
   try {
-    const response = await api(`/files/${id}`, { method: 'DELETE' });
+    console.log(`🗑️ Eliminando sub-mundo con ID: ${id}`);
+    
+    const response = await api(`/sub-mundos/${id}`, { method: 'DELETE' });
     if (response.ok) {
+      console.log('✅ Sub-mundo eliminado correctamente');
       // Recargar datos desde la API
       state.data = await loadDataFromAPI();
       return true;
     } else {
-      throw new Error('Error eliminando sub-mundo');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error eliminando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error eliminando sub-mundo:', error);
@@ -1086,13 +1097,17 @@ async function deleteSubMundo(id) {
 
 async function deleteDesarrollo(id) {
   try {
-    const response = await api(`/files/${id}`, { method: 'DELETE' });
+    console.log(`🗑️ Eliminando desarrollo con ID: ${id}`);
+    
+    const response = await api(`/desarrollos/${id}`, { method: 'DELETE' });
     if (response.ok) {
+      console.log('✅ Desarrollo eliminado correctamente');
       // Recargar datos desde la API
       state.data = await loadDataFromAPI();
       return true;
     } else {
-      throw new Error('Error eliminando desarrollo');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error eliminando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error eliminando desarrollo:', error);
@@ -1124,17 +1139,21 @@ async function createMundo(data) {
 
 async function updateMundo(id, data) {
   try {
+    console.log(`🔄 Actualizando mundo ${id} con datos:`, data);
+    
     const response = await api(`/mundos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
     });
     
     if (response.ok) {
+      console.log('✅ Mundo actualizado correctamente');
       // Recargar datos desde la API
       state.data = await loadDataFromAPI();
       return true;
     } else {
-      throw new Error('Error actualizando mundo');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error actualizando mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error actualizando mundo:', error);
@@ -1165,17 +1184,21 @@ async function createSubMundo(data) {
 
 async function updateSubMundo(id, data) {
   try {
+    console.log(`🔄 Actualizando sub-mundo ${id} con datos:`, data);
+    
     const response = await api(`/sub-mundos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
     });
     
     if (response.ok) {
+      console.log('✅ Sub-mundo actualizado correctamente');
       // Recargar datos desde la API
       state.data = await loadDataFromAPI();
       return true;
     } else {
-      throw new Error('Error actualizando sub-mundo');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error actualizando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error actualizando sub-mundo:', error);
@@ -1206,17 +1229,21 @@ async function createDesarrollo(data) {
 
 async function updateDesarrollo(id, data) {
   try {
+    console.log(`🔄 Actualizando desarrollo ${id} con datos:`, data);
+    
     const response = await api(`/desarrollos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
     });
     
     if (response.ok) {
+      console.log('✅ Desarrollo actualizado correctamente');
       // Recargar datos desde la API
       state.data = await loadDataFromAPI();
       return true;
     } else {
-      throw new Error('Error actualizando desarrollo');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error actualizando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error actualizando desarrollo:', error);
