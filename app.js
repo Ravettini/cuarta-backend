@@ -53,8 +53,8 @@ const LS_SESSION="gcba_session";
 function restoreSession(){
   const s = JSON.parse(localStorage.getItem(LS_SESSION)||"null");
   if(s && s.username){
-    // La sesión se validará contra la API al cargar
-    state.user = { username:s.username, role:s.role, permittedWorldIds:s.permittedWorldIds };
+    // Solo guardar el username, la validación se hará contra la API
+    state.user = { username:s.username };
   }
 }
 
@@ -137,62 +137,62 @@ function guardAdmin() {
 // Función para obtener datos por defecto
 function getDefaultDataStructure() {
   return {
-    worlds:[
-      {
-        id: crypto.randomUUID(), name:"Estaciones Saludables",
-        subWorlds:[
-          {
-            id: crypto.randomUUID(), name:"Mapas",
-            devs:[
-              {id:crypto.randomUUID(), title:"Mapa de Rangos de Visitas", desc:"Visualización por rangos", url:"Mapas Estaciones/mapa_rangos.html", tags:["mapa","CABA"]},
-              {id:crypto.randomUUID(), title:"Mapa Analítico de Asistentes", desc:"Análisis de asistentes", url:"Mapas Estaciones/Mapa_Asistentes_CABA_Analitico.html", tags:["mapa","analítico"]},
-              {id:crypto.randomUUID(), title:"Mapa de Dispersión de Distancias", desc:"Dispersión de distancias", url:"Mapas Estaciones/mapa_distancias.html", tags:["mapa","distancias"]},
-              {id:crypto.randomUUID(), title:"Mapa Cobertura Barrial", desc:"Mapa genérico de cobertura por barrio", url:"Mapas Estaciones/mapa_cobertura_barrial.html", tags:["mapa","genérico"]},
-              {id:crypto.randomUUID(), title:"Mapa Calor de Asistencia", desc:"Mapa de calor genérico", url:"Mapas Estaciones/mapa_calor_asistencia.html", tags:["mapa","calor"]},
-              {id:crypto.randomUUID(), title:"Mapa Puntos de Atención", desc:"Marcadores de puntos de atención", url:"Mapas Estaciones/mapa_puntos_atencion.html", tags:["mapa","puntos"]},
-              {id:crypto.randomUUID(), title:"Mapa Tendencias Temporales", desc:"Tendencias por periodo", url:"Mapas Estaciones/mapa_tendencias_temporales.html", tags:["mapa","tendencias"]}
-            ]
-          },
-          {
-            id: crypto.randomUUID(), name:"BI",
-            devs:[
-              {id:crypto.randomUUID(), title:"Dashboard Power BI", desc:"Dashboard interactivo", url:"https://app.powerbi.com/view?r=eyJrIjoiOGRmY2FlYTYtNjllNS00OWE5LWJjMzEtODhiNjBkMmMyOTgwIiwidCI6IjIzNzc0NzJlLTgwMDQtNDY0OC04NDU2LWJkOTY4N2FmYTE1MCIsImMiOjR9&pageName=ReportSectiona3847c630a8d7da06b55", tags:["bi","dashboard"]}
-            ]
-          },
-          {
-            id: crypto.randomUUID(), name:"Reportes",
-            devs:[
-              {id:crypto.randomUUID(), title:"Reporte General", desc:"Notion", url:"https://www.notion.so/An-lisis-de-Cobertura-y-Participaci-n-Estaciones-Saludables-CABA-2025-2470723826b580fa8654c9aa5b6a1a51?source=copy_link", tags:["reporte"]}
-            ]
-          }
-        ]
-      },
-      {
-        id: crypto.randomUUID(), name:"San Fernando",
-        subWorlds:[
-          {
-            id: crypto.randomUUID(), name:"Mapas",
-            devs:[
-              {id:crypto.randomUUID(), title:"Ganador por tipo de piso", url:"Mapas Sanfer/mapa_ganador_x_tipo_piso.html", tags:["mapa"]},
-              {id:crypto.randomUUID(), title:"Ganador por nivel educativo", url:"Mapas Sanfer/mapa_nivel_educativo (1).html", tags:["mapa"]},
-              {id:crypto.randomUUID(), title:"Ganador por nivel educativo y obra social", url:"Mapas Sanfer/mapa_partido_ganador (1).html", tags:["mapa"]},
-              {id:crypto.randomUUID(), title:"Uso de garrafa", url:"Mapas Sanfer/mapa_uso_garrafa (1).html", tags:["mapa"]},
-              {id:crypto.randomUUID(), title:"Mesas con Potencial 2023", url:"Mapas Sanfer/mapa_san_fernando_circuitos (1).html", tags:["mapa"]},
-              {id:crypto.randomUUID(), title:"Mesas Competitivas 2023", url:"Mapas Sanfer/mapa_san_fernando_circuitos (4).html", tags:["mapa"]}
-            ]
-          },
-          {
-            id: crypto.randomUUID(), name:"Documentos",
-            devs:[
-              {id:crypto.randomUUID(), title:"TABLON", url:"https://docs.google.com/spreadsheets/d/1Mu0lNlZRNEa91xgV37TvwMnltyAA9-wH/edit?usp=drive_link&ouid=105283006911507845368&rtpof=true&sd=true", tags:["doc"]},
-              {id:crypto.randomUUID(), title:"Último Reporte", url:"https://docs.google.com/document/d/1UzqBDIozeX_vEP_F20vcHD_IBDyT373RW7R_r2JkYao/edit?usp=drive_link", tags:["doc"]},
-              {id:crypto.randomUUID(), title:"Reporte Eze", url:"https://www.notion.so/Datos-226e1238ed6c807f94f6e8d66a143fa0?source=copy_link", tags:["doc"]}
-            ]
-          }
-        ]
-      }
-    ]
-  };
+  worlds:[
+    {
+      id: crypto.randomUUID(), name:"Estaciones Saludables",
+      subWorlds:[
+        {
+          id: crypto.randomUUID(), name:"Mapas",
+          devs:[
+  {id:crypto.randomUUID(), title:"Mapa de Rangos de Visitas", desc:"Visualización por rangos", url:"Mapas Estaciones/mapa_rangos.html", tags:["mapa","CABA"]},
+  {id:crypto.randomUUID(), title:"Mapa Analítico de Asistentes", desc:"Análisis de asistentes", url:"Mapas Estaciones/Mapa_Asistentes_CABA_Analitico.html", tags:["mapa","analítico"]},
+  {id:crypto.randomUUID(), title:"Mapa de Dispersión de Distancias", desc:"Dispersión de distancias", url:"Mapas Estaciones/mapa_distancias.html", tags:["mapa","distancias"]},
+  {id:crypto.randomUUID(), title:"Mapa Cobertura Barrial", desc:"Mapa genérico de cobertura por barrio", url:"Mapas Estaciones/mapa_cobertura_barrial.html", tags:["mapa","genérico"]},
+  {id:crypto.randomUUID(), title:"Mapa Calor de Asistencia", desc:"Mapa de calor genérico", url:"Mapas Estaciones/mapa_calor_asistencia.html", tags:["mapa","calor"]},
+  {id:crypto.randomUUID(), title:"Mapa Puntos de Atención", desc:"Marcadores de puntos de atención", url:"Mapas Estaciones/mapa_puntos_atencion.html", tags:["mapa","puntos"]},
+  {id:crypto.randomUUID(), title:"Mapa Tendencias Temporales", desc:"Tendencias por periodo", url:"Mapas Estaciones/mapa_tendencias_temporales.html", tags:["mapa","tendencias"]}
+]
+        },
+        {
+          id: crypto.randomUUID(), name:"BI",
+          devs:[
+            {id:crypto.randomUUID(), title:"Dashboard Power BI", desc:"Dashboard interactivo", url:"https://app.powerbi.com/view?r=eyJrIjoiOGRmY2FlYTYtNjllNS00OWE5LWJjMzEtODhiNjBkMmMyOTgwIiwidCI6IjIzNzc0NzJlLTgwMDQtNDY0OC04NDU2LWJkOTY4N2FmYTE1MCIsImMiOjR9&pageName=ReportSectiona3847c630a8d7da06b55", tags:["bi","dashboard"]}
+          ]
+        },
+        {
+          id: crypto.randomUUID(), name:"Reportes",
+          devs:[
+            {id:crypto.randomUUID(), title:"Reporte General", desc:"Notion", url:"https://www.notion.so/An-lisis-de-Cobertura-y-Participaci-n-Estaciones-Saludables-CABA-2025-2470723826b580fa8654c9aa5b6a1a51?source=copy_link", tags:["reporte"]}
+          ]
+        }
+      ]
+    },
+    {
+      id: crypto.randomUUID(), name:"San Fernando",
+      subWorlds:[
+        {
+          id: crypto.randomUUID(), name:"Mapas",
+          devs:[
+            {id:crypto.randomUUID(), title:"Ganador por tipo de piso", url:"Mapas Sanfer/mapa_ganador_x_tipo_piso.html", tags:["mapa"]},
+            {id:crypto.randomUUID(), title:"Ganador por nivel educativo", url:"Mapas Sanfer/mapa_nivel_educativo (1).html", tags:["mapa"]},
+            {id:crypto.randomUUID(), title:"Ganador por nivel educativo y obra social", url:"Mapas Sanfer/mapa_partido_ganador (1).html", tags:["mapa"]},
+            {id:crypto.randomUUID(), title:"Uso de garrafa", url:"Mapas Sanfer/mapa_uso_garrafa (1).html", tags:["mapa"]},
+            {id:crypto.randomUUID(), title:"Mesas con Potencial 2023", url:"Mapas Sanfer/mapa_san_fernando_circuitos (1).html", tags:["mapa"]},
+            {id:crypto.randomUUID(), title:"Mesas Competitivas 2023", url:"Mapas Sanfer/mapa_san_fernando_circuitos (4).html", tags:["mapa"]}
+          ]
+        },
+        {
+          id: crypto.randomUUID(), name:"Documentos",
+          devs:[
+            {id:crypto.randomUUID(), title:"TABLON", url:"https://docs.google.com/spreadsheets/d/1Mu0lNlZRNEa91xgV37TvwMnltyAA9-wH/edit?usp=drive_link&ouid=105283006911507845368&rtpof=true&sd=true", tags:["doc"]},
+            {id:crypto.randomUUID(), title:"Último Reporte", url:"https://docs.google.com/document/d/1UzqBDIozeX_vEP_F20vcHD_IBDyT373RW7R_r2JkYao/edit?usp=drive_link", tags:["doc"]},
+            {id:crypto.randomUUID(), title:"Reporte Eze", url:"https://www.notion.so/Datos-226e1238ed6c807f94f6e8d66a143fa0?source=copy_link", tags:["doc"]}
+          ]
+        }
+      ]
+    }
+  ]
+};
 }
 
 // Función para cargar datos desde la API
@@ -444,6 +444,13 @@ async function goWorlds() {
   await renderWorlds();
 }
 
+// Función para hacer logout
+function logout() {
+  state.user = null;
+  localStorage.removeItem(LS_SESSION);
+  goAuth();
+}
+
 // Función para ir a admin
 async function goAdmin() {
   if (!guardAdmin()) return;
@@ -463,14 +470,25 @@ async function renderWorlds() {
   try {
     const mundos = await loadMundosFromAPI();
     
-    worldsContainer.innerHTML = mundos
-      .filter(mundo => canSeeWorld(mundo.id))
-      .map(mundo => `
-        <div class="world-card" onclick="selectWorld('${mundo.id}')">
-          <h3>${mundo.nombre}</h3>
-          <p>${mundo.descripcion || ''}</p>
+    worldsContainer.innerHTML = `
+      <div class="header-actions">
+        <h2>Mundos Disponibles</h2>
+        <div class="user-info">
+          <span>Usuario: ${state.user.username}</span>
+          <button onclick="logout()" class="btn btn-small btn-secondary">Logout</button>
         </div>
-      `).join('');
+      </div>
+      <div class="worlds-grid">
+        ${mundos
+          .filter(mundo => canSeeWorld(mundo.id))
+          .map(mundo => `
+            <div class="world-card" onclick="selectWorld('${mundo.id}')">
+              <h3>${mundo.nombre}</h3>
+              <p>${mundo.descripcion || ''}</p>
+            </div>
+          `).join('')}
+      </div>
+    `;
   } catch (error) {
     console.error('Error renderizando mundos:', error);
     worldsContainer.innerHTML = '<p>Error cargando mundos</p>';
@@ -756,7 +774,7 @@ function showDevForm() {
     alert("Debe seleccionar un sub-mundo primero");
     return;
   }
-  
+
   modal.show({
     title: "Nuevo Desarrollo",
     bodyHTML: `
@@ -849,11 +867,33 @@ async function initializeApp() {
     // Configurar permisos por defecto
     await ensureDefaultPermissions(await loadUserListFromAPI(), state.data);
     
-    // Si hay usuario logueado, ir a mundos
-    if (state.user) {
-      $("#authSection").classList.remove("active");
-      await goWorlds();
+    // Si hay usuario en localStorage, validar contra la API
+    if (state.user && state.user.username) {
+      try {
+        // Intentar validar la sesión contra la API
+        const users = await loadUserListFromAPI();
+        const validUser = users.find(u => u.username === state.user.username);
+        
+        if (validUser) {
+          // Usuario válido, completar datos
+          state.user = validUser;
+          $("#authSection").classList.remove("active");
+          await goWorlds();
+        } else {
+          // Usuario no válido, limpiar y mostrar login
+          state.user = null;
+          localStorage.removeItem(LS_SESSION);
+          goAuth();
+        }
+      } catch (error) {
+        console.error('Error validando sesión:', error);
+        // Error en API, mostrar login
+        state.user = null;
+        localStorage.removeItem(LS_SESSION);
+        goAuth();
+      }
     } else {
+      // No hay usuario, mostrar login
       goAuth();
     }
   } catch (error) {
