@@ -26,6 +26,6 @@ router.get('/sub-mundos/:subMundoId/desarrollos', desarrollosController.listarDe
 router.post('/desarrollos', desarrollosController.crearDesarrollo);
 
 // Endpoint temporal para inicializar datos por defecto
-router.post('/init', desarrollosController.inicializarDatosPorDefecto);
+router.post('/init', appController.inicializarDatosPorDefecto);
 
 module.exports = router;
