@@ -545,14 +545,8 @@ async function renderWorlds() {
       };
       
       if (isAdmin()) {
-        card.querySelector(".btn.btn-rename").onclick = () => {
-          alert(`Renombrar mundo: ${w.nombre} (ID: ${w.id})`);
-          showWorldForm({mode: "rename", worldId: w.id});
-        };
-        card.querySelector(".btn.btn-danger").onclick = () => {
-          alert(`Eliminar mundo: ${w.nombre} (ID: ${w.id})`);
-          confirmDelete({scope: "world", id: w.id, name: w.nombre});
-        };
+        card.querySelector(".btn.btn-rename").onclick = () => renameWorld(w.id);
+        card.querySelector(".btn.btn-danger").onclick = () => deleteWorld(w.id);
       }
       
       grid.appendChild(card);
@@ -603,14 +597,8 @@ async function renderSubWorlds(mundoId) {
       };
       
       if (isAdmin()) {
-        card.querySelector(".btn.btn-rename").onclick = () => {
-          alert(`Renombrar sub-mundo: ${sw.nombre} (ID: ${sw.id})`);
-          showSubWorldForm({mode: "rename", subId: sw.id});
-        };
-        card.querySelector(".btn.btn-danger").onclick = () => {
-          alert(`Eliminar sub-mundo: ${sw.nombre} (ID: ${sw.id})`);
-          confirmDelete({scope: "sub", id: sw.id, name: sw.nombre});
-        };
+        card.querySelector(".btn.btn-rename").onclick = () => renameSub(sw.id);
+        card.querySelector(".btn.btn-danger").onclick = () => deleteSub(sw.id);
       }
       
       grid.appendChild(card);
@@ -740,91 +728,157 @@ function goAdmin() {
 }
 
 // ===== Formularios en modal =====
-function showWorldForm({mode = "create", worldId = null} = {}) {
+// ===== MODAL PARA CREAR MUNDO =====
+function showCreateWorldModal() {
   if (!isAdmin()) return;
   
-  alert(`showWorldForm llamado con: mode="${mode}", worldId="${worldId}"`);
-  
-  const existing = worldId ? state.data.worlds?.find(w => w.id === worldId) : null;
-  
-  const modalTitle = mode === "create" ? "Nuevo mundo" : "Renombrar mundo";
-  const submitLabel = mode === "create" ? "Crear" : "Guardar";
-  
-  alert(`Modal configurado: title="${modalTitle}", submitLabel="${submitLabel}"`);
-  
   modal.show({
-    title: modalTitle,
+    title: "Nuevo Mundo",
     bodyHTML: `
       <div class="field">
         <label for="worldName">Nombre del mundo</label>
-        <input id="worldName" placeholder="Nombre" value="${existing ? existing.nombre : ""}" />
+        <input id="worldName" placeholder="Ingrese el nombre del mundo" />
+      </div>
+      <div class="field">
+        <label for="worldDesc">Descripción</label>
+        <textarea id="worldDesc" placeholder="Ingrese la descripción"></textarea>
       </div>`,
     onSubmit: async () => {
       const name = $("#worldName").value.trim();
+      const desc = $("#worldDesc").value.trim();
       if (!name) return;
       
       try {
-        if (mode === "create") {
-          await createMundo({ nombre: name, descripcion: "" });
-        } else {
-          await updateMundo(worldId, { nombre: name });
-        }
+        await createMundo({ nombre: name, descripcion: desc });
         modal.hide();
         await renderWorlds();
         renderAdmin?.();
         updateHero();
       } catch (error) {
-        console.error('Error en formulario mundo:', error);
+        console.error('Error creando mundo:', error);
         alert(`Error: ${error.message}`);
       }
     },
     initialFocus: "#worldName",
-    submitLabel: submitLabel
+    submitLabel: "Crear"
   });
 }
 
-function showSubWorldForm({mode = "create", subId = null} = {}) {
+// ===== MODAL PARA RENOMBRAR MUNDO =====
+function showRenameWorldModal(worldId) {
   if (!isAdmin()) return;
   
-  alert(`showSubWorldForm llamado con: mode="${mode}", subId="${subId}"`);
+  const existing = state.data.worlds?.find(w => w.id === worldId);
+  if (!existing) return;
+  
+  modal.show({
+    title: "Renombrar Mundo",
+    bodyHTML: `
+      <div class="field">
+        <label for="worldName">Nombre del mundo</label>
+        <input id="worldName" placeholder="Ingrese el nuevo nombre" value="${existing.nombre}" />
+      </div>
+      <div class="field">
+        <label for="worldDesc">Descripción</label>
+        <textarea id="worldDesc" placeholder="Ingrese la descripción">${existing.descripcion || ""}</textarea>
+      </div>`,
+    onSubmit: async () => {
+      const name = $("#worldName").value.trim();
+      const desc = $("#worldDesc").value.trim();
+      if (!name) return;
+      
+      try {
+        await updateMundo(worldId, { nombre: name, descripcion: desc });
+        modal.hide();
+        await renderWorlds();
+        renderAdmin?.();
+        updateHero();
+      } catch (error) {
+        console.error('Error actualizando mundo:', error);
+        alert(`Error: ${error.message}`);
+      }
+    },
+    initialFocus: "#worldName",
+    submitLabel: "Guardar"
+  });
+}
+
+// ===== MODAL PARA CREAR SUB-MUNDO =====
+function showCreateSubWorldModal() {
+  if (!isAdmin()) return;
   
   const w = getCurrentWorld();
   if (!w) return;
   
-  const existing = subId ? w.subMundos?.find(s => s.id === subId) : null;
-  
-  const modalTitle = mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo";
-  const submitLabel = mode === "create" ? "Crear" : "Guardar";
-  
-  alert(`Modal configurado: title="${modalTitle}", submitLabel="${submitLabel}"`);
-  
   modal.show({
-    title: modalTitle,
+    title: "Nuevo Sub-Mundo",
     bodyHTML: `
       <div class="field">
         <label for="subName">Nombre del sub-mundo</label>
-        <input id="subName" placeholder="Nombre" value="${existing ? existing.nombre : ""}" />
+        <input id="subName" placeholder="Ingrese el nombre del sub-mundo" />
+      </div>
+      <div class="field">
+        <label for="subDesc">Descripción</label>
+        <textarea id="subDesc" placeholder="Ingrese la descripción"></textarea>
       </div>`,
     onSubmit: async () => {
       const name = $("#subName").value.trim();
+      const desc = $("#subDesc").value.trim();
       if (!name) return;
       
       try {
-        if (mode === "create") {
-          await createSubMundo({ nombre: name, descripcion: "", mundoId: w.id });
-        } else {
-          await updateSubMundo(subId, { nombre: name });
-        }
+        await createSubMundo({ nombre: name, descripcion: desc, mundoId: w.id });
         modal.hide();
         await renderSubWorlds();
         updateHero();
       } catch (error) {
-        console.error('Error en formulario sub-mundo:', error);
+        console.error('Error creando sub-mundo:', error);
         alert(`Error: ${error.message}`);
       }
     },
     initialFocus: "#subName",
-    submitLabel: submitLabel
+    submitLabel: "Crear"
+  });
+}
+
+// ===== MODAL PARA RENOMBRAR SUB-MUNDO =====
+function showRenameSubWorldModal(subId) {
+  if (!isAdmin()) return;
+  
+  const w = getCurrentWorld();
+  if (!w) return;
+  
+  const existing = w.subMundos?.find(s => s.id === subId);
+  if (!existing) return;
+  
+  modal.show({
+    title: "Renombrar Sub-Mundo",
+    bodyHTML: `
+      <div class="field">
+        <label for="subName">Nombre del sub-mundo</label>
+        <input id="subName" placeholder="Ingrese el nuevo nombre" value="${existing.nombre}" />
+      </div>
+      <div class="field">
+        <label for="subDesc">Descripción</label>
+        <textarea id="subDesc" placeholder="Ingrese la descripción">${existing.descripcion || ""}</textarea>
+      </div>`,
+    onSubmit: async () => {
+      const name = $("#subName").value.trim();
+      const desc = $("#subDesc").value.trim();
+      if (!name) return;
+      
+      try {
+        await updateSubMundo(subId, { nombre: name, descripcion: desc });
+        modal.hide();
+        await renderSubWorlds();
+        updateHero();
+      } catch (error) {
+        console.error('Error actualizando sub-mundo:', error);
+        alert(`Error: ${error.message}`);
+      }
+    },
+    initialFocus: "#subName",
+    submitLabel: "Guardar"
   });
 }
 
@@ -879,10 +933,9 @@ function showDevForm({mode = "create", devId = null} = {}) {
   });
 }
 
-function confirmDelete({scope, id, name}) {
+// ===== MODAL PARA ELIMINAR =====
+function showDeleteModal(scope, id, name) {
   const labels = {world: "mundo", sub: "sub-mundo", dev: "desarrollo"};
-  
-  console.log(`🗑️ Eliminando ${labels[scope]} "${name}" con ID: ${id}`);
   
   modal.show({
     title: `Eliminar ${labels[scope]}`,
@@ -890,18 +943,9 @@ function confirmDelete({scope, id, name}) {
     onSubmit: async () => {
       try {
         if (scope === "world") {
-          // Eliminar del estado local primero (como en el original)
+          // Eliminar del estado local primero
           state.data.worlds = state.data.worlds.filter(w => w.id !== id);
-          // Limpiar permisos de usuarios
-          const users = await loadUserListFromAPI();
-          const updatedUsers = users.map(u => {
-            if (u.permittedWorldIds === "*") return u;
-            u.permittedWorldIds = (u.permittedWorldIds || []).filter(x => x !== id);
-            return u;
-          });
-          // TODO: Implementar updateUser en el backend
-          
-          // Recargar datos desde la API para sincronizar
+          // Recargar datos desde la API
           state.data = await loadDataFromAPI();
           state.currentWorldId = null;
           state.currentSubId = null;
@@ -937,22 +981,22 @@ function confirmDelete({scope, id, name}) {
 }
 
 // ===== CRUD (usando modales) =====
-function createWorld() { showWorldForm({mode: "create"}); }
-function renameWorld(id) { showWorldForm({mode: "rename", worldId: id}); }
+function createWorld() { showCreateWorldModal(); }
+function renameWorld(id) { showRenameWorldModal(id); }
 function deleteWorld(id) {
   const w = state.data.worlds?.find(x => x.id === id);
   if (!w) return;
-  confirmDelete({scope: "world", id, name: w.nombre});
+  showDeleteModal("world", id, w.nombre);
 }
 
-function createSubWorld() { showSubWorldForm({mode: "create"}); }
-function renameSub(id) { showSubWorldForm({mode: "rename", subId: id}); }
+function createSubWorld() { showCreateSubWorldModal(); }
+function renameSub(id) { showRenameSubWorldModal(id); }
 function deleteSub(id) {
   const w = getCurrentWorld();
   if (!w) return;
   const sw = w.subMundos?.find(x => x.id === id);
   if (!sw) return;
-  confirmDelete({scope: "sub", id, name: sw.nombre});
+  showDeleteModal("sub", id, sw.nombre);
 }
 
 function addDevManually() { showDevForm({mode: "create"}); }
@@ -962,7 +1006,7 @@ function deleteDev(id) {
   if (!sw) return;
   const d = sw.desarrollos?.find(x => x.id === id);
   if (!d) return;
-  confirmDelete({scope: "dev", id, name: d.titulo});
+  showDeleteModal("dev", id, d.titulo);
 }
 
 // ===== Drag & Drop =====
