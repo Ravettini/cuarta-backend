@@ -172,7 +172,7 @@ async function updateSubMundo(req, res) {
   }
 }
 
-// Eliminar sub-mundo (soft delete)
+// Eliminar sub-mundo (ELIMINACIÓN PERMANENTE)
 async function deleteSubMundo(req, res) {
   try {
     const { id } = req.params;
@@ -185,12 +185,12 @@ async function deleteSubMundo(req, res) {
       });
     }
 
-    // Soft delete: marcar como inactivo
-    await subMundo.update({ activo: false });
+    // ELIMINACIÓN PERMANENTE: borrar de la base de datos
+    await subMundo.destroy();
 
     res.json({
       success: true,
-      message: 'Sub-mundo eliminado exitosamente'
+      message: 'Sub-mundo eliminado permanentemente'
     });
   } catch (error) {
     console.error('Error eliminando sub-mundo:', error);

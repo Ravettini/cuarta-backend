@@ -161,7 +161,7 @@ async function updateDesarrollo(req, res) {
   }
 }
 
-// Eliminar desarrollo (soft delete)
+// Eliminar desarrollo (ELIMINACIÓN PERMANENTE)
 async function deleteDesarrollo(req, res) {
   try {
     const { id } = req.params;
@@ -174,12 +174,12 @@ async function deleteDesarrollo(req, res) {
       });
     }
 
-    // Soft delete: marcar como inactivo
-    await desarrollo.update({ activo: false });
+    // ELIMINACIÓN PERMANENTE: borrar de la base de datos
+    await desarrollo.destroy();
 
     res.json({
       success: true,
-      message: 'Desarrollo eliminado exitosamente'
+      message: 'Desarrollo eliminado permanentemente'
     });
   } catch (error) {
     console.error('Error eliminando desarrollo:', error);

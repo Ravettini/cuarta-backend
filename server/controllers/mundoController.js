@@ -141,7 +141,7 @@ async function updateMundo(req, res) {
   }
 }
 
-// Eliminar mundo (soft delete)
+// Eliminar mundo (ELIMINACIÓN PERMANENTE)
 async function deleteMundo(req, res) {
   try {
     const { id } = req.params;
@@ -154,12 +154,12 @@ async function deleteMundo(req, res) {
       });
     }
 
-    // Soft delete: marcar como inactivo
-    await mundo.update({ activo: false });
+    // ELIMINACIÓN PERMANENTE: borrar de la base de datos
+    await mundo.destroy();
 
     res.json({
       success: true,
-      message: 'Mundo eliminado exitosamente'
+      message: 'Mundo eliminado permanentemente'
     });
   } catch (error) {
     console.error('Error eliminando mundo:', error);

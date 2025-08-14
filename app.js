@@ -46,12 +46,7 @@ async function api(url, opts = {}) {
     }
   });
   
-  if (!response.ok) {
-    const error = await response.json().catch(() => ({ error: 'Error de red' }));
-    throw new Error(error.error || `HTTP ${response.status}`);
-  }
-  
-  return response.json();
+  return response;
 }
 
 // ===== Estado & Storage =====
@@ -1165,18 +1160,26 @@ async function deleteMundo(id) {
   try {
     console.log(`🗑️ Eliminando mundo con ID: ${id}`);
     
+    // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
+    state.data.worlds = state.data.worlds.filter(w => w.id !== id);
+    
+    // Luego eliminar del backend
     const response = await api(`/mundos/${id}`, { method: 'DELETE' });
     if (response.ok) {
-      console.log('✅ Mundo eliminado correctamente');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      console.log('✅ Mundo eliminado correctamente del servidor');
+      // Re-renderizar inmediatamente
+      await renderWorlds();
       return true;
     } else {
+      // Si falla el backend, revertir el cambio en el frontend
+      state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error eliminando mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error eliminando mundo:', error);
+    // Revertir cambios en caso de error
+    state.data = await loadDataFromAPI();
     throw error;
   }
 }
@@ -1185,18 +1188,29 @@ async function deleteSubMundo(id) {
   try {
     console.log(`🗑️ Eliminando sub-mundo con ID: ${id}`);
     
+    // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
+    const mundo = getCurrentWorld();
+    if (mundo && mundo.subMundos) {
+      mundo.subMundos = mundo.subMundos.filter(s => s.id !== id);
+    }
+    
+    // Luego eliminar del backend
     const response = await api(`/sub-mundos/${id}`, { method: 'DELETE' });
     if (response.ok) {
-      console.log('✅ Sub-mundo eliminado correctamente');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      console.log('✅ Sub-mundo eliminado correctamente del servidor');
+      // Re-renderizar inmediatamente
+      await renderSubWorlds();
       return true;
     } else {
+      // Si falla el backend, revertir el cambio en el frontend
+      state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error eliminando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error eliminando sub-mundo:', error);
+    // Revertir cambios en caso de error
+    state.data = await loadDataFromAPI();
     throw error;
   }
 }
@@ -1205,18 +1219,29 @@ async function deleteDesarrollo(id) {
   try {
     console.log(`🗑️ Eliminando desarrollo con ID: ${id}`);
     
+    // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
+    const subMundo = getCurrentSub();
+    if (subMundo && subMundo.desarrollos) {
+      subMundo.desarrollos = subMundo.desarrollos.filter(d => d.id !== id);
+    }
+    
+    // Luego eliminar del backend
     const response = await api(`/desarrollos/${id}`, { method: 'DELETE' });
     if (response.ok) {
-      console.log('✅ Desarrollo eliminado correctamente');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      console.log('✅ Desarrollo eliminado correctamente del servidor');
+      // Re-renderizar inmediatamente
+      await renderDesarrollos();
       return true;
     } else {
+      // Si falla el backend, revertir el cambio en el frontend
+      state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error eliminando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error eliminando desarrollo:', error);
+    // Revertir cambios en caso de error
+    state.data = await loadDataFromAPI();
     throw error;
   }
 }
@@ -1251,6 +1276,16 @@ async function updateMundo(id, data) {
   try {
     console.log(`🔄 Actualizando mundo ${id} con datos:`, data);
     
+    // ACTUALIZACIÓN INSTANTÁNEA: Primero en el frontend
+    const mundo = state.data.worlds?.find(w => w.id === id);
+    if (mundo) {
+      mundo.nombre = data.nombre;
+      if (data.descripcion !== undefined) {
+        mundo.descripcion = data.descripcion;
+      }
+    }
+    
+    // Luego actualizar en el backend
     const response = await api(`/mundos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
@@ -1258,15 +1293,19 @@ async function updateMundo(id, data) {
     
     if (response.ok) {
       console.log('✅ Mundo actualizado en el servidor');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      // Re-renderizar inmediatamente
+      await renderWorlds();
       return true;
     } else {
+      // Si falla el backend, revertir el cambio en el frontend
+      state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error actualizando mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error actualizando mundo:', error);
+    // Revertir cambios en caso de error
+    state.data = await loadDataFromAPI();
     throw error;
   }
 }
@@ -1300,6 +1339,19 @@ async function updateSubMundo(id, data) {
   try {
     console.log(`🔄 Actualizando sub-mundo ${id} con datos:`, data);
     
+    // ACTUALIZACIÓN INSTANTÁNEA: Primero en el frontend
+    const mundo = getCurrentWorld();
+    if (mundo && mundo.subMundos) {
+      const subMundo = mundo.subMundos.find(s => s.id === id);
+      if (subMundo) {
+        subMundo.nombre = data.nombre;
+        if (data.descripcion !== undefined) {
+          subMundo.descripcion = data.descripcion;
+        }
+      }
+    }
+    
+    // Luego actualizar en el backend
     const response = await api(`/sub-mundos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
@@ -1307,15 +1359,19 @@ async function updateSubMundo(id, data) {
     
     if (response.ok) {
       console.log('✅ Sub-mundo actualizado en el servidor');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      // Re-renderizar inmediatamente
+      await renderSubWorlds();
       return true;
     } else {
+      // Si falla el backend, revertir el cambio en el frontend
+      state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error actualizando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error actualizando sub-mundo:', error);
+    // Revertir cambios en caso de error
+    state.data = await loadDataFromAPI();
     throw error;
   }
 }
@@ -1349,6 +1405,19 @@ async function updateDesarrollo(id, data) {
   try {
     console.log(`🔄 Actualizando desarrollo ${id} con datos:`, data);
     
+    // ACTUALIZACIÓN INSTANTÁNEA: Primero en el frontend
+    const subMundo = getCurrentSub();
+    if (subMundo && subMundo.desarrollos) {
+      const desarrollo = subMundo.desarrollos.find(d => d.id === id);
+      if (desarrollo) {
+        desarrollo.titulo = data.titulo;
+        if (data.url !== undefined) desarrollo.url = data.url;
+        if (data.descripcion !== undefined) desarrollo.descripcion = data.descripcion;
+        if (data.tags !== undefined) desarrollo.tags = data.tags;
+      }
+    }
+    
+    // Luego actualizar en el backend
     const response = await api(`/desarrollos/${id}`, {
       method: 'PUT',
       body: JSON.stringify(data)
@@ -1356,15 +1425,19 @@ async function updateDesarrollo(id, data) {
     
     if (response.ok) {
       console.log('✅ Desarrollo actualizado en el servidor');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      // Re-renderizar inmediatamente
+      await renderDesarrollos();
       return true;
     } else {
+      // Si falla el backend, revertir el cambio en el frontend
+      state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error actualizando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error actualizando desarrollo:', error);
+    // Revertir cambios en caso de error
+    state.data = await loadDataFromAPI();
     throw error;
   }
 }
