@@ -5,6 +5,9 @@ const path = require('path');
 const { syncModels } = require('./models');
 const fileRoutes = require('./routes/files');
 const appRoutes = require('./routes/app');
+const mundoRoutes = require('./routes/mundos');
+const subMundoRoutes = require('./routes/subMundos');
+const desarrolloRoutes = require('./routes/desarrollos');
 const errorHandler = require('./middlewares/error');
 
 const app = express();
@@ -27,6 +30,9 @@ app.use((req, res, next) => {
 
 // Rutas de la API
 app.use('/api/v1/files', fileRoutes);
+app.use('/api/v1/mundos', mundoRoutes);
+app.use('/api/v1/sub-mundos', subMundoRoutes);
+app.use('/api/v1/desarrollos', desarrolloRoutes);
 app.use('/api/v1', appRoutes);
 
 // Health check global

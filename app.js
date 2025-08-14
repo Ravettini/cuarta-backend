@@ -1226,22 +1226,21 @@ async function createMundo(data) {
   try {
     console.log(`🆕 Creando mundo con datos:`, data);
     
-    // Por ahora, crear solo en el estado local
-    // TODO: Implementar endpoint en el backend
-    const newMundo = {
-      id: crypto.randomUUID(),
-      nombre: data.nombre,
-      descripcion: data.descripcion || "",
-      subMundos: []
-    };
+    const response = await api('/mundos', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
     
-    if (!state.data.worlds) {
-      state.data.worlds = [];
+    if (response.ok) {
+      const newMundo = await response.json();
+      console.log('✅ Mundo creado en el servidor');
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return newMundo.data;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error creando mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
-    
-    state.data.worlds.push(newMundo);
-    console.log('✅ Mundo creado en estado local');
-    return newMundo;
   } catch (error) {
     console.error('Error creando mundo:', error);
     throw error;
@@ -1252,18 +1251,19 @@ async function updateMundo(id, data) {
   try {
     console.log(`🔄 Actualizando mundo ${id} con datos:`, data);
     
-    // Por ahora, actualizar solo en el estado local
-    // TODO: Implementar endpoint en el backend
-    const mundo = state.data.worlds?.find(w => w.id === id);
-    if (mundo) {
-      mundo.nombre = data.nombre;
-      if (data.descripcion !== undefined) {
-        mundo.descripcion = data.descripcion;
-      }
-      console.log('✅ Mundo actualizado en estado local');
+    const response = await api(`/mundos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      console.log('✅ Mundo actualizado en el servidor');
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
       return true;
     } else {
-      throw new Error('Mundo no encontrado');
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error actualizando mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error actualizando mundo:', error);
@@ -1275,27 +1275,21 @@ async function createSubMundo(data) {
   try {
     console.log(`🆕 Creando sub-mundo con datos:`, data);
     
-    // Por ahora, crear solo en el estado local
-    // TODO: Implementar endpoint en el backend
-    const mundo = state.data.worlds?.find(w => w.id === data.mundoId);
-    if (!mundo) {
-      throw new Error('Mundo no encontrado');
+    const response = await api('/sub-mundos', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      const newSubMundo = await response.json();
+      console.log('✅ Sub-mundo creado en el servidor');
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return newSubMundo.data;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error creando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
-    
-    if (!mundo.subMundos) {
-      mundo.subMundos = [];
-    }
-    
-    const newSubMundo = {
-      id: crypto.randomUUID(),
-      nombre: data.nombre,
-      descripcion: data.descripcion || "",
-      desarrollos: []
-    };
-    
-    mundo.subMundos.push(newSubMundo);
-    console.log('✅ Sub-mundo creado en estado local');
-    return newSubMundo;
   } catch (error) {
     console.error('Error creando sub-mundo:', error);
     throw error;
@@ -1306,21 +1300,20 @@ async function updateSubMundo(id, data) {
   try {
     console.log(`🔄 Actualizando sub-mundo ${id} con datos:`, data);
     
-    // Por ahora, actualizar solo en el estado local
-    // TODO: Implementar endpoint en el backend
-    const mundo = getCurrentWorld();
-    if (mundo && mundo.subMundos) {
-      const subMundo = mundo.subMundos.find(s => s.id === id);
-      if (subMundo) {
-        subMundo.nombre = data.nombre;
-        if (data.descripcion !== undefined) {
-          subMundo.descripcion = data.descripcion;
-        }
-        console.log('✅ Sub-mundo actualizado en estado local');
-        return true;
-      }
+    const response = await api(`/sub-mundos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      console.log('✅ Sub-mundo actualizado en el servidor');
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error actualizando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
-    throw new Error('Sub-mundo no encontrado');
   } catch (error) {
     console.error('Error actualizando sub-mundo:', error);
     throw error;
@@ -1331,31 +1324,21 @@ async function createDesarrollo(data) {
   try {
     console.log(`🆕 Creando desarrollo con datos:`, data);
     
-    // Por ahora, crear solo en el estado local
-    // TODO: Implementar endpoint en el backend
-    const subMundo = state.data.worlds
-      ?.flatMap(w => w.subMundos || [])
-      ?.find(s => s.id === data.subMundoId);
+    const response = await api('/desarrollos', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
     
-    if (!subMundo) {
-      throw new Error('Sub-mundo no encontrado');
+    if (response.ok) {
+      const newDesarrollo = await response.json();
+      console.log('✅ Desarrollo creado en el servidor');
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return newDesarrollo.data;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error creando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
-    
-    if (!subMundo.desarrollos) {
-      subMundo.desarrollos = [];
-    }
-    
-    const newDesarrollo = {
-      id: crypto.randomUUID(),
-      titulo: data.titulo,
-      url: data.url || "",
-      descripcion: data.descripcion || "",
-      tags: data.tags || []
-    };
-    
-    subMundo.desarrollos.push(newDesarrollo);
-    console.log('✅ Desarrollo creado en estado local');
-    return newDesarrollo;
   } catch (error) {
     console.error('Error creando desarrollo:', error);
     throw error;
@@ -1366,21 +1349,20 @@ async function updateDesarrollo(id, data) {
   try {
     console.log(`🔄 Actualizando desarrollo ${id} con datos:`, data);
     
-    // Por ahora, actualizar solo en el estado local
-    // TODO: Implementar endpoint en el backend
-    const subMundo = getCurrentSub();
-    if (subMundo && subMundo.desarrollos) {
-      const desarrollo = subMundo.desarrollos.find(d => d.id === id);
-      if (desarrollo) {
-        desarrollo.titulo = data.titulo;
-        if (data.url !== undefined) desarrollo.url = data.url;
-        if (data.descripcion !== undefined) desarrollo.descripcion = data.descripcion;
-        if (data.tags !== undefined) desarrollo.tags = data.tags;
-        console.log('✅ Desarrollo actualizado en estado local');
-        return true;
-      }
+    const response = await api(`/desarrollos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      console.log('✅ Desarrollo actualizado en el servidor');
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error actualizando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
-    throw new Error('Desarrollo no encontrado');
   } catch (error) {
     console.error('Error actualizando desarrollo:', error);
     throw error;
