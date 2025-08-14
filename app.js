@@ -209,10 +209,13 @@ function getDefaultDataStructure() {
 // Función para cargar datos desde la API
 async function loadDataFromAPI() {
   try {
+    console.log('🔄 Cargando datos desde la API...');
     const mundos = await loadMundosFromAPI();
     
+    console.log('📊 Mundos cargados:', mundos);
+    
     // Si no hay mundos, crear los por defecto
-    if (mundos.length === 0) {
+    if (!mundos || mundos.length === 0) {
       console.log('No hay mundos en la base de datos, creando por defecto...');
       await createDefaultMundos();
       const mundosCreados = await loadMundosFromAPI();
@@ -234,9 +237,11 @@ async function loadDataFromAPI() {
       }))
     };
     
+    console.log('✅ Datos formateados:', formattedData);
     return formattedData;
   } catch (error) {
     console.error('Error cargando datos desde API:', error);
+    console.log('🔄 Usando datos por defecto como fallback...');
     // Fallback a datos por defecto
     return getDefaultDataStructure();
   }
@@ -254,7 +259,13 @@ function saveData(d){
 async function loadMundosFromAPI() {
   try {
     const response = await api('/mundos');
-    return response.data;
+    if (response.ok) {
+      const data = await response.json();
+      return data.data || [];
+    } else {
+      console.error('Error cargando mundos desde API:', response.status);
+      return [];
+    }
   } catch (error) {
     console.error('Error cargando mundos desde API:', error);
     return [];
@@ -263,8 +274,15 @@ async function loadMundosFromAPI() {
 
 async function loadSubMundosForMundo(mundoId) {
   try {
-    const response = await api(`/mundos/${mundoId}/sub-mundos`);
-    return response.data;
+    const response = await api(`/sub-mundos`);
+    if (response.ok) {
+      const data = await response.json();
+      // Filtrar sub-mundos por mundoId
+      return (data.data || []).filter(sub => sub.mundoId === mundoId);
+    } else {
+      console.error('Error cargando sub-mundos desde API:', response.status);
+      return [];
+    }
   } catch (error) {
     console.error('Error cargando sub-mundos desde API:', error);
     return [];
@@ -273,8 +291,15 @@ async function loadSubMundosForMundo(mundoId) {
 
 async function loadDesarrollosForSubMundo(subMundoId) {
   try {
-    const response = await api(`/sub-mundos/${subMundoId}/desarrollos`);
-    return response.data;
+    const response = await api(`/desarrollos`);
+    if (response.ok) {
+      const data = await response.json();
+      // Filtrar desarrollos por subMundoId
+      return (data.data || []).filter(dev => dev.subMundoId === subMundoId);
+    } else {
+      console.error('Error cargando desarrollos desde API:', response.status);
+      return [];
+    }
   } catch (error) {
     console.error('Error cargando desarrollos desde API:', error);
     return [];
@@ -287,7 +312,12 @@ async function createMundoAPI(mundoData) {
       method: 'POST',
       body: JSON.stringify(mundoData)
     });
-    return response.data;
+    if (response.ok) {
+      const data = await response.json();
+      return data.data;
+    } else {
+      throw new Error(`Error creando mundo: ${response.status}`);
+    }
   } catch (error) {
     console.error('Error creando mundo:', error);
     throw error;
@@ -300,7 +330,12 @@ async function createSubMundoAPI(subMundoData) {
       method: 'POST',
       body: JSON.stringify(subMundoData)
     });
-    return response.data;
+    if (response.ok) {
+      const data = await response.json();
+      return data.data;
+    } else {
+      throw new Error(`Error creando sub-mundo: ${response.status}`);
+    }
   } catch (error) {
     console.error('Error creando sub-mundo:', error);
     throw error;
@@ -341,8 +376,28 @@ async function createDefaultMundos() {
 // Función para configurar permisos por defecto
 async function ensureDefaultPermissions(users, data) {
   try {
+    console.log('🔐 Configurando permisos por defecto...');
+    
+    if (!users || !Array.isArray(users)) {
+      console.log('⚠️ Usuarios no válidos, usando usuarios por defecto');
+      users = [
+        { username:"admin", password:"1234", role:"admin", permittedWorldIds:"*" },
+        { username:"estaciones", password:"est2025",role:"user", permittedWorldIds:[] },
+        { username:"sanfer", password:"sf2025", role:"user", permittedWorldIds:[] },
+        { username:"ambos", password:"fullaccess", role:"user", permittedWorldIds:[] }
+      ];
+    }
+    
     const mundos = await loadMundosFromAPI();
+    console.log('🌍 Mundos disponibles para permisos:', mundos);
+    
+    if (!mundos || !Array.isArray(mundos)) {
+      console.log('⚠️ No se pudieron cargar mundos, usando permisos por defecto');
+      return users;
+    }
+    
     const mapByName = Object.fromEntries(mundos.map(w => [w.nombre, w.id]));
+    console.log('🗺️ Mapa de nombres a IDs:', mapByName);
     
     // Actualizar permisos de usuarios
     for (const user of users) {
@@ -359,18 +414,23 @@ async function ensureDefaultPermissions(users, data) {
         ].filter(Boolean);
       }
       
+      console.log(`👤 Usuario ${user.username} tiene permisos:`, user.permittedWorldIds);
+      
       // Actualizar usuario en la base de datos
       try {
-        await updateUserAPI(user.id, { permittedWorldIds: user.permittedWorldIds });
+        if (user.id) {
+          await updateUserAPI(user.id, { permittedWorldIds: user.permittedWorldIds });
+        }
       } catch (error) {
         console.error(`Error actualizando permisos para ${user.username}:`, error);
       }
     }
     
+    console.log('✅ Permisos configurados exitosamente');
     return users;
   } catch (error) {
     console.error('Error configurando permisos por defecto:', error);
-    return users;
+    return users || [];
   }
 }
 
@@ -1765,26 +1825,43 @@ function handleFileUpload(file) {
 // ===== Inicialización modificada =====
 async function initializeApp() {
   try {
+    console.log('🚀 Inicializando aplicación...');
+    
     // Cargar datos desde la API
     state.data = await loadDataFromAPI();
+    console.log('📊 Datos cargados:', state.data);
+    
+    if (!state.data || !state.data.worlds) {
+      console.log('⚠️ Datos no válidos, usando datos por defecto');
+      state.data = getDefaultDataStructure();
+    }
     
     // Configurar permisos por defecto
-    await ensureDefaultPermissions(await loadUserListFromAPI(), state.data);
+    try {
+      const users = await loadUserListFromAPI();
+      await ensureDefaultPermissions(users, state.data);
+    } catch (error) {
+      console.error('Error configurando permisos:', error);
+      // Continuar sin permisos por defecto
+    }
     
     // Si hay usuario en localStorage, validar contra la API
     if (state.user && state.user.username) {
       try {
+        console.log('🔍 Validando sesión existente...');
         // Intentar validar la sesión contra la API
         const users = await loadUserListFromAPI();
         const validUser = users.find(u => u.username === state.user.username);
         
         if (validUser) {
           // Usuario válido, completar datos
+          console.log('✅ Usuario válido, completando sesión');
           state.user = validUser;
           $("#authSection").classList.remove("active");
           await goWorlds();
         } else {
           // Usuario no válido, limpiar y mostrar login
+          console.log('❌ Usuario no válido, mostrando login');
           state.user = null;
           localStorage.removeItem(LS_SESSION);
           goAuth();
@@ -1798,6 +1875,7 @@ async function initializeApp() {
       }
     } else {
       // No hay usuario, mostrar login
+      console.log('👤 No hay usuario, mostrando login');
       goAuth();
     }
   } catch (error) {
