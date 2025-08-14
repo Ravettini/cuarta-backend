@@ -311,6 +311,73 @@ const obtenerPermisosUsuario = async (req, res) => {
   }
 };
 
+// Endpoint temporal para inicializar usuarios por defecto
+const inicializarUsuariosPorDefecto = async (req, res) => {
+  try {
+    console.log('🚀 Iniciando inicialización de usuarios por defecto...');
+
+    // Verificar si ya existen usuarios
+    const existingUsers = await User.findAll();
+    if (existingUsers.length > 0) {
+      return res.json({
+        success: true,
+        message: 'Ya existen usuarios en la base de datos',
+        count: existingUsers.length
+      });
+    }
+
+    // Crear usuarios por defecto
+    const usuariosPorDefecto = [
+      {
+        username: "admin",
+        password: "1234",
+        role: "admin",
+        permittedWorldIds: "*"
+      },
+      {
+        username: "estaciones",
+        password: "est2025",
+        role: "user",
+        permittedWorldIds: []
+      },
+      {
+        username: "sanfer",
+        password: "sf2025",
+        role: "user",
+        permittedWorldIds: []
+      },
+      {
+        username: "ambos",
+        password: "fullaccess",
+        role: "user",
+        permittedWorldIds: []
+      }
+    ];
+
+    // Crear usuarios
+    for (const userData of usuariosPorDefecto) {
+      await User.create(userData);
+      console.log(`✅ Usuario creado: ${userData.username}`);
+    }
+
+    console.log('🎉 Inicialización de usuarios completada exitosamente');
+
+    res.json({
+      success: true,
+      message: 'Usuarios por defecto creados exitosamente',
+      usuariosCreados: usuariosPorDefecto.length,
+      usuarios: usuariosPorDefecto.map(u => ({ username: u.username, role: u.role }))
+    });
+
+  } catch (error) {
+    console.error('❌ Error durante la inicialización de usuarios:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor durante la inicialización'
+    });
+  }
+};
+
 module.exports = {
   listarUsuarios,
   obtenerUsuario,
@@ -318,6 +385,7 @@ module.exports = {
   actualizarUsuario,
   eliminarUsuario,
   autenticarUsuario,
-  obtenerPermisosUsuario
+  obtenerPermisosUsuario,
+  inicializarUsuariosPorDefecto
 };
 

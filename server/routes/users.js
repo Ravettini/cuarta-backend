@@ -18,5 +18,8 @@ router.delete('/:id', userController.eliminarUsuario);
 // Permisos
 router.get('/:id/permisos', userController.obtenerPermisosUsuario);
 
+// Endpoint temporal para inicializar usuarios por defecto
+router.post('/init', userController.inicializarUsuariosPorDefecto);
+
 module.exports = router;
 

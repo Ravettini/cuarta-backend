@@ -437,9 +437,13 @@ async function deleteUserAPI(userId) {
 
 // Función para ir a autenticación
 function goAuth() {
-  // Ocultar header cuando estemos en login
+  // Mostrar header pero ocultar botones cuando estemos en login
   const header = document.querySelector('header.appbar');
-  if (header) header.style.display = 'none';
+  const toolbar = header?.querySelector('.toolbar');
+  if (header) {
+    header.style.display = 'flex';
+    if (toolbar) toolbar.style.display = 'none';
+  }
   
   // Mostrar solo la sección de auth
   $("#authSection").classList.add("active");
@@ -451,9 +455,13 @@ function goAuth() {
 
 // Función para ir a mundos
 async function goWorlds() {
-  // Mostrar header cuando estemos en mundos
+  // Mostrar header y botones cuando estemos en mundos
   const header = document.querySelector('header.appbar');
-  if (header) header.style.display = 'flex';
+  const toolbar = header?.querySelector('.toolbar');
+  if (header) {
+    header.style.display = 'flex';
+    if (toolbar) toolbar.style.display = 'flex';
+  }
   
   $("#authSection").classList.remove("active");
   $("#worldsSection").classList.add("active");
