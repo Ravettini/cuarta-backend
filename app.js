@@ -14,12 +14,8 @@ const modal = {
     document.addEventListener("keydown", (e)=>{ if(e.key==="Escape" && this.el.classList.contains("open")) this.hide(); });
   },
   show({title, bodyHTML, onSubmit, initialFocus="#modalSubmit", submitLabel="Guardar"}){
-    console.log(`🎭 Modal.show() - title: "${title}", submitLabel: "${submitLabel}"`);
-    console.log(`🎭 Modal.show() - bodyHTML length: ${bodyHTML ? bodyHTML.length : 0}`);
-    
     // Limpiar modal antes de mostrar uno nuevo
     if (this.el.classList.contains("open")) {
-      console.log(`🎭 Modal ya está abierto, limpiando antes de mostrar nuevo`);
       this.hide();
     }
     
@@ -31,7 +27,6 @@ const modal = {
     setTimeout(()=>{ const f = this.el.querySelector(initialFocus); if(f) f.focus(); }, 0);
   },
   hide(){ 
-    console.log(`🎭 Modal.hide() - limpiando modal`);
     this.el.classList.remove("open"); 
     this.bodyEl.innerHTML=""; 
     this.onSubmit=null; 
@@ -736,21 +731,10 @@ function goAdmin() {
 function showWorldForm({mode = "create", worldId = null} = {}) {
   if (!isAdmin()) return;
   
-  console.log(`🔧 showWorldForm - mode: ${mode}, worldId: ${worldId}`);
-  console.log(`🔧 showWorldForm - mode === "create": ${mode === "create"}`);
-  console.log(`🔧 showWorldForm - mode === "rename": ${mode === "rename"}`);
-  
   const existing = worldId ? state.data.worlds?.find(w => w.id === worldId) : null;
-  console.log(`🔧 Mundo existente:`, existing);
-  
-  const modalTitle = mode === "create" ? "Nuevo mundo" : "Renombrar mundo";
-  const submitLabel = mode === "create" ? "Crear" : "Guardar";
-  
-  console.log(`🔧 Modal title: ${modalTitle}`);
-  console.log(`🔧 Submit label: ${submitLabel}`);
   
   modal.show({
-    title: modalTitle,
+    title: mode === "create" ? "Nuevo mundo" : "Renombrar mundo",
     bodyHTML: `
       <div class="field">
         <label for="worldName">Nombre del mundo</label>
@@ -760,14 +744,10 @@ function showWorldForm({mode = "create", worldId = null} = {}) {
       const name = $("#worldName").value.trim();
       if (!name) return;
       
-      console.log(`🔧 onSubmit - mode: ${mode}, name: ${name}, worldId: ${worldId}`);
-      
       try {
         if (mode === "create") {
-          console.log('🔧 Creando nuevo mundo...');
           await createMundo({ nombre: name, descripcion: "" });
         } else {
-          console.log('🔧 Actualizando mundo existente...');
           await updateMundo(worldId, { nombre: name });
         }
         modal.hide();
@@ -780,31 +760,20 @@ function showWorldForm({mode = "create", worldId = null} = {}) {
       }
     },
     initialFocus: "#worldName",
-    submitLabel: submitLabel
+    submitLabel: mode === "create" ? "Crear" : "Guardar"
   });
 }
 
 function showSubWorldForm({mode = "create", subId = null} = {}) {
   if (!isAdmin()) return;
   
-  console.log(`🔧 showSubWorldForm - mode: ${mode}, subId: ${subId}`);
-  console.log(`🔧 showSubWorldForm - mode === "create": ${mode === "create"}`);
-  console.log(`🔧 showSubWorldForm - mode === "rename": ${mode === "rename"}`);
-  
   const w = getCurrentWorld();
   if (!w) return;
   
   const existing = subId ? w.subMundos?.find(s => s.id === subId) : null;
-  console.log(`🔧 Sub-mundo existente:`, existing);
-  
-  const modalTitle = mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo";
-  const submitLabel = mode === "create" ? "Crear" : "Guardar";
-  
-  console.log(`🔧 Modal title: ${modalTitle}`);
-  console.log(`🔧 Submit label: ${submitLabel}`);
   
   modal.show({
-    title: modalTitle,
+    title: mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo",
     bodyHTML: `
       <div class="field">
         <label for="subName">Nombre del sub-mundo</label>
@@ -814,14 +783,10 @@ function showSubWorldForm({mode = "create", subId = null} = {}) {
       const name = $("#subName").value.trim();
       if (!name) return;
       
-      console.log(`🔧 onSubmit - mode: ${mode}, name: ${name}, subId: ${subId}`);
-      
       try {
         if (mode === "create") {
-          console.log('🔧 Creando nuevo sub-mundo...');
           await createSubMundo({ nombre: name, descripcion: "", mundoId: w.id });
         } else {
-          console.log('🔧 Actualizando sub-mundo existente...');
           await updateSubMundo(subId, { nombre: name });
         }
         modal.hide();
@@ -833,7 +798,7 @@ function showSubWorldForm({mode = "create", subId = null} = {}) {
       }
     },
     initialFocus: "#subName",
-    submitLabel: submitLabel
+    submitLabel: mode === "create" ? "Crear" : "Guardar"
   });
 }
 
@@ -841,10 +806,7 @@ function showDevForm({mode = "create", devId = null} = {}) {
   const sw = getCurrentSub();
   if (!sw) return;
   
-  console.log(`🔧 showDevForm - mode: ${mode}, devId: ${devId}`);
-  
   const existing = devId ? sw.desarrollos?.find(d => d.id === devId) : null;
-  console.log(`🔧 Desarrollo existente:`, existing);
   
   modal.show({
     title: mode === "create" ? "Nuevo desarrollo" : "Editar desarrollo",
@@ -873,14 +835,10 @@ function showDevForm({mode = "create", devId = null} = {}) {
       const descripcion = $("#devDesc").value.trim();
       const tags = $("#devTags").value.split(",").map(t => t.trim()).filter(Boolean);
       
-      console.log(`🔧 onSubmit - mode: ${mode}, titulo: ${titulo}, devId: ${devId}`);
-      
       try {
         if (mode === "create") {
-          console.log('🔧 Creando nuevo desarrollo...');
           await createDesarrollo({ titulo, url, descripcion, tags, subMundoId: sw.id });
         } else {
-          console.log('🔧 Actualizando desarrollo existente...');
           await updateDesarrollo(devId, { titulo, url, descripcion, tags });
         }
         modal.hide();
