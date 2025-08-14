@@ -639,8 +639,12 @@ async function renderWorlds() {
   if (!grid) return;
   
   try {
-    const mundos = await loadMundosFromAPI();
+    // Usar estado local en lugar de cargar desde API
+    const mundos = state.data?.worlds || [];
     const visible = mundos.filter(w => canSeeWorld(w.id));
+    
+    console.log('🎯 Renderizando mundos desde estado local:', mundos);
+    console.log('👁️ Mundos visibles para el usuario:', visible);
     
     grid.innerHTML = "";
     $("#worldsEmpty").style.display = visible.length ? "none" : "block";
@@ -665,7 +669,7 @@ async function renderWorlds() {
       
       if (isAdmin()) {
         card.querySelector(".btn.btn-rename").onclick = () => renameWorld(w.id);
-        card.querySelector(".btn.btn-danger").onclick = () => deleteWorld(w.id);
+        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("world", w.id, w.nombre);
       }
       
       grid.appendChild(card);
@@ -693,8 +697,9 @@ async function renderSubWorlds(mundoId) {
       return; 
     }
     
-    const subMundos = await loadSubMundosForMundo(mundoId);
-    console.log('🔍 Sub-mundos cargados:', subMundos);
+    // Usar estado local en lugar de cargar desde API
+    const subMundos = w.subMundos || [];
+    console.log('🔍 Sub-mundos desde estado local:', subMundos);
     $("#subWorldsEmpty").style.display = subMundos.length ? "none" : "block";
     
     subMundos.forEach(sw => {
@@ -717,7 +722,7 @@ async function renderSubWorlds(mundoId) {
       
       if (isAdmin()) {
         card.querySelector(".btn.btn-rename").onclick = () => renameSub(sw.id);
-        card.querySelector(".btn.btn-danger").onclick = () => deleteSub(sw.id);
+        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("sub", sw.id, sw.nombre);
       }
       
       grid.appendChild(card);
@@ -740,7 +745,9 @@ async function renderDesarrollos(subMundoId) {
     
     if (!sw) return;
     
-    const desarrollos = await loadDesarrollosForSubMundo(subMundoId);
+    // Usar estado local en lugar de cargar desde API
+    const desarrollos = sw.desarrollos || [];
+    console.log('🔍 Desarrollos desde estado local:', desarrollos);
     
     desarrollos.forEach(d => {
       const card = document.createElement("div");
@@ -756,7 +763,7 @@ async function renderDesarrollos(subMundoId) {
         </div>`;
       
       card.querySelector(".btn.btn-edit").onclick = () => showDevForm({mode: "edit", devId: d.id});
-      card.querySelector(".btn.btn-danger").onclick = () => confirmDelete({scope: "dev", id: d.id, name: d.titulo});
+      card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("dev", d.id, d.titulo);
       
       grid.appendChild(card);
     });
@@ -1287,6 +1294,12 @@ async function deleteMundo(id) {
     // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
     state.data.worlds = state.data.worlds.filter(w => w.id !== id);
     
+    // Limpiar selección si se eliminó el mundo actual
+    if (state.currentWorldId === id) {
+      state.currentWorldId = null;
+      state.currentSubId = null;
+    }
+    
     // Luego eliminar del backend
     const response = await api(`/mundos/${id}`, { method: 'DELETE' });
     if (response.ok) {
@@ -1296,6 +1309,7 @@ async function deleteMundo(id) {
       return true;
     } else {
       // Si falla el backend, revertir el cambio en el frontend
+      console.log('⚠️ Error del backend, revirtiendo cambios del frontend');
       state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error eliminando mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
@@ -1303,6 +1317,7 @@ async function deleteMundo(id) {
   } catch (error) {
     console.error('Error eliminando mundo:', error);
     // Revertir cambios en caso de error
+    console.log('🔄 Revirtiendo cambios por error');
     state.data = await loadDataFromAPI();
     throw error;
   }
@@ -1318,6 +1333,11 @@ async function deleteSubMundo(id) {
       mundo.subMundos = mundo.subMundos.filter(s => s.id !== id);
     }
     
+    // Limpiar selección si se eliminó el sub-mundo actual
+    if (state.currentSubId === id) {
+      state.currentSubId = null;
+    }
+    
     // Luego eliminar del backend
     const response = await api(`/sub-mundos/${id}`, { method: 'DELETE' });
     if (response.ok) {
@@ -1327,6 +1347,7 @@ async function deleteSubMundo(id) {
       return true;
     } else {
       // Si falla el backend, revertir el cambio en el frontend
+      console.log('⚠️ Error del backend, revirtiendo cambios del frontend');
       state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error eliminando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
@@ -1334,6 +1355,7 @@ async function deleteSubMundo(id) {
   } catch (error) {
     console.error('Error eliminando sub-mundo:', error);
     // Revertir cambios en caso de error
+    console.log('🔄 Revirtiendo cambios por error');
     state.data = await loadDataFromAPI();
     throw error;
   }
@@ -1358,6 +1380,7 @@ async function deleteDesarrollo(id) {
       return true;
     } else {
       // Si falla el backend, revertir el cambio en el frontend
+      console.log('⚠️ Error del backend, revirtiendo cambios del frontend');
       state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error eliminando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
@@ -1365,6 +1388,7 @@ async function deleteDesarrollo(id) {
   } catch (error) {
     console.error('Error eliminando desarrollo:', error);
     // Revertir cambios en caso de error
+    console.log('🔄 Revirtiendo cambios por error');
     state.data = await loadDataFromAPI();
     throw error;
   }
@@ -1847,10 +1871,34 @@ function showDevForm() {
 }
 
 // Función para confirmar eliminación
-function confirmDelete(itemType, itemId) {
-  if (confirm(`¿Está seguro de que desea eliminar este ${itemType}?`)) {
-    // Implementar eliminación según el tipo
-    console.log(`Eliminando ${itemType} con ID: ${itemId}`);
+async function confirmDelete(scope, id, name) {
+  const labels = {world: "mundo", sub: "sub-mundo", dev: "desarrollo"};
+  const label = labels[scope] || "elemento";
+  
+  if (confirm(`¿Está seguro de que desea eliminar este ${label} "${name}"?`)) {
+    try {
+      console.log(`🗑️ Eliminando ${label} "${name}" con ID: ${id}`);
+      
+      let success = false;
+      
+      if (scope === "world") {
+        success = await deleteMundo(id);
+      } else if (scope === "sub") {
+        success = await deleteSubMundo(id);
+      } else if (scope === "dev") {
+        success = await deleteDesarrollo(id);
+      }
+      
+      if (success) {
+        console.log(`✅ ${label} eliminado exitosamente`);
+        // La UI ya se actualizó en las funciones de eliminación
+      } else {
+        alert(`Error eliminando ${label}`);
+      }
+    } catch (error) {
+      console.error(`Error eliminando ${label}:`, error);
+      alert(`Error eliminando ${label}: ${error.message}`);
+    }
   }
 }
 
