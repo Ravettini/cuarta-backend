@@ -1,5 +1,5 @@
 const express = require('express');
-const { estacionesController, mundosController, subMundosController, desarrollosController } = require('../controllers/appController');
+const { estacionesController, mundosController, subMundosController, desarrollosController, inicializarDatosPorDefecto } = require('../controllers/appController');
 const userRoutes = require('./users');
 
 const router = express.Router();
@@ -26,6 +26,6 @@ router.get('/sub-mundos/:subMundoId/desarrollos', desarrollosController.listarDe
 router.post('/desarrollos', desarrollosController.crearDesarrollo);
 
 // Endpoint temporal para inicializar datos por defecto
-router.post('/init', appController.inicializarDatosPorDefecto);
+router.post('/init', inicializarDatosPorDefecto);
 
 module.exports = router;
