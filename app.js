@@ -554,14 +554,19 @@ async function renderSubWorlds(mundoId) {
   const grid = $("#subWorldsGrid");
   if (!grid) return;
   
+  console.log('🔍 renderSubWorlds - mundoId:', mundoId);
+  console.log('🔍 getCurrentWorld():', w);
+  
   try {
     grid.innerHTML = "";
     if (!w) { 
+      console.log('❌ No se encontró el mundo actual');
       $("#subWorldsEmpty").style.display = "block"; 
       return; 
     }
     
     const subMundos = await loadSubMundosForMundo(mundoId);
+    console.log('🔍 Sub-mundos cargados:', subMundos);
     $("#subWorldsEmpty").style.display = subMundos.length ? "none" : "block";
     
     subMundos.forEach(sw => {
@@ -693,14 +698,14 @@ function goWorlds() {
 
 function goSubWorlds() { 
   setSection("#subWorldsSection"); 
-  renderSubWorlds(); 
+  renderSubWorlds(state.currentWorldId); 
   updateHero(); 
   toggleToolbar(true, {world: true, sub: true}); 
 }
 
 function goDevs() { 
   setSection("#devsSection"); 
-  renderDesarrollos(); 
+  renderDesarrollos(state.currentSubId); 
   updateHero(); 
   toggleToolbar(true, {world: true, sub: true, dev: true}); 
 }
@@ -1044,6 +1049,179 @@ function setupUIEvents() {
 function openUserForm(user = null) {
   // Por ahora, función básica - se puede expandir después
   alert("Función de gestión de usuarios en desarrollo");
+}
+
+// ===== Funciones de eliminación =====
+async function deleteMundo(id) {
+  try {
+    const response = await api(`/files/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      throw new Error('Error eliminando mundo');
+    }
+  } catch (error) {
+    console.error('Error eliminando mundo:', error);
+    throw error;
+  }
+}
+
+async function deleteSubMundo(id) {
+  try {
+    const response = await api(`/files/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      throw new Error('Error eliminando sub-mundo');
+    }
+  } catch (error) {
+    console.error('Error eliminando sub-mundo:', error);
+    throw error;
+  }
+}
+
+async function deleteDesarrollo(id) {
+  try {
+    const response = await api(`/files/${id}`, { method: 'DELETE' });
+    if (response.ok) {
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      throw new Error('Error eliminando desarrollo');
+    }
+  } catch (error) {
+    console.error('Error eliminando desarrollo:', error);
+    throw error;
+  }
+}
+
+// ===== Funciones de creación =====
+async function createMundo(data) {
+  try {
+    const response = await api('/mundos', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      const newMundo = await response.json();
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return newMundo;
+    } else {
+      throw new Error('Error creando mundo');
+    }
+  } catch (error) {
+    console.error('Error creando mundo:', error);
+    throw error;
+  }
+}
+
+async function updateMundo(id, data) {
+  try {
+    const response = await api(`/mundos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      throw new Error('Error actualizando mundo');
+    }
+  } catch (error) {
+    console.error('Error actualizando mundo:', error);
+    throw error;
+  }
+}
+
+async function createSubMundo(data) {
+  try {
+    const response = await api('/sub-mundos', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      const newSubMundo = await response.json();
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return newSubMundo;
+    } else {
+      throw new Error('Error creando sub-mundo');
+    }
+  } catch (error) {
+    console.error('Error creando sub-mundo:', error);
+    throw error;
+  }
+}
+
+async function updateSubMundo(id, data) {
+  try {
+    const response = await api(`/sub-mundos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      throw new Error('Error actualizando sub-mundo');
+    }
+  } catch (error) {
+    console.error('Error actualizando sub-mundo:', error);
+    throw error;
+  }
+}
+
+async function createDesarrollo(data) {
+  try {
+    const response = await api('/desarrollos', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      const newDesarrollo = await response.json();
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return newDesarrollo;
+    } else {
+      throw new Error('Error creando desarrollo');
+    }
+  } catch (error) {
+    console.error('Error creando desarrollo:', error);
+    throw error;
+  }
+}
+
+async function updateDesarrollo(id, data) {
+  try {
+    const response = await api(`/desarrollos/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data)
+    });
+    
+    if (response.ok) {
+      // Recargar datos desde la API
+      state.data = await loadDataFromAPI();
+      return true;
+    } else {
+      throw new Error('Error actualizando desarrollo');
+    }
+  } catch (error) {
+    console.error('Error actualizando desarrollo:', error);
+    throw error;
+  }
 }
 
 // Función para renderizar admin
