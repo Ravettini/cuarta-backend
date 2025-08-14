@@ -57,10 +57,12 @@ const obtenerUsuario = async (req, res) => {
 // Crear nuevo usuario
 const crearUsuario = async (req, res) => {
   try {
+    console.log('🚀 Creando usuario con datos:', req.body);
     const { username, password, role, permittedWorldIds } = req.body;
 
     // Validaciones
     if (!username || !password) {
+      console.log('❌ Validación fallida: username o password faltantes');
       return res.status(400).json({
         success: false,
         error: 'Username y password son requeridos'
@@ -88,11 +90,13 @@ const crearUsuario = async (req, res) => {
       username,
       password, // En producción, aquí se debería hashear
       role: role || 'user',
-      permittedWorldIds: permittedWorldIds || []
+      permittedWorldIds: permittedWorldIds ? JSON.stringify(permittedWorldIds) : '[]'
     });
 
     // Retornar usuario sin contraseña
     const { password: _, ...usuarioSinPassword } = nuevoUsuario.toJSON();
+    
+    console.log('✅ Usuario creado exitosamente:', usuarioSinPassword);
 
     res.status(201).json({
       success: true,
@@ -100,7 +104,12 @@ const crearUsuario = async (req, res) => {
       message: 'Usuario creado exitosamente'
     });
   } catch (error) {
-    console.error('Error creando usuario:', error);
+    console.error('❌ Error creando usuario:', error);
+    console.error('❌ Detalles del error:', {
+      name: error.name,
+      message: error.message,
+      stack: error.stack
+    });
     res.status(500).json({
       success: false,
       error: 'Error interno del servidor'

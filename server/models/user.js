@@ -30,23 +30,7 @@ module.exports = (sequelize) => {
     permittedWorldIds: {
       type: DataTypes.TEXT, // JSON string para compatibilidad con SQLite
       allowNull: false,
-      defaultValue: '[]',
-      get() {
-        const value = this.getDataValue('permittedWorldIds');
-        if (value === '*') return '*';
-        try {
-          return JSON.parse(value || '[]');
-        } catch {
-          return [];
-        }
-      },
-      set(value) {
-        if (value === '*') {
-          this.setDataValue('permittedWorldIds', '*');
-        } else {
-          this.setDataValue('permittedWorldIds', JSON.stringify(value || []));
-        }
-      }
+      defaultValue: '[]'
     },
     activo: {
       type: DataTypes.BOOLEAN,
