@@ -507,67 +507,543 @@ async function goAdmin() {
 
 // Función para renderizar mundos
 async function renderWorlds() {
-  const worldsGrid = $("#worldsGrid");
-  if (!worldsGrid) return;
+  const grid = $("#worldsGrid");
+  if (!grid) return;
   
   try {
     const mundos = await loadMundosFromAPI();
+    const visible = mundos.filter(w => canSeeWorld(w.id));
     
-    worldsGrid.innerHTML = mundos
-      .filter(mundo => canSeeWorld(mundo.id))
-      .map(mundo => `
-        <div class="world-card" onclick="selectWorld('${mundo.id}')">
-          <h3>${mundo.nombre}</h3>
-          <p>${mundo.descripcion || ''}</p>
-        </div>
-      `).join('');
+    grid.innerHTML = "";
+    $("#worldsEmpty").style.display = visible.length ? "none" : "block";
+    
+    visible.forEach(w => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${w.nombre}</h3>
+        <p class="muted t-body">Sub-mundos: ${w.subMundos ? w.subMundos.length : 0}</p>
+        <div class="tags"><span class="tag cyan">mundo</span></div>
+        <div class="actions">
+          <button class="btn btn-secondary">Abrir</button>
+          ${isAdmin() ? '<button class="btn btn-rename">Renombrar</button>' : ''}
+          ${isAdmin() ? '<button class="btn btn-danger">Eliminar</button>' : ''}
+        </div>`;
+      
+      card.querySelector(".btn.btn-secondary").onclick = () => { 
+        state.currentWorldId = w.id; 
+        goSubWorlds(); 
+      };
+      
+      if (isAdmin()) {
+        card.querySelector(".btn.btn-rename").onclick = () => showWorldForm({mode: "rename", worldId: w.id});
+        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete({scope: "world", id: w.id, name: w.nombre});
+      }
+      
+      grid.appendChild(card);
+    });
   } catch (error) {
     console.error('Error renderizando mundos:', error);
-    worldsGrid.innerHTML = '<p>Error cargando mundos</p>';
+    grid.innerHTML = '<p>Error cargando mundos</p>';
   }
 }
 
 // Función para renderizar sub-mundos
 async function renderSubWorlds(mundoId) {
-  const subWorldsGrid = $("#subWorldsGrid");
-  if (!subWorldsGrid) return;
+  const w = getCurrentWorld();
+  const grid = $("#subWorldsGrid");
+  if (!grid) return;
   
   try {
-    const subMundos = await loadSubMundosForMundo(mundoId);
+    grid.innerHTML = "";
+    if (!w) { 
+      $("#subWorldsEmpty").style.display = "block"; 
+      return; 
+    }
     
-    subWorldsGrid.innerHTML = subMundos.map(subMundo => `
-      <div class="sub-world-card" onclick="selectSubWorld('${subMundo.id}')">
-        <h4>${subMundo.nombre}</h4>
-        <p>${subMundo.descripcion || ''}</p>
-      </div>
-    `).join('');
+    const subMundos = await loadSubMundosForMundo(mundoId);
+    $("#subWorldsEmpty").style.display = subMundos.length ? "none" : "block";
+    
+    subMundos.forEach(sw => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${sw.nombre}</h3>
+        <p class="muted t-body">Desarrollos: ${sw.desarrollos ? sw.desarrollos.length : 0}</p>
+        <div class="tags"><span class="tag cyan">sub-mundo</span></div>
+        <div class="actions">
+          <button class="btn btn-secondary">Abrir</button>
+          ${isAdmin() ? '<button class="btn btn-rename">Renombrar</button>' : ''}
+          ${isAdmin() ? '<button class="btn btn-danger">Eliminar</button>' : ''}
+        </div>`;
+      
+      card.querySelector(".btn.btn-secondary").onclick = () => { 
+        state.currentSubId = sw.id; 
+        goDevs(); 
+      };
+      
+      if (isAdmin()) {
+        card.querySelector(".btn.btn-rename").onclick = () => showSubWorldForm({mode: "rename", subId: sw.id});
+        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete({scope: "sub", id: sw.id, name: sw.nombre});
+      }
+      
+      grid.appendChild(card);
+    });
   } catch (error) {
     console.error('Error renderizando sub-mundos:', error);
-    subWorldsGrid.innerHTML = '<p>Error cargando sub-mundos</p>';
+    grid.innerHTML = '<p>Error cargando sub-mundos</p>';
   }
 }
 
 // Función para renderizar desarrollos
 async function renderDesarrollos(subMundoId) {
-  const devsGrid = $("#devsGrid");
-  if (!devsGrid) return;
+  const sw = getCurrentSub();
+  const grid = $("#devsGrid");
+  if (!grid) return;
   
   try {
+    grid.innerHTML = "";
+    $("#devsEmpty").style.display = sw && sw.desarrollos && sw.desarrollos.length ? "none" : "block";
+    
+    if (!sw) return;
+    
     const desarrollos = await loadDesarrollosForSubMundo(subMundoId);
     
-    devsGrid.innerHTML = desarrollos.map(desarrollo => `
-      <div class="dev-card" onclick="openDev('${desarrollo.url}')">
-        <h5>${desarrollo.titulo}</h5>
-        <p>${desarrollo.descripcion || ''}</p>
-        <div class="tags">
-          ${(desarrollo.tags || []).map(tag => `<span class="tag">${tag}</span>`).join('')}
-        </div>
-      </div>
-    `).join('');
+    desarrollos.forEach(d => {
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <h3>${d.titulo}</h3>
+        <p class="muted t-body">${d.descripcion || ""}</p>
+        <div class="tags">${(d.tags || []).map(t => `<span class="tag cyan">${t}</span>`).join("")}</div>
+        <div class="actions">
+          ${d.url ? `<a class="button-link" href="${d.url}" target="_blank" rel="noopener">Abrir</a>` : ""}
+          <button class="btn btn-edit">Editar</button>
+          <button class="btn btn-danger">Eliminar</button>
+        </div>`;
+      
+      card.querySelector(".btn.btn-edit").onclick = () => showDevForm({mode: "edit", devId: d.id});
+      card.querySelector(".btn.btn-danger").onclick = () => confirmDelete({scope: "dev", id: d.id, name: d.titulo});
+      
+      grid.appendChild(card);
+    });
   } catch (error) {
     console.error('Error renderizando desarrollos:', error);
-    devsGrid.innerHTML = '<p>Error cargando desarrollos</p>';
+    grid.innerHTML = '<p>Error cargando desarrollos</p>';
   }
+}
+
+// ===== Funciones auxiliares =====
+function getCurrentWorld() { 
+  return state.data.worlds ? state.data.worlds.find(w => w.id === state.currentWorldId) : null; 
+}
+
+function getCurrentSub() { 
+  const w = getCurrentWorld(); 
+  return w && w.subMundos ? w.subMundos.find(s => s.id === state.currentSubId) : null; 
+}
+
+function setSection(id) { 
+  $$("main section").forEach(s => s.classList.remove("active")); 
+  $(id).classList.add("active"); 
+}
+
+function toggleToolbar(show, scope = {}) {
+  $("#btnNewWorld").style.display = (show && isAdmin()) ? "inline-block" : "none";
+  $("#btnNewSubWorld").style.display = (show && scope.world && isAdmin()) ? "inline-block" : "none";
+  $("#btnAddDev").style.display = (show && scope.sub) ? "inline-block" : "none";
+  $("#btnBack").style.display = show ? "inline-block" : "none";
+  $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+  $("#btnAdmin").style.display = (state.user && isAdmin()) ? "inline-block" : "none";
+}
+
+function updateHero() {
+  // Función para actualizar el hero según la vista actual
+  const heroTitle = $("#heroTitle");
+  const heroDesc = $("#heroDesc");
+  
+  if (state.currentSubId) {
+    const sw = getCurrentSub();
+    if (heroTitle) heroTitle.textContent = sw ? sw.nombre : "";
+    if (heroDesc) heroDesc.textContent = "Desarrollos disponibles en este sub-mundo.";
+  } else if (state.currentWorldId) {
+    const w = getCurrentWorld();
+    if (heroTitle) heroTitle.textContent = w ? w.nombre : "";
+    if (heroDesc) heroDesc.textContent = "Sub-mundos disponibles en este mundo.";
+  } else {
+    if (heroTitle) heroTitle.textContent = "Hola, " + (state.user?.username || "");
+    if (heroDesc) heroDesc.textContent = "Elegí un mundo para empezar.";
+  }
+}
+
+// ===== Navegación =====
+function goAuth() { 
+  setSection("#authSection"); 
+  updateHero(); 
+  toggleToolbar(false); 
+}
+
+function goWorlds() { 
+  state.currentSubId = null; 
+  setSection("#worldsSection"); 
+  renderWorlds(); 
+  updateHero(); 
+  toggleToolbar(true, {world: true}); 
+}
+
+function goSubWorlds() { 
+  setSection("#subWorldsSection"); 
+  renderSubWorlds(); 
+  updateHero(); 
+  toggleToolbar(true, {world: true, sub: true}); 
+}
+
+function goDevs() { 
+  setSection("#devsSection"); 
+  renderDesarrollos(); 
+  updateHero(); 
+  toggleToolbar(true, {world: true, sub: true, dev: true}); 
+}
+
+function goAdmin() { 
+  if (!guardAdmin()) return; 
+  setSection("#adminSection"); 
+  renderAdmin(); 
+  updateHero(); 
+  toggleToolbar(true, {world: true}); 
+}
+
+// ===== Formularios en modal =====
+function showWorldForm({mode = "create", worldId = null} = {}) {
+  if (!isAdmin()) return;
+  
+  const existing = worldId ? state.data.worlds?.find(w => w.id === worldId) : null;
+  
+  modal.show({
+    title: mode === "create" ? "Nuevo mundo" : "Renombrar mundo",
+    bodyHTML: `
+      <div class="field">
+        <label for="worldName">Nombre del mundo</label>
+        <input id="worldName" placeholder="Nombre" value="${existing ? existing.nombre : ""}" />
+      </div>`,
+    onSubmit: async () => {
+      const name = $("#worldName").value.trim();
+      if (!name) return;
+      
+      try {
+        if (mode === "create") {
+          await createMundo({ nombre: name, descripcion: "" });
+        } else {
+          await updateMundo(worldId, { nombre: name });
+        }
+        modal.hide();
+        await renderWorlds();
+        renderAdmin?.();
+        updateHero();
+      } catch (error) {
+        console.error('Error en formulario mundo:', error);
+      }
+    },
+    initialFocus: "#worldName",
+    submitLabel: mode === "create" ? "Crear" : "Guardar"
+  });
+}
+
+function showSubWorldForm({mode = "create", subId = null} = {}) {
+  if (!isAdmin()) return;
+  
+  const w = getCurrentWorld();
+  if (!w) return;
+  
+  const existing = subId ? w.subMundos?.find(s => s.id === subId) : null;
+  
+  modal.show({
+    title: mode === "create" ? "Nuevo sub-mundo" : "Renombrar sub-mundo",
+    bodyHTML: `
+      <div class="field">
+        <label for="subName">Nombre del sub-mundo</label>
+        <input id="subName" placeholder="Nombre" value="${existing ? existing.nombre : ""}" />
+      </div>`,
+    onSubmit: async () => {
+      const name = $("#subName").value.trim();
+      if (!name) return;
+      
+      try {
+        if (mode === "create") {
+          await createSubMundo({ nombre: name, descripcion: "", mundoId: w.id });
+        } else {
+          await updateSubMundo(subId, { nombre: name });
+        }
+        modal.hide();
+        await renderSubWorlds();
+        updateHero();
+      } catch (error) {
+        console.error('Error en formulario sub-mundo:', error);
+      }
+    },
+    initialFocus: "#subName",
+    submitLabel: mode === "create" ? "Crear" : "Guardar"
+  });
+}
+
+function showDevForm({mode = "create", devId = null} = {}) {
+  const sw = getCurrentSub();
+  if (!sw) return;
+  
+  const existing = devId ? sw.desarrollos?.find(d => d.id === devId) : null;
+  
+  modal.show({
+    title: mode === "create" ? "Nuevo desarrollo" : "Editar desarrollo",
+    bodyHTML: `
+      <div class="field">
+        <label for="devTitle">Título</label>
+        <input id="devTitle" placeholder="Ej. Dashboard Ventas" value="${existing ? existing.titulo : ""}" />
+      </div>
+      <div class="field">
+        <label for="devURL">URL (opcional)</label>
+        <input id="devURL" placeholder="https://..." value="${existing ? (existing.url || "") : ""}" />
+      </div>
+      <div class="field">
+        <label for="devDesc">Descripción (opcional)</label>
+        <textarea id="devDesc" placeholder="Breve descripción...">${existing ? (existing.descripcion || "") : ""}</textarea>
+      </div>
+      <div class="field">
+        <label for="devTags">Tags (separadas por coma)</label>
+        <input id="devTags" placeholder="mapa, bi, informe" value="${existing ? (existing.tags || []).join(", ") : ""}" />
+      </div>`,
+    onSubmit: async () => {
+      const titulo = $("#devTitle").value.trim();
+      if (!titulo) return;
+      
+      const url = $("#devURL").value.trim();
+      const descripcion = $("#devDesc").value.trim();
+      const tags = $("#devTags").value.split(",").map(t => t.trim()).filter(Boolean);
+      
+      try {
+        if (mode === "create") {
+          await createDesarrollo({ titulo, url, descripcion, tags, subMundoId: sw.id });
+        } else {
+          await updateDesarrollo(devId, { titulo, url, descripcion, tags });
+        }
+        modal.hide();
+        await renderDesarrollos();
+      } catch (error) {
+        console.error('Error en formulario desarrollo:', error);
+      }
+    },
+    initialFocus: "#devTitle",
+    submitLabel: mode === "create" ? "Crear" : "Guardar"
+  });
+}
+
+function confirmDelete({scope, id, name}) {
+  const labels = {world: "mundo", sub: "sub-mundo", dev: "desarrollo"};
+  
+  modal.show({
+    title: `Eliminar ${labels[scope]}`,
+    bodyHTML: `<p class="t-body">¿Seguro querés eliminar <strong>${name}</strong>? Esta acción no se puede deshacer.</p>`,
+    onSubmit: async () => {
+      try {
+        if (scope === "world") {
+          await deleteMundo(id);
+          state.currentWorldId = null;
+          state.currentSubId = null;
+          goWorlds();
+        } else if (scope === "sub") {
+          await deleteSubMundo(id);
+          state.currentSubId = null;
+          goSubWorlds();
+        } else if (scope === "dev") {
+          await deleteDesarrollo(id);
+          renderDesarrollos();
+        }
+        modal.hide();
+      } catch (error) {
+        console.error('Error eliminando:', error);
+      }
+    },
+    submitLabel: "Eliminar"
+  });
+}
+
+// ===== CRUD (usando modales) =====
+function createWorld() { showWorldForm({mode: "create"}); }
+function renameWorld(id) { showWorldForm({mode: "rename", worldId: id}); }
+function deleteWorld(id) {
+  const w = state.data.worlds?.find(x => x.id === id);
+  if (!w) return;
+  confirmDelete({scope: "world", id, name: w.nombre});
+}
+
+function createSubWorld() { showSubWorldForm({mode: "create"}); }
+function renameSub(id) { showSubWorldForm({mode: "rename", subId: id}); }
+function deleteSub(id) {
+  const w = getCurrentWorld();
+  if (!w) return;
+  const sw = w.subMundos?.find(x => x.id === id);
+  if (!sw) return;
+  confirmDelete({scope: "sub", id, name: sw.nombre});
+}
+
+function addDevManually() { showDevForm({mode: "create"}); }
+function editDev(id) { showDevForm({mode: "edit", devId: id}); }
+function deleteDev(id) {
+  const sw = getCurrentSub();
+  if (!sw) return;
+  const d = sw.desarrollos?.find(x => x.id === id);
+  if (!d) return;
+  confirmDelete({scope: "dev", id, name: d.titulo});
+}
+
+// ===== Drag & Drop =====
+function setupDropzone() {
+  const dz = $("#dropzone");
+  if (!dz) return;
+  
+  ["dragenter", "dragover"].forEach(evt => {
+    dz.addEventListener(evt, e => { 
+      e.preventDefault(); 
+      e.stopPropagation(); 
+      dz.classList.add("dragover"); 
+    });
+  });
+  
+  ["dragleave", "drop"].forEach(evt => {
+    dz.addEventListener(evt, e => { 
+      e.preventDefault(); 
+      e.stopPropagation(); 
+      dz.classList.remove("dragover"); 
+    });
+  });
+  
+  dz.addEventListener("drop", async e => {
+    const sw = getCurrentSub();
+    if (!sw) return alert("Elegí un sub-mundo.");
+    
+    const items = e.dataTransfer.items;
+    if (items && items.length) {
+      for (const it of items) {
+        if (it.kind === "string") {
+          it.getAsString(async str => {
+            try {
+              const maybeURL = (str || "").trim();
+              if (maybeURL.startsWith("http")) {
+                await createDesarrollo({
+                  titulo: new URL(maybeURL).hostname,
+                  url: maybeURL,
+                  descripcion: "Agregado por drag & drop",
+                  tags: ["link"],
+                  subMundoId: sw.id
+                });
+                await renderDesarrollos();
+              }
+            } catch (error) {
+              console.error('Error procesando URL:', error);
+            }
+          });
+        } else if (it.kind === "file") {
+          const file = it.getAsFile();
+          const url = URL.createObjectURL(file);
+          try {
+            await createDesarrollo({
+              titulo: file.name,
+              url: url,
+              descripcion: `Archivo local (${Math.round(file.size / 1024)} KB)`,
+              tags: ["archivo"],
+              subMundoId: sw.id
+            });
+            await renderDesarrollos();
+          } catch (error) {
+            console.error('Error procesando archivo:', error);
+          }
+        }
+      }
+    }
+  });
+  
+  dz.addEventListener("paste", async e => {
+    const sw = getCurrentSub();
+    if (!sw) return;
+    
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if (text && text.startsWith("http")) {
+      try {
+        await createDesarrollo({
+          titulo: new URL(text).hostname,
+          url: text,
+          descripcion: "Agregado por pegar enlace",
+          tags: ["link"],
+          subMundoId: sw.id
+        });
+        await renderDesarrollos();
+      } catch (error) {
+        console.error('Error procesando enlace pegado:', error);
+      }
+    }
+  });
+}
+
+// ===== Eventos UI =====
+function showAuthMessage(message, type = 'info') {
+  const authMsg = document.getElementById('authMsg');
+  if (!authMsg) return;
+  authMsg.textContent = message;
+  authMsg.className = `t-body ${type}`;
+  setTimeout(() => { 
+    authMsg.textContent = ''; 
+    authMsg.className = 't-body muted'; 
+  }, 5000);
+}
+
+function setupUIEvents() {
+  $("#btnNewWorld").onclick = () => { 
+    if (isAdmin()) createWorld(); 
+    else alert("Solo ADMIN."); 
+  };
+  
+  $("#btnNewSubWorld").onclick = () => { 
+    if (isAdmin()) createSubWorld(); 
+    else alert("Solo ADMIN."); 
+  };
+  
+  $("#btnAddDev").onclick = addDevManually;
+  
+  $("#btnBack").onclick = () => { 
+    if (state.currentSubId) { 
+      state.currentSubId = null; 
+      goSubWorlds(); 
+    } else if (state.currentWorldId) { 
+      state.currentWorldId = null; 
+      goWorlds(); 
+    } else { 
+      goWorlds(); 
+    } 
+  };
+  
+  $("#btnLogout").onclick = logout;
+  $("#btnAdmin").onclick = goAdmin;
+  
+  $("#doLogin").onclick = async () => {
+    const u = $("#loginUser").value.trim();
+    const p = $("#loginPass").value.trim();
+    
+    if (await login(u, p)) {
+      $("#authSection").classList.remove("active");
+      $("#heroTitle").textContent = `Hola, ${u}`;
+      $("#heroDesc").textContent = "Elegí un mundo para empezar.";
+      await goWorlds();
+    } else {
+      $("#authMsg").textContent = "Credenciales incorrectas. Probá nuevamente.";
+    }
+  };
+  
+  $("#btnAddUser")?.addEventListener("click", () => openUserForm(null));
+}
+
+// ===== Funciones de usuario =====
+function openUserForm(user = null) {
+  // Por ahora, función básica - se puede expandir después
+  alert("Función de gestión de usuarios en desarrollo");
 }
 
 // Función para renderizar admin
@@ -944,69 +1420,7 @@ async function initializeApp() {
   modal.init();
   restoreSession();
   setupDropzone();
-  
-  // Conectar botón de login y formulario
-  const loginBtn = document.getElementById('doLogin');
-  const loginUser = document.getElementById('loginUser');
-  const loginPass = document.getElementById('loginPass');
-  
-  // Conectar botón de logout del header
-  const logoutBtn = document.getElementById('btnLogout');
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', logout);
-    console.log('✅ Botón de logout conectado');
-  }
-  
-  console.log('🔍 Elementos del login encontrados:', { 
-    loginBtn: !!loginBtn, 
-    loginUser: !!loginUser, 
-    loginPass: !!loginPass 
-  });
-  
-  if (loginBtn && loginUser && loginPass) {
-    // Función de login
-    const performLogin = async () => {
-      const username = loginUser.value;
-      const password = loginPass.value;
-      
-      if (!username || !password) {
-        showAuthMessage('Por favor ingrese usuario y contraseña', 'error');
-        return;
-      }
-      
-      // Mostrar estado de carga
-      showAuthMessage('Iniciando sesión...', 'loading');
-      loginBtn.disabled = true;
-      
-      try {
-        if (await login(username, password)) {
-          showAuthMessage('¡Login exitoso!', 'success');
-          setTimeout(async () => {
-            await goWorlds();
-          }, 500);
-        } else {
-          showAuthMessage('Usuario o contraseña incorrectos', 'error');
-          loginBtn.disabled = false;
-        }
-      } catch (error) {
-        console.error('Error en login:', error);
-        showAuthMessage('Error al intentar hacer login', 'error');
-        loginBtn.disabled = false;
-      }
-    };
-    
-    // Click en botón
-    loginBtn.addEventListener('click', performLogin);
-    
-    // Enter en campos de texto
-    loginUser.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') performLogin();
-    });
-    
-    loginPass.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') performLogin();
-    });
-  }
+  setupUIEvents();
 
   // Inicializar la aplicación de forma asíncrona
   initializeApp();
