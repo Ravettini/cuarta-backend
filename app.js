@@ -469,24 +469,6 @@ async function goWorlds() {
   $("#subWorldsSection").classList.remove("active");
   $("#devsSection").classList.remove("active");
   
-  // Agregar botón de logout en la sección de mundos
-  const worldsSection = document.getElementById('worldsSection');
-  if (worldsSection && state.user) {
-    // Verificar si ya existe el botón de logout
-    let logoutBtn = worldsSection.querySelector('.logout-btn');
-    if (!logoutBtn) {
-      logoutBtn = document.createElement('div');
-      logoutBtn.className = 'logout-btn';
-      logoutBtn.style.cssText = 'position: absolute; top: 20px; right: 20px; display: flex; align-items: center; gap: 10px;';
-      logoutBtn.innerHTML = `
-        <span style="color: #cfe9e5; font-size: 14px;">Usuario: ${state.user.username}</span>
-        <button onclick="logout()" class="btn btn-small btn-secondary" style="padding: 8px 12px; font-size: 12px;">Logout</button>
-      `;
-      worldsSection.style.position = 'relative';
-      worldsSection.appendChild(logoutBtn);
-    }
-  }
-  
   await renderWorlds();
 }
 
@@ -526,38 +508,22 @@ async function goAdmin() {
 // Función para renderizar mundos
 async function renderWorlds() {
   const worldsGrid = $("#worldsGrid");
-  if (!worldsGrid) {
-    console.error('❌ worldsGrid no encontrado');
-    return;
-  }
+  if (!worldsGrid) return;
   
   try {
     const mundos = await loadMundosFromAPI();
-    console.log('🌍 Mundos cargados:', mundos);
     
-    if (mundos.length === 0) {
-      worldsGrid.innerHTML = '<p class="empty">No hay mundos disponibles</p>';
-      return;
-    }
-    
-    // Renderizar mundos como cards
     worldsGrid.innerHTML = mundos
       .filter(mundo => canSeeWorld(mundo.id))
       .map(mundo => `
-        <div class="world-card card" onclick="selectWorld('${mundo.id}')" style="cursor: pointer;">
+        <div class="world-card" onclick="selectWorld('${mundo.id}')">
           <h3>${mundo.nombre}</h3>
-          <p>${mundo.descripcion || 'Sin descripción'}</p>
-          <div class="world-actions">
-            <span class="tag cyan">ID: ${mundo.id.substring(0, 8)}...</span>
-          </div>
+          <p>${mundo.descripcion || ''}</p>
         </div>
       `).join('');
-    
-    console.log('✅ Mundos renderizados en worldsGrid');
-    
   } catch (error) {
-    console.error('❌ Error renderizando mundos:', error);
-    worldsGrid.innerHTML = '<p class="error">Error cargando mundos</p>';
+    console.error('Error renderizando mundos:', error);
+    worldsGrid.innerHTML = '<p>Error cargando mundos</p>';
   }
 }
 
@@ -983,6 +949,13 @@ async function initializeApp() {
   const loginBtn = document.getElementById('doLogin');
   const loginUser = document.getElementById('loginUser');
   const loginPass = document.getElementById('loginPass');
+  
+  // Conectar botón de logout del header
+  const logoutBtn = document.getElementById('btnLogout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', logout);
+    console.log('✅ Botón de logout conectado');
+  }
   
   console.log('🔍 Elementos del login encontrados:', { 
     loginBtn: !!loginBtn, 
