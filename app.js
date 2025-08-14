@@ -93,19 +93,26 @@ function saveUserList(users) {
 // Función para autenticar usuario
 async function login(username, password) {
   try {
+    console.log('🔐 Intentando login con:', { username, password });
+    
     const response = await api('/users/auth', {
       method: 'POST',
       body: JSON.stringify({ username, password })
     });
     
+    console.log('📡 Respuesta de la API:', response);
+    
     if (response.success) {
       state.user = response.data;
       persistSession();
+      console.log('✅ Login exitoso, usuario:', state.user);
       return true;
     }
+    
+    console.log('❌ Login fallido, respuesta:', response);
     return false;
   } catch (error) {
-    console.error('Error en login:', error);
+    console.error('💥 Error en login:', error);
     return false;
   }
 }
@@ -430,16 +437,29 @@ async function deleteUserAPI(userId) {
 
 // Función para ir a autenticación
 function goAuth() {
+  // Ocultar header cuando estemos en login
+  const header = document.querySelector('header.appbar');
+  if (header) header.style.display = 'none';
+  
+  // Mostrar solo la sección de auth
   $("#authSection").classList.add("active");
   $("#worldsSection").classList.remove("active");
   $("#adminSection").classList.remove("active");
+  $("#subWorldsSection").classList.remove("active");
+  $("#devsSection").classList.remove("active");
 }
 
 // Función para ir a mundos
 async function goWorlds() {
+  // Mostrar header cuando estemos en mundos
+  const header = document.querySelector('header.appbar');
+  if (header) header.style.display = 'flex';
+  
   $("#authSection").classList.remove("active");
   $("#worldsSection").classList.add("active");
   $("#adminSection").classList.remove("active");
+  $("#subWorldsSection").classList.remove("active");
+  $("#devsSection").classList.remove("active");
   
   await renderWorlds();
 }
@@ -449,6 +469,21 @@ function logout() {
   state.user = null;
   localStorage.removeItem(LS_SESSION);
   goAuth();
+}
+
+// Función para mostrar mensajes en el formulario de auth
+function showAuthMessage(message, type = 'info') {
+  const authMsg = document.getElementById('authMsg');
+  if (!authMsg) return;
+  
+  authMsg.textContent = message;
+  authMsg.className = `t-body ${type}`;
+  
+  // Limpiar mensaje después de 5 segundos
+  setTimeout(() => {
+    authMsg.textContent = '';
+    authMsg.className = 't-body muted';
+  }, 5000);
 }
 
 // Función para ir a admin
@@ -912,6 +947,62 @@ async function initializeApp() {
   modal.init();
   restoreSession();
   setupDropzone();
+  
+  // Conectar botón de login y formulario
+  const loginBtn = document.getElementById('doLogin');
+  const loginUser = document.getElementById('loginUser');
+  const loginPass = document.getElementById('loginPass');
+  
+  console.log('🔍 Elementos del login encontrados:', { 
+    loginBtn: !!loginBtn, 
+    loginUser: !!loginUser, 
+    loginPass: !!loginPass 
+  });
+  
+  if (loginBtn && loginUser && loginPass) {
+    // Función de login
+    const performLogin = async () => {
+      const username = loginUser.value;
+      const password = loginPass.value;
+      
+      if (!username || !password) {
+        showAuthMessage('Por favor ingrese usuario y contraseña', 'error');
+        return;
+      }
+      
+      // Mostrar estado de carga
+      showAuthMessage('Iniciando sesión...', 'loading');
+      loginBtn.disabled = true;
+      
+      try {
+        if (await login(username, password)) {
+          showAuthMessage('¡Login exitoso!', 'success');
+          setTimeout(async () => {
+            await goWorlds();
+          }, 500);
+        } else {
+          showAuthMessage('Usuario o contraseña incorrectos', 'error');
+          loginBtn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Error en login:', error);
+        showAuthMessage('Error al intentar hacer login', 'error');
+        loginBtn.disabled = false;
+      }
+    };
+    
+    // Click en botón
+    loginBtn.addEventListener('click', performLogin);
+    
+    // Enter en campos de texto
+    loginUser.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') performLogin();
+    });
+    
+    loginPass.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') performLogin();
+    });
+  }
 
   // Inicializar la aplicación de forma asíncrona
   initializeApp();
