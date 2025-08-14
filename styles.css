@@ -154,13 +154,162 @@ footer{
 /* Panel de control */
 .admin-grid{ display:grid; gap:16px; grid-template-columns: 1fr; }
 .admin-actions{margin:10px 0; display:flex; gap:8px; flex-wrap:wrap}
-.users-list{display:flex; flex-direction:column; gap:12px; margin-top:8px}
-.user-item{ border:1px solid rgba(255,255,255,.14); border-radius:14px; padding:12px; display:grid; gap:10px; }
-.user-row{display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:8px}
-.user-actions{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
-.worlds-badges{display:flex; gap:6px; flex-wrap:wrap}
-.badge{font-size:12px; padding:6px 10px; border-radius:999px; background:rgba(141,226,214,.18); color:var(--ba-off); border:1px solid rgba(141,226,214,.35)}
-.worlds-summary{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px}
+
+/* Panel de administración */
+.admin-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.admin-header h2 {
+  margin: 0 0 8px 0;
+  color: var(--ba-off);
+}
+
+.admin-sections {
+  display: grid;
+  gap: 24px;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+}
+
+.admin-section {
+  background: rgba(255,255,255,.06);
+  border: var(--border-soft);
+  border-radius: var(--radius-2);
+  padding: 20px;
+  backdrop-filter: saturate(120%) blur(6px);
+}
+
+.admin-section h3 {
+  margin: 0 0 8px 0;
+  color: var(--ba-off);
+  font-size: 20px;
+  font-weight: var(--fw-medium);
+}
+
+.section-description {
+  margin: 0 0 16px 0;
+  color: #cfe9e5;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Lista de usuarios */
+.users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.user-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: .2s background ease, .2s border-color ease;
+}
+
+.user-card:hover {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(141,226,214,.4);
+}
+
+.user-info h4 {
+  margin: 0 0 4px 0;
+  color: var(--ba-off);
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+}
+
+.user-info p {
+  margin: 0 0 2px 0;
+  color: #cfe9e5;
+  font-size: 13px;
+}
+
+.user-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Lista de mundos */
+.worlds-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.world-card {
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px;
+  padding: 16px;
+  transition: .2s background ease, .2s border-color ease;
+}
+
+.world-card:hover {
+  background: rgba(255,255,255,.08);
+  border-color: rgba(141,226,214,.4);
+}
+
+.world-info h4 {
+  margin: 0 0 6px 0;
+  color: var(--ba-off);
+  font-size: 16px;
+  font-weight: var(--fw-medium);
+}
+
+.world-info p {
+  margin: 0 0 4px 0;
+  color: #cfe9e5;
+  font-size: 13px;
+}
+
+/* Mensajes vacíos */
+.empty-message {
+  text-align: center;
+  color: #9cc9c4;
+  font-style: italic;
+  padding: 20px;
+  background: rgba(255,255,255,.02);
+  border-radius: 8px;
+  border: 1px dashed rgba(255,255,255,.1);
+}
+
+/* Botones pequeños */
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 8px;
+}
+
+/* Responsive para panel de administración */
+@media (max-width: 768px) {
+  .admin-sections {
+    grid-template-columns: 1fr;
+  }
+  
+  .admin-section {
+    padding: 16px;
+  }
+  
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .user-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
 
 /* ===== Modal genérico ===== */
 .modal{ position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,.45); z-index:1000; padding:20px; }

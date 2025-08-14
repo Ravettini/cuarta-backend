@@ -1679,50 +1679,89 @@ async function renderAdmin() {
   
   try {
     console.log('🔧 Renderizando panel de administración...');
+    
+    // Cargar usuarios y mundos
     const users = await loadUserListFromAPI();
+    const mundos = state.data?.worlds || [];
+    
     console.log('👥 Usuarios cargados:', users);
+    console.log('🌍 Mundos disponibles:', mundos);
     
-    // Verificar si hay usuarios
-    if (!users || users.length === 0) {
-      console.log('⚠️ No hay usuarios para mostrar');
-      adminContainer.innerHTML = `
-        <div class="admin-header">
-          <h2>Panel de Administración</h2>
-          <button onclick="openUserForm()" class="btn btn-primary">Nuevo Usuario</button>
-        </div>
-        <div class="users-list">
-          <p>No hay usuarios registrados. Crea el primer usuario.</p>
-        </div>
-      `;
-      return;
-    }
-    
-    adminContainer.innerHTML = `
+    // Crear el HTML del panel de administración
+    let adminHTML = `
       <div class="admin-header">
         <h2>Panel de Administración</h2>
         <button onclick="openUserForm()" class="btn btn-primary">Nuevo Usuario</button>
       </div>
-      <div class="users-list">
-        ${users.map(user => `
+      
+      <div class="admin-sections">
+        <!-- Sección de Usuarios -->
+        <div class="admin-section">
+          <h3>Usuarios</h3>
+          <p class="section-description">Crear, editar y asignar permisos de mundos.</p>
+          <button onclick="openUserForm()" class="btn btn-secondary">+ Nuevo usuario</button>
+          <div class="users-list">
+    `;
+    
+    if (!users || users.length === 0) {
+      adminHTML += '<p class="empty-message">No hay usuarios registrados. Crea el primer usuario.</p>';
+    } else {
+      users.forEach(user => {
+        adminHTML += `
           <div class="user-card">
             <div class="user-info">
               <h4>${user.username}</h4>
-              <p>Rol: ${user.role}</p>
-              <p>Permisos: ${user.permittedWorldIds === '*' ? 'Todos' : user.permittedWorldIds.join(', ')}</p>
+              <p>Rol: ${user.role || 'user'}</p>
+              <p>Permisos: ${user.permittedWorldIds === '*' ? 'Todos' : (user.permittedWorldIds && user.permittedWorldIds.length > 0 ? user.permittedWorldIds.join(', ') : 'Ninguno')}</p>
             </div>
             <div class="user-actions">
               <button onclick="openUserForm('${user.id}')" class="btn btn-small">Editar</button>
               <button onclick="confirmDeleteUser('${user.id}')" class="btn btn-small btn-danger">Eliminar</button>
             </div>
           </div>
-        `).join('')}
+        `;
+      });
+    }
+    
+    adminHTML += `
+          </div>
+        </div>
+        
+        <!-- Sección de Mundos -->
+        <div class="admin-section">
+          <h3>Mundos disponibles</h3>
+          <p class="section-description">Resumen de mundos actuales. Los permisos se asignan en cada usuario.</p>
+          <div class="worlds-list">
+    `;
+    
+    if (!mundos || mundos.length === 0) {
+      adminHTML += '<p class="empty-message">No hay mundos creados. Crea el primer mundo desde la vista principal.</p>';
+    } else {
+      mundos.forEach(mundo => {
+        adminHTML += `
+          <div class="world-card">
+            <div class="world-info">
+              <h4>${mundo.name || mundo.nombre || 'Sin nombre'}</h4>
+              <p>Descripción: ${mundo.descripcion || 'Sin descripción'}</p>
+              <p>Sub-mundos: ${(mundo.subMundos && mundo.subMundos.length) || (mundo.subWorlds && mundo.subWorlds.length) || 0}</p>
+            </div>
+          </div>
+        `;
+      });
+    }
+    
+    adminHTML += `
+          </div>
+        </div>
       </div>
     `;
+    
+    adminContainer.innerHTML = adminHTML;
     
     console.log('✅ Panel de administración renderizado correctamente');
   } catch (error) {
     console.error('Error renderizando admin:', error);
-    adminContainer.innerHTML = '<p>Error cargando usuarios</p>';
+    adminContainer.innerHTML = '<p>Error cargando datos del panel de administración</p>';
   }
 }
 
