@@ -538,25 +538,68 @@ async function updateUserAPI(userId, userData) {
 
 async function createUserAPI(userData) {
   try {
+    console.log('🚀 Creando usuario via API:', userData);
+    
     const response = await api('/users', {
       method: 'POST',
       body: JSON.stringify(userData)
     });
-    return response.data;
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Usuario creado exitosamente:', result);
+      return result.data;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error creando usuario: ${response.status} - ${errorData.message || 'Error desconocido'}`);
+    }
   } catch (error) {
-    console.error('Error creando usuario:', error);
+    console.error('❌ Error creando usuario:', error);
+    throw error;
+  }
+}
+
+async function updateUserAPI(userId, userData) {
+  try {
+    console.log('✏️ Actualizando usuario via API:', userId, userData);
+    
+    const response = await api(`/users/${userId}`, {
+      method: 'PUT',
+      body: JSON.stringify(userData)
+    });
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Usuario actualizado exitosamente:', result);
+      return result.data;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error actualizando usuario: ${response.status} - ${errorData.message || 'Error desconocido'}`);
+    }
+  } catch (error) {
+    console.error('❌ Error actualizando usuario:', error);
     throw error;
   }
 }
 
 async function deleteUserAPI(userId) {
   try {
+    console.log('🗑️ Eliminando usuario:', userId);
+    
     const response = await api(`/users/${userId}`, {
       method: 'DELETE'
     });
-    return response.success;
+    
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Usuario eliminado exitosamente:', result);
+      return result.success;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error eliminando usuario: ${response.status} - ${errorData.message || 'Error desconocido'}`);
+    }
   } catch (error) {
-    console.error('Error eliminando usuario:', error);
+    console.error('❌ Error eliminando usuario:', error);
     throw error;
   }
 }
@@ -1457,10 +1500,13 @@ async function updateMundo(id, data) {
     // ACTUALIZACIÓN INSTANTÁNEA: Primero en el frontend
     const mundo = state.data.worlds?.find(w => w.id === id);
     if (mundo) {
+      // Actualizar ambas propiedades para compatibilidad
       mundo.nombre = data.nombre;
+      mundo.name = data.nombre;
       if (data.descripcion !== undefined) {
         mundo.descripcion = data.descripcion;
       }
+      console.log('✅ Mundo actualizado en frontend:', mundo);
     }
     
     // Luego actualizar en el backend
@@ -1522,10 +1568,13 @@ async function updateSubMundo(id, data) {
     if (mundo && mundo.subMundos) {
       const subMundo = mundo.subMundos.find(s => s.id === id);
       if (subMundo) {
+        // Actualizar ambas propiedades para compatibilidad
         subMundo.nombre = data.nombre;
+        subMundo.name = data.nombre;
         if (data.descripcion !== undefined) {
           subMundo.descripcion = data.descripcion;
         }
+        console.log('✅ Sub-mundo actualizado en frontend:', subMundo);
       }
     }
     
@@ -1588,10 +1637,13 @@ async function updateDesarrollo(id, data) {
     if (subMundo && subMundo.desarrollos) {
       const desarrollo = subMundo.desarrollos.find(d => d.id === id);
       if (desarrollo) {
+        // Actualizar propiedades para compatibilidad
         desarrollo.titulo = data.titulo;
+        desarrollo.title = data.titulo; // También actualizar title
         if (data.url !== undefined) desarrollo.url = data.url;
         if (data.descripcion !== undefined) desarrollo.descripcion = data.descripcion;
         if (data.tags !== undefined) desarrollo.tags = data.tags;
+        console.log('✅ Desarrollo actualizado en frontend:', desarrollo);
       }
     }
     
@@ -1626,7 +1678,24 @@ async function renderAdmin() {
   if (!adminContainer) return;
   
   try {
+    console.log('🔧 Renderizando panel de administración...');
     const users = await loadUserListFromAPI();
+    console.log('👥 Usuarios cargados:', users);
+    
+    // Verificar si hay usuarios
+    if (!users || users.length === 0) {
+      console.log('⚠️ No hay usuarios para mostrar');
+      adminContainer.innerHTML = `
+        <div class="admin-header">
+          <h2>Panel de Administración</h2>
+          <button onclick="openUserForm()" class="btn btn-primary">Nuevo Usuario</button>
+        </div>
+        <div class="users-list">
+          <p>No hay usuarios registrados. Crea el primer usuario.</p>
+        </div>
+      `;
+      return;
+    }
     
     adminContainer.innerHTML = `
       <div class="admin-header">
@@ -1649,6 +1718,8 @@ async function renderAdmin() {
         `).join('')}
       </div>
     `;
+    
+    console.log('✅ Panel de administración renderizado correctamente');
   } catch (error) {
     console.error('Error renderizando admin:', error);
     adminContainer.innerHTML = '<p>Error cargando usuarios</p>';
@@ -1749,16 +1820,22 @@ function openUserForm(userId = null) {
         role: $("#formRole").value
       };
       
+      console.log('💾 Guardando usuario:', userData);
+      
       try {
         if (isEdit) {
+          console.log('✏️ Editando usuario existente:', userId);
           await updateUserAPI(userId, userData);
         } else {
+          console.log('🆕 Creando nuevo usuario');
           await createUserAPI(userData);
         }
         
+        console.log('✅ Usuario guardado exitosamente');
         modal.hide();
         await renderAdmin();
       } catch (error) {
+        console.error('❌ Error guardando usuario:', error);
         alert("Error guardando usuario: " + error.message);
       }
     }
