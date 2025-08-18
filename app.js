@@ -1611,27 +1611,30 @@ function setupUIEvents() {
   $("#btnAdmin").onclick = goAdmin;
   
   // Botón de refrescar datos
-  $("#btnRefresh")?.onclick = async () => {
-    try {
-      console.log('🔄 Refrescando datos...');
-      invalidateCache();
-      state.data = await loadDataFromAPI(true); // Forzar refrescar
-      
-      // Re-renderizar la vista actual
-      if (state.currentSubId) {
-        await renderDesarrollos();
-      } else if (state.currentWorldId) {
-        await renderSubWorlds();
-      } else {
-        await renderWorlds();
+  const btnRefresh = $("#btnRefresh");
+  if (btnRefresh) {
+    btnRefresh.onclick = async () => {
+      try {
+        console.log('🔄 Refrescando datos...');
+        invalidateCache();
+        state.data = await loadDataFromAPI(true); // Forzar refrescar
+        
+        // Re-renderizar la vista actual
+        if (state.currentSubId) {
+          await renderDesarrollos();
+        } else if (state.currentWorldId) {
+          await renderSubWorlds();
+        } else {
+          await renderWorlds();
+        }
+        
+        console.log('✅ Datos refrescados exitosamente');
+      } catch (error) {
+        console.error('Error refrescando datos:', error);
+        alert('Error refrescando datos: ' + error.message);
       }
-      
-      console.log('✅ Datos refrescados exitosamente');
-    } catch (error) {
-      console.error('Error refrescando datos:', error);
-      alert('Error refrescando datos: ' + error.message);
-    }
-  };
+    };
+  }
   
   $("#doLogin").onclick = async () => {
     const u = $("#loginUser").value.trim();
@@ -1647,7 +1650,10 @@ function setupUIEvents() {
     }
   };
   
-  $("#btnAddUser")?.addEventListener("click", () => openUserForm(null));
+  const btnAddUser = $("#btnAddUser");
+  if (btnAddUser) {
+    btnAddUser.addEventListener("click", () => openUserForm(null));
+  }
 }
 
 // ===== Funciones de usuario =====
