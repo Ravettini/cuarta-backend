@@ -55,17 +55,36 @@ const LS_SESSION="gcba_session";
 
 // Función para restaurar sesión (mantenida para compatibilidad)
 function restoreSession(){
-  const s = JSON.parse(localStorage.getItem(LS_SESSION)||"null");
-  if(s && s.username){
-    // Solo guardar el username, la validación se hará contra la API
-    state.user = { username:s.username };
+  try {
+    const sessionData = JSON.parse(localStorage.getItem(LS_SESSION) || "null");
+    if (sessionData && sessionData.user) {
+      state.user = sessionData.user;
+      state.currentWorldId = sessionData.currentWorldId || null;
+      state.currentSubId = sessionData.currentSubId || null;
+      console.log('✅ Sesión restaurada:', {
+        user: state.user.username,
+        currentWorldId: state.currentWorldId,
+        currentSubId: state.currentSubId
+      });
+      return true;
+    }
+  } catch (error) {
+    console.error('Error restaurando sesión:', error);
+    localStorage.removeItem(LS_SESSION);
   }
+  return false;
 }
 
 // Función para persistir sesión
 function persistSession(){
-  if(state.user) localStorage.setItem(LS_SESSION, JSON.stringify({username:state.user.username}));
-  else localStorage.removeItem(LS_SESSION);
+  if(state.user) {
+    const sessionData = {
+      user: state.user,
+      currentWorldId: state.currentWorldId,
+      currentSubId: state.currentSubId
+    };
+    localStorage.setItem(LS_SESSION, JSON.stringify(sessionData));
+  } else localStorage.removeItem(LS_SESSION);
 }
 
 // ===== Funciones de Usuarios =====
@@ -261,16 +280,64 @@ async function loadDataFromAPI() {
       };
     }
     
-    // Convertir el formato de la API al formato esperado por el frontend
-    const formattedData = {
-      worlds: mundos.map(mundo => ({
+    // Cargar sub-mundos y desarrollos para cada mundo
+    const mundosCompletos = [];
+    for (const mundo of mundos) {
+      console.log(`🔄 Cargando sub-mundos para mundo: ${mundo.nombre}`);
+      
+      // Cargar sub-mundos del mundo
+      const subMundos = await loadSubMundosForMundo(mundo.id);
+      console.log(`📂 Sub-mundos encontrados para ${mundo.nombre}:`, subMundos.length);
+      
+      // Cargar desarrollos para cada sub-mundo
+      const subMundosConDesarrollos = [];
+      for (const subMundo of subMundos) {
+        console.log(`🔄 Cargando desarrollos para sub-mundo: ${subMundo.nombre}`);
+        
+        const desarrollos = await loadDesarrollosForSubMundo(subMundo.id);
+        console.log(`📄 Desarrollos encontrados para ${subMundo.nombre}:`, desarrollos.length);
+        
+        // Convertir formato del sub-mundo
+        const subMundoFormateado = {
+          id: subMundo.id,
+          nombre: subMundo.nombre,
+          name: subMundo.nombre,
+          descripcion: subMundo.descripcion,
+          desarrollos: desarrollos.map(dev => ({
+            id: dev.id,
+            titulo: dev.titulo,
+            title: dev.titulo,
+            url: dev.url,
+            descripcion: dev.descripcion,
+            desc: dev.descripcion,
+            tags: dev.tags ? dev.tags.split(', ').filter(tag => tag.trim()) : []
+          }))
+        };
+        
+        // Sincronizar subWorlds para compatibilidad
+        subMundoFormateado.subWorlds = subMundoFormateado.desarrollos;
+        
+        subMundosConDesarrollos.push(subMundoFormateado);
+      }
+      
+      // Convertir formato del mundo
+      const mundoFormateado = {
         id: mundo.id,
         name: mundo.nombre,
-        subWorlds: [] // Los sub-mundos se cargarán cuando se necesiten
-      }))
+        nombre: mundo.nombre,
+        subMundos: subMundosConDesarrollos,
+        subWorlds: subMundosConDesarrollos // Sincronizar para compatibilidad
+      };
+      
+      mundosCompletos.push(mundoFormateado);
+    }
+    
+    // Convertir el formato de la API al formato esperado por el frontend
+    const formattedData = {
+      worlds: mundosCompletos
     };
     
-    console.log('✅ Datos formateados:', formattedData);
+    console.log('✅ Datos completos cargados desde API:', formattedData);
     return formattedData;
   } catch (error) {
     console.error('Error cargando datos desde API:', error);
@@ -947,13 +1014,15 @@ function goSubWorlds() {
   renderSubWorlds(state.currentWorldId); 
   updateHero(); 
   toggleToolbar(true, {world: true, sub: true}); 
+  persistSession(); // Persistir el estado de navegación
 }
 
 function goDevs() { 
-  setSection("#devsSection"); 
+  setSection("#devsSection");
   renderDesarrollos(state.currentSubId); 
   updateHero(); 
   toggleToolbar(true, {world: true, sub: true, dev: true}); 
+  persistSession(); // Persistir el estado de navegación
 }
 
 function goAdmin() { 
@@ -1707,7 +1776,7 @@ async function createSubMundo(data) {
       if (mundo) {
         if (!mundo.subMundos) mundo.subMundos = [];
         
-        // Agregar el nuevo sub-mundo al estado local (solo en subMundos)
+        // Agregar el nuevo sub-mundo al estado local
         const nuevoSubMundo = {
           id: newSubMundo.data.id,
           nombre: newSubMundo.data.nombre,
@@ -1716,13 +1785,18 @@ async function createSubMundo(data) {
           desarrollos: []
         };
         
+        // Sincronizar subWorlds para compatibilidad
+        nuevoSubMundo.subWorlds = nuevoSubMundo.desarrollos;
+        
         mundo.subMundos.push(nuevoSubMundo);
         
-        // Sincronizar subWorlds para compatibilidad
-        mundo.subWorlds = mundo.subMundos;
+        // También sincronizar subWorlds del mundo para compatibilidad
+        if (!mundo.subWorlds) mundo.subWorlds = [];
+        mundo.subWorlds.push(nuevoSubMundo);
         
         console.log('✅ Sub-mundo agregado al estado local:', nuevoSubMundo);
         console.log('✅ Estado actual del mundo:', mundo);
+        console.log('✅ Cantidad de sub-mundos después de agregar:', mundo.subMundos.length);
       }
       
       return newSubMundo.data;
@@ -1995,6 +2069,9 @@ async function selectWorld(worldId) {
   if (subWorldsSection) {
     subWorldsSection.style.display = 'block';
   }
+  
+  // Persistir el estado de navegación
+  persistSession();
 }
 
 // Función para seleccionar sub-mundo
@@ -2007,6 +2084,9 @@ async function selectSubWorld(subWorldId) {
   if (devsSection) {
     devsSection.style.display = 'block';
   }
+  
+  // Persistir el estado de navegación
+  persistSession();
 }
 
 // Función para abrir desarrollo
@@ -2343,7 +2423,31 @@ async function initializeApp() {
           console.log('✅ Usuario válido, completando sesión');
           state.user = validUser;
           $("#authSection").classList.remove("active");
-          await goWorlds();
+          
+          // Restaurar navegación previa si es posible
+          if (state.currentWorldId) {
+            console.log('🔄 Restaurando navegación previa...');
+            const mundo = state.data.worlds.find(w => w.id === state.currentWorldId);
+            if (mundo) {
+              console.log('✅ Mundo anterior encontrado, navegando a sub-mundos');
+              await goWorlds();
+              await goSubWorlds();
+              
+              // Si también había un sub-mundo seleccionado, restaurarlo
+              if (state.currentSubId) {
+                const subMundo = mundo.subMundos?.find(s => s.id === state.currentSubId);
+                if (subMundo) {
+                  console.log('✅ Sub-mundo anterior encontrado, navegando a desarrollos');
+                  await goDevs();
+                }
+              }
+            } else {
+              console.log('⚠️ Mundo anterior no encontrado, navegando a mundos');
+              await goWorlds();
+            }
+          } else {
+            await goWorlds();
+          }
         } else {
           // Usuario no válido, limpiar y mostrar login
           console.log('❌ Usuario no válido, mostrando login');
