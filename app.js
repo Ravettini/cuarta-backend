@@ -2832,6 +2832,16 @@ document.addEventListener('DOMContentLoaded', function() {
   // Registro invisible pedido
   console.log("CREADO POR IGNACIO RAVETTINI");
 
+  // Ocultar toolbar inmediatamente si no hay sesión válida
+  const sessionData = JSON.parse(localStorage.getItem(LS_SESSION) || "null");
+  if (!sessionData || !sessionData.user) {
+    const toolbar = document.querySelector('header.appbar .toolbar');
+    if (toolbar) {
+      console.log('🚫 Toolbar ocultada desde el inicio (sin sesión)');
+      toolbar.style.display = 'none';
+    }
+  }
+
   modal.init();
   restoreSession();
   setupDropzone();
