@@ -104,7 +104,6 @@ async function getDesarrollosBySubMundo(req, res) {
       data: desarrollos,
       total: desarrollos.length,
       message: 'Desarrollos listados exitosamente'
-      });
     });
   } catch (error) {
     console.error('Error obteniendo desarrollos:', error);
