@@ -5,7 +5,10 @@ const desarrolloController = require('../controllers/desarrolloController');
 // ===== RUTAS DESARROLLOS =====
 
 // GET /api/v1/desarrollos - Listar todos los desarrollos
-router.get('/', desarrolloController.getDesarrollosBySubMundo);
+router.get('/', desarrolloController.getAllDesarrollos);
+
+// GET /api/v1/desarrollos/sub-mundo/:subMundoId - Obtener desarrollos de un sub-mundo específico
+router.get('/sub-mundo/:subMundoId', desarrolloController.getDesarrollosBySubMundo);
 
 // GET /api/v1/desarrollos/:id - Obtener desarrollo por ID
 router.get('/:id', desarrolloController.getDesarrolloById);

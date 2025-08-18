@@ -54,6 +54,29 @@ async function createDesarrollo(req, res) {
   }
 }
 
+// Obtener todos los desarrollos
+async function getAllDesarrollos(req, res) {
+  try {
+    const desarrollos = await Desarrollo.findAll({
+      where: { activo: true },
+      order: [['orden', 'ASC']]
+    });
+
+    res.json({
+      success: true,
+      data: desarrollos,
+      total: desarrollos.length,
+      message: 'Todos los desarrollos listados exitosamente'
+    });
+  } catch (error) {
+    console.error('Error obteniendo todos los desarrollos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+}
+
 // Obtener desarrollos de un sub-mundo
 async function getDesarrollosBySubMundo(req, res) {
   try {
@@ -81,6 +104,7 @@ async function getDesarrollosBySubMundo(req, res) {
       data: desarrollos,
       total: desarrollos.length,
       message: 'Desarrollos listados exitosamente'
+      });
     });
   } catch (error) {
     console.error('Error obteniendo desarrollos:', error);
@@ -192,6 +216,7 @@ async function deleteDesarrollo(req, res) {
 
 module.exports = {
   createDesarrollo,
+  getAllDesarrollos,
   getDesarrollosBySubMundo,
   getDesarrolloById,
   updateDesarrollo,

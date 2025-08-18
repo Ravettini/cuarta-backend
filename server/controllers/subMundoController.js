@@ -52,6 +52,36 @@ async function createSubMundo(req, res) {
   }
 }
 
+// Obtener todos los sub-mundos
+async function getAllSubMundos(req, res) {
+  try {
+    const subMundos = await SubMundo.findAll({
+      where: { activo: true },
+      order: [['orden', 'ASC']],
+      include: [{
+        model: Desarrollo,
+        as: 'desarrollos',
+        where: { activo: true },
+        required: false,
+        order: [['orden', 'ASC']]
+      }]
+    });
+
+    res.json({
+      success: true,
+      data: subMundos,
+      total: subMundos.length,
+      message: 'Todos los sub-mundos listados exitosamente'
+    });
+  } catch (error) {
+    console.error('Error obteniendo todos los sub-mundos:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+}
+
 // Obtener sub-mundos de un mundo
 async function getSubMundosByMundo(req, res) {
   try {
@@ -203,6 +233,7 @@ async function deleteSubMundo(req, res) {
 
 module.exports = {
   createSubMundo,
+  getAllSubMundos,
   getSubMundosByMundo,
   getSubMundoById,
   updateSubMundo,

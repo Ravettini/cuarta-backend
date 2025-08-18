@@ -5,7 +5,10 @@ const subMundoController = require('../controllers/subMundoController');
 // ===== RUTAS SUB-MUNDOS =====
 
 // GET /api/v1/sub-mundos - Listar todos los sub-mundos
-router.get('/', subMundoController.getSubMundosByMundo);
+router.get('/', subMundoController.getAllSubMundos);
+
+// GET /api/v1/sub-mundos/mundo/:mundoId - Obtener sub-mundos de un mundo específico
+router.get('/mundo/:mundoId', subMundoController.getSubMundosByMundo);
 
 // GET /api/v1/sub-mundos/:id - Obtener sub-mundo por ID
 router.get('/:id', subMundoController.getSubMundoById);
