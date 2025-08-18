@@ -92,8 +92,24 @@
 
       <!-- Drag & Drop -->
       <div class="dropzone" id="dropzone" aria-label="Zona para arrastrar archivos o enlaces">
-        Arrastrá archivos o pegá enlaces aquí para agregarlos a este sub-mundo.
-        <br><span class="muted t-body">También podés usar “+ Desarrollo”.</span>
+        <div class="dropzone-content">
+          <div class="dropzone-icon">📁</div>
+          <div class="dropzone-text">
+            <strong>Arrastrá archivos aquí</strong> o <strong>tocá para seleccionar</strong>
+          </div>
+          <div class="dropzone-subtitle muted t-body">
+            También podés pegar enlaces desde el portapapeles
+          </div>
+          <button class="btn btn-ghost dropzone-button" id="dropzoneButton">
+            📂 Explorar archivos
+          </button>
+        </div>
+        
+        <!-- Input file oculto para el explorador -->
+        <input type="file" id="fileInput" accept="*/*" multiple style="display: none;">
+        
+        <!-- Mensaje de estado -->
+        <div class="dropzone-status" id="dropzoneStatus" style="display: none;"></div>
       </div>
 
       <div id="devsGrid" class="grid cols-4" style="margin-top:14px"></div>

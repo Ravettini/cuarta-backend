@@ -2437,32 +2437,108 @@ async function confirmDelete(scope, id, name) {
 
 function setupDropzone() {
   const dropzone = $("#dropzone");
+  const fileInput = $("#fileInput");
+  const dropzoneButton = $("#dropzoneButton");
   if (!dropzone) return;
-  
-  dropzone.addEventListener("dragover", (e) => {
-    e.preventDefault();
-    dropzone.classList.add("dragover");
+
+  // Estados visuales de arrastre
+  ["dragenter", "dragover"].forEach(evt => {
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add("dragover");
+    });
   });
-  
-  dropzone.addEventListener("dragleave", () => {
-    dropzone.classList.remove("dragover");
+
+  ["dragleave", "drop"].forEach(evt => {
+    dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove("dragover");
+    });
   });
-  
-  dropzone.addEventListener("drop", (e) => {
-    e.preventDefault();
-    dropzone.classList.remove("dragover");
-    
-    const files = e.dataTransfer.files;
-    if (files.length > 0) {
-      handleFileUpload(files[0]);
+
+  // Soltar archivos/enlaces
+  dropzone.addEventListener("drop", async e => {
+    const sw = getCurrentSub();
+    if (!sw) return alert("Elegí un sub-mundo.");
+
+    const items = e.dataTransfer && e.dataTransfer.items;
+    if (items && items.length) {
+      for (const it of items) {
+        if (it.kind === "string") {
+          it.getAsString(str => {
+            try {
+              const maybeURL = (str || "").trim();
+              if (maybeURL.startsWith("http")) {
+                showDragDropModal({
+                  titulo: new URL(maybeURL).hostname,
+                  url: maybeURL,
+                  descripcion: "Agregado por drag & drop",
+                  tags: ["link"]
+                });
+              }
+            } catch {}
+          });
+        } else if (it.kind === "file") {
+          const file = it.getAsFile();
+          if (!file) continue;
+          const url = URL.createObjectURL(file);
+          showDragDropModal({
+            titulo: file.name,
+            url,
+            descripcion: `Archivo local (${Math.round(file.size/1024)} KB)`,
+            tags: ["archivo"]
+          });
+        }
+      }
     }
   });
-}
 
-function handleFileUpload(file) {
-  // Implementar lógica de subida de archivos
-  console.log("Archivo recibido:", file.name);
-  alert(`Archivo "${file.name}" recibido. La funcionalidad de subida se implementará próximamente.`);
+  // Pegar enlaces
+  dropzone.addEventListener("paste", e => {
+    const sw = getCurrentSub();
+    if (!sw) return;
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if (text && text.startsWith("http")) {
+      showDragDropModal({
+        titulo: new URL(text).hostname,
+        url: text,
+        descripcion: "Agregado por pegar enlace",
+        tags: ["link"]
+      });
+    }
+  });
+
+  // Click/tap para abrir explorador de archivos
+  const openPicker = (e) => {
+    e?.preventDefault?.();
+    e?.stopPropagation?.();
+    if (!getCurrentSub()) return alert("Elegí un sub-mundo.");
+    if (fileInput) fileInput.click();
+  };
+
+  dropzone.addEventListener("click", openPicker);
+  if (dropzoneButton) dropzoneButton.addEventListener("click", openPicker);
+
+  // Al seleccionar archivos desde el explorador
+  if (fileInput) {
+    fileInput.addEventListener("change", (e) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+      for (const file of files) {
+        const url = URL.createObjectURL(file);
+        showDragDropModal({
+          titulo: file.name,
+          url,
+          descripcion: `Archivo local (${Math.round(file.size/1024)} KB)`,
+          tags: ["archivo"]
+        });
+      }
+      // Permitir volver a seleccionar el mismo archivo después
+      e.target.value = "";
+    });
+  }
 }
 
 // ===== Inicialización modificada =====
