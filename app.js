@@ -766,6 +766,11 @@ function logout() {
   state.currentWorldId = null;
   state.currentSubId = null;
   localStorage.removeItem(LS_SESSION);
+  
+  // Ocultar botones inmediatamente antes de ir a auth
+  const toolbar = document.querySelector('header.appbar .toolbar');
+  if (toolbar) toolbar.style.display = 'none';
+  
   goAuth();
 }
 
@@ -1142,7 +1147,8 @@ function updateHero() {
 function goAuth() { 
   setSection("#authSection"); 
   updateHero(); 
-  // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
+  // Ocultar botones inmediatamente para la vista de login
+  updateToolbarForSection("#authSection");
 }
 
 function goWorlds() { 
@@ -2715,6 +2721,11 @@ async function initializeApp() {
           console.log('❌ Usuario no válido, mostrando login');
           state.user = null;
           localStorage.removeItem(LS_SESSION);
+          
+          // Ocultar botones inmediatamente antes de ir a auth
+          const toolbar = document.querySelector('header.appbar .toolbar');
+          if (toolbar) toolbar.style.display = 'none';
+          
           goAuth();
         }
       } catch (error) {
@@ -2722,11 +2733,21 @@ async function initializeApp() {
         // Error en API, mostrar login
         state.user = null;
         localStorage.removeItem(LS_SESSION);
+        
+        // Ocultar botones inmediatamente antes de ir a auth
+        const toolbar = document.querySelector('header.appbar .toolbar');
+        if (toolbar) toolbar.style.display = 'none';
+        
         goAuth();
       }
     } else {
       // No hay usuario, mostrar login
       console.log('👤 No hay usuario, mostrando login');
+      
+      // Ocultar botones inmediatamente antes de ir a auth
+      const toolbar = document.querySelector('header.appbar .toolbar');
+      if (toolbar) toolbar.style.display = 'none';
+      
       goAuth();
     }
     
@@ -2740,6 +2761,11 @@ async function initializeApp() {
     console.error('Error inicializando la aplicación:', error);
     // Fallback a datos por defecto
     state.data = getDefaultDataStructure();
+    
+    // Ocultar botones inmediatamente antes de ir a auth
+    const toolbar = document.querySelector('header.appbar .toolbar');
+    if (toolbar) toolbar.style.display = 'none';
+    
     goAuth();
   }
 }
