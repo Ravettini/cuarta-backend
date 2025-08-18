@@ -53,6 +53,33 @@ async function api(url, opts = {}) {
 const state = { user:null, data:null, currentWorldId:null, currentSubId:null };
 const LS_SESSION="gcba_session";
 
+// Sistema de caché para mejorar rendimiento
+const cache = {
+  data: null,
+  lastUpdate: 0,
+  cacheDuration: 5 * 60 * 1000, // 5 minutos
+  
+  isValid() {
+    return this.data && (Date.now() - this.lastUpdate) < this.cacheDuration;
+  },
+  
+  set(data) {
+    this.data = data;
+    this.lastUpdate = Date.now();
+    console.log('💾 Datos guardados en caché');
+  },
+  
+  get() {
+    return this.data;
+  },
+  
+  clear() {
+    this.data = null;
+    this.lastUpdate = 0;
+    console.log('🗑️ Caché limpiado');
+  }
+};
+
 // Función para restaurar sesión (mantenida para compatibilidad)
 function restoreSession(){
   try {
@@ -259,8 +286,14 @@ function getDefaultDataStructure() {
 }
 
 // Función para cargar datos desde la API
-async function loadDataFromAPI() {
+async function loadDataFromAPI(forceRefresh = false) {
   try {
+    // Verificar caché primero (a menos que se fuerce refrescar)
+    if (!forceRefresh && cache.isValid()) {
+      console.log('🚀 Usando datos del caché para mayor velocidad');
+      return cache.get();
+    }
+    
     console.log('🔄 Cargando datos desde la API...');
     const mundos = await loadMundosFromAPI();
     
@@ -280,18 +313,18 @@ async function loadDataFromAPI() {
       };
     }
     
-    // Cargar sub-mundos y desarrollos para cada mundo
-    const mundosCompletos = [];
-    for (const mundo of mundos) {
+    // Cargar sub-mundos y desarrollos para cada mundo en paralelo
+    console.log('🚀 Cargando datos en paralelo para optimizar velocidad...');
+    
+    const mundosCompletos = await Promise.all(mundos.map(async (mundo) => {
       console.log(`🔄 Cargando sub-mundos para mundo: ${mundo.nombre}`);
       
       // Cargar sub-mundos del mundo
       const subMundos = await loadSubMundosForMundo(mundo.id);
       console.log(`📂 Sub-mundos encontrados para ${mundo.nombre}:`, subMundos.length);
       
-      // Cargar desarrollos para cada sub-mundo
-      const subMundosConDesarrollos = [];
-      for (const subMundo of subMundos) {
+      // Cargar desarrollos para cada sub-mundo en paralelo
+      const subMundosConDesarrollos = await Promise.all(subMundos.map(async (subMundo) => {
         console.log(`🔄 Cargando desarrollos para sub-mundo: ${subMundo.nombre}`);
         
         const desarrollos = await loadDesarrollosForSubMundo(subMundo.id);
@@ -317,8 +350,8 @@ async function loadDataFromAPI() {
         // Sincronizar subWorlds para compatibilidad
         subMundoFormateado.subWorlds = subMundoFormateado.desarrollos;
         
-        subMundosConDesarrollos.push(subMundoFormateado);
-      }
+        return subMundoFormateado;
+      }));
       
       // Convertir formato del mundo
       const mundoFormateado = {
@@ -329,8 +362,8 @@ async function loadDataFromAPI() {
         subWorlds: subMundosConDesarrollos // Sincronizar para compatibilidad
       };
       
-      mundosCompletos.push(mundoFormateado);
-    }
+      return mundoFormateado;
+    }));
     
     // Convertir el formato de la API al formato esperado por el frontend
     const formattedData = {
@@ -338,6 +371,10 @@ async function loadDataFromAPI() {
     };
     
     console.log('✅ Datos completos cargados desde API:', formattedData);
+    
+    // Guardar en caché para futuras cargas rápidas
+    cache.set(formattedData);
+    
     return formattedData;
   } catch (error) {
     console.error('Error cargando datos desde API:', error);
@@ -347,11 +384,18 @@ async function loadDataFromAPI() {
   }
 }
 
+// Función para limpiar caché cuando se modifiquen datos
+function invalidateCache() {
+  cache.clear();
+  console.log('🔄 Caché invalidado para forzar recarga de datos');
+}
+
 // Función para guardar datos (mantenida para compatibilidad)
 function saveData(d){ 
   // Los datos ahora se guardan en la base de datos, pero mantenemos esta función
   // para operaciones que aún la necesiten
   console.log('Datos guardados localmente (también se guardaron en la base de datos)');
+  invalidateCache(); // Limpiar caché cuando se modifiquen datos
 }
 
 // ===== Funciones de API para Mundos =====
@@ -870,10 +914,10 @@ async function renderDesarrollos(subMundoId) {
   
   try {
     grid.innerHTML = "";
-    $("#devsEmpty").style.display = sw && sw.desarrollos && sw.desarrollos.length ? "none" : "block";
     
     if (!sw) {
       console.log('❌ No se encontró el sub-mundo actual');
+      $("#devsEmpty").style.display = "block";
       return;
     }
     
@@ -882,6 +926,10 @@ async function renderDesarrollos(subMundoId) {
     console.log('🔍 Desarrollos desde estado local:', desarrollos);
     console.log('🔍 Cantidad de desarrollos:', desarrollos.length);
     
+    // Mostrar mensaje si no hay desarrollos
+    $("#devsEmpty").style.display = desarrollos.length ? "none" : "block";
+    
+    // Renderizar desarrollos de forma eficiente
     desarrollos.forEach(d => {
       const card = document.createElement("div");
       card.className = "card";
@@ -902,6 +950,8 @@ async function renderDesarrollos(subMundoId) {
       
       grid.appendChild(card);
     });
+    
+    console.log('✅ Desarrollos renderizados exitosamente');
   } catch (error) {
     console.error('Error renderizando desarrollos:', error);
     grid.innerHTML = '<p>Error cargando desarrollos</p>';
@@ -1560,6 +1610,29 @@ function setupUIEvents() {
   $("#btnLogout").onclick = logout;
   $("#btnAdmin").onclick = goAdmin;
   
+  // Botón de refrescar datos
+  $("#btnRefresh")?.onclick = async () => {
+    try {
+      console.log('🔄 Refrescando datos...');
+      invalidateCache();
+      state.data = await loadDataFromAPI(true); // Forzar refrescar
+      
+      // Re-renderizar la vista actual
+      if (state.currentSubId) {
+        await renderDesarrollos();
+      } else if (state.currentWorldId) {
+        await renderSubWorlds();
+      } else {
+        await renderWorlds();
+      }
+      
+      console.log('✅ Datos refrescados exitosamente');
+    } catch (error) {
+      console.error('Error refrescando datos:', error);
+      alert('Error refrescando datos: ' + error.message);
+    }
+  };
+  
   $("#doLogin").onclick = async () => {
     const u = $("#loginUser").value.trim();
     const p = $("#loginPass").value.trim();
@@ -1771,6 +1844,9 @@ async function createSubMundo(data) {
       const newSubMundo = await response.json();
       console.log('✅ Sub-mundo creado en el servidor:', newSubMundo.data);
       
+      // Invalidar caché para forzar recarga
+      invalidateCache();
+      
       // ACTUALIZACIÓN INSTANTÁNEA: Agregar al estado local inmediatamente
       const mundo = getCurrentWorld();
       if (mundo) {
@@ -1867,6 +1943,9 @@ async function createDesarrollo(data) {
       const newDesarrollo = await response.json();
       console.log('✅ Desarrollo creado en el servidor:', newDesarrollo.data);
       
+      // Invalidar caché para forzar recarga
+      invalidateCache();
+      
       // ACTUALIZACIÓN INSTANTÁNEA: Agregar al estado local inmediatamente
       const subMundo = getCurrentSub();
       console.log('🔍 getCurrentSub() retornó:', subMundo);
@@ -1875,7 +1954,7 @@ async function createDesarrollo(data) {
       if (subMundo) {
         if (!subMundo.desarrollos) subMundo.desarrollos = [];
         
-        // Agregar el nuevo desarrollo al estado local (como en el original)
+        // Agregar el nuevo desarrollo al estado local
         const nuevoDesarrollo = {
           id: newDesarrollo.data.id,
           titulo: newDesarrollo.data.titulo,
