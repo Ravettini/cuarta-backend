@@ -819,13 +819,15 @@ async function renderDesarrollos(subMundoId) {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <h3>${d.titulo}</h3>
-        <p class="muted t-body">${d.descripcion || ""}</p>
+        <h3>${d.titulo || d.title || 'Sin título'}</h3>
+        <p class="muted t-body">${d.descripcion || d.desc || ""}</p>
         <div class="tags">${(d.tags || []).map(t => `<span class="tag cyan">${t}</span>`).join("")}</div>
         <div class="actions">
-          ${d.url ? `<a class="button-link" href="${d.url}" target="_blank" rel="noopener">Abrir</a>` : ""}
-          <button class="btn btn-edit">Editar</button>
-          <button class="btn btn-danger">Eliminar</button>
+          ${d.url ? `<a class="button-link full-width" href="${d.url}" target="_blank" rel="noopener">Abrir</a>` : ""}
+          <div class="secondary-actions">
+            <button class="btn btn-edit">Editar</button>
+            <button class="btn btn-danger">Eliminar</button>
+          </div>
         </div>`;
       
       card.querySelector(".btn.btn-edit").onclick = () => showDevForm({mode: "edit", devId: d.id});
@@ -1344,6 +1346,123 @@ function showAuthMessage(message, type = 'info') {
   }, 5000);
 }
 
+// ===== Drag & Drop =====
+function setupDropzone() {
+  const dz = $("#dropzone");
+  if (!dz) return;
+  
+  ["dragenter", "dragover"].forEach(evt => {
+    dz.addEventListener(evt, e => { 
+      e.preventDefault(); 
+      e.stopPropagation(); 
+      dz.classList.add("dragover"); 
+    });
+  });
+  
+  ["dragleave", "drop"].forEach(evt => {
+    dz.addEventListener(evt, e => { 
+      e.preventDefault(); 
+      e.stopPropagation(); 
+      dz.classList.remove("dragover"); 
+    });
+  });
+  
+  dz.addEventListener("drop", e => {
+    const sw = getCurrentSub(); 
+    if (!sw) return alert("Elegí un sub-mundo.");
+    
+    const items = e.dataTransfer.items;
+    if (items && items.length) {
+      for (const it of items) {
+        if (it.kind === "string") {
+          it.getAsString(str => {
+            try {
+              const maybeURL = (str || "").trim();
+              if (maybeURL.startsWith("http")) {
+                // Mostrar modal para configurar el desarrollo
+                showDragDropModal({
+                  titulo: new URL(maybeURL).hostname,
+                  url: maybeURL,
+                  descripcion: "Agregado por drag & drop",
+                  tags: ["link"]
+                });
+              }
+            } catch {}
+          });
+        } else if (it.kind === "file") {
+          const file = it.getAsFile();
+          const url = URL.createObjectURL(file);
+          // Mostrar modal para configurar el desarrollo
+          showDragDropModal({
+            titulo: file.name,
+            url: url,
+            descripcion: `Archivo local (${Math.round(file.size/1024)} KB)`,
+            tags: ["archivo"]
+          });
+        }
+      }
+    }
+  });
+  
+  dz.addEventListener("paste", e => {
+    const sw = getCurrentSub(); 
+    if (!sw) return;
+    
+    const text = (e.clipboardData || window.clipboardData).getData("text");
+    if (text && text.startsWith("http")) {
+      // Mostrar modal para configurar el desarrollo
+      showDragDropModal({
+        titulo: new URL(text).hostname,
+        url: text,
+        descripcion: "Agregado por pegar enlace",
+        tags: ["link"]
+      });
+    }
+  });
+}
+
+// Modal para drag & drop
+function showDragDropModal(data) {
+  modal.show({
+    title: "Nuevo desarrollo desde archivo/enlace",
+    bodyHTML: `
+      <div class="field">
+        <label for="dragTitle">Título</label>
+        <input id="dragTitle" placeholder="Título del desarrollo" value="${data.titulo}" />
+      </div>
+      <div class="field">
+        <label for="dragURL">URL</label>
+        <input id="dragURL" placeholder="URL del desarrollo" value="${data.url}" readonly />
+      </div>
+      <div class="field">
+        <label for="dragDesc">Descripción</label>
+        <textarea id="dragDesc" placeholder="Descripción del desarrollo">${data.descripcion}</textarea>
+      </div>
+      <div class="field">
+        <label for="dragTags">Tags</label>
+        <input id="dragTags" placeholder="mapa, bi, informe" value="${data.tags.join(', ')}" />
+      </div>`,
+    onSubmit: async () => {
+      const titulo = $("#dragTitle").value.trim();
+      const url = $("#dragURL").value.trim();
+      const descripcion = $("#dragDesc").value.trim();
+      const tags = $("#dragTags").value.split(",").map(t => t.trim()).filter(Boolean);
+      
+      if (!titulo) return;
+      
+      try {
+        await createDesarrollo({ titulo, url, descripcion, tags, subMundoId: getCurrentSub().id });
+        modal.hide();
+      } catch (error) {
+        console.error('Error creando desarrollo desde drag & drop:', error);
+        alert(`Error: ${error.message}`);
+      }
+    },
+    initialFocus: "#dragTitle",
+    submitLabel: "Crear"
+  });
+}
+
 function setupUIEvents() {
   $("#btnNewWorld").onclick = () => { 
     if (isAdmin()) createWorld(); 
@@ -1682,13 +1801,14 @@ async function createDesarrollo(data) {
       if (subMundo) {
         if (!subMundo.desarrollos) subMundo.desarrollos = [];
         
-        // Agregar el nuevo desarrollo al estado local
+        // Agregar el nuevo desarrollo al estado local (como en el original)
         const nuevoDesarrollo = {
           id: newDesarrollo.data.id,
           titulo: newDesarrollo.data.titulo,
           title: newDesarrollo.data.titulo,
           url: newDesarrollo.data.url,
           descripcion: newDesarrollo.data.descripcion,
+          desc: newDesarrollo.data.descripcion, // También agregar 'desc' para compatibilidad
           tags: newDesarrollo.data.tags || []
         };
         

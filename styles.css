@@ -341,6 +341,25 @@ footer{
   border-radius: 8px;
 }
 
+/* Botón ABRIR de ancho completo */
+.button-link.full-width {
+  width: 100%;
+  display: block;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+/* Botones secundarios (Editar y Eliminar) */
+.secondary-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: space-between;
+}
+
+.secondary-actions .btn {
+  flex: 1;
+}
+
 /* Responsive para panel de administración */
 @media (max-width: 768px) {
   .admin-sections {
