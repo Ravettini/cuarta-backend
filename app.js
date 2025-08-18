@@ -872,13 +872,21 @@ function getCurrentSub() {
   const subMundo = subMundos.find(s => s.id === state.currentSubId);
   console.log('🔍 getCurrentSub - sub-mundo encontrado:', subMundo);
   
-  if (subMundo && !subMundo.desarrollos && subMundo.subWorlds) {
-    subMundo.desarrollos = subMundo.subWorlds;
-    console.log('🔍 getCurrentSub - Desarrollos sincronizados desde subWorlds');
-  }
-  
   if (subMundo) {
+    // Asegurar que desarrollos esté siempre disponible
+    if (!subMundo.desarrollos) {
+      subMundo.desarrollos = [];
+      console.log('🔍 getCurrentSub - Array desarrollos inicializado');
+    }
+    
+    // Sincronizar subWorlds con desarrollos para compatibilidad
+    if (subMundo.subWorlds !== subMundo.desarrollos) {
+      subMundo.subWorlds = subMundo.desarrollos;
+      console.log('🔍 getCurrentSub - subWorlds sincronizado con desarrollos');
+    }
+    
     console.log('🔍 getCurrentSub - Desarrollos del sub-mundo:', subMundo.desarrollos);
+    console.log('🔍 getCurrentSub - Cantidad de desarrollos:', subMundo.desarrollos.length);
   }
   
   return subMundo;
@@ -1579,20 +1587,20 @@ async function createSubMundo(data) {
       const mundo = getCurrentWorld();
       if (mundo) {
         if (!mundo.subMundos) mundo.subMundos = [];
-        if (!mundo.subWorlds) mundo.subWorlds = [];
         
-        // Agregar el nuevo sub-mundo al estado local
+        // Agregar el nuevo sub-mundo al estado local (solo en subMundos)
         const nuevoSubMundo = {
           id: newSubMundo.data.id,
           nombre: newSubMundo.data.nombre,
           name: newSubMundo.data.nombre,
           descripcion: newSubMundo.data.descripcion,
-          desarrollos: [],
-          subWorlds: []
+          desarrollos: []
         };
         
         mundo.subMundos.push(nuevoSubMundo);
-        mundo.subWorlds.push(nuevoSubMundo);
+        
+        // Sincronizar subWorlds para compatibilidad
+        mundo.subWorlds = mundo.subMundos;
         
         console.log('✅ Sub-mundo agregado al estado local:', nuevoSubMundo);
         console.log('✅ Estado actual del mundo:', mundo);
@@ -1673,7 +1681,6 @@ async function createDesarrollo(data) {
       
       if (subMundo) {
         if (!subMundo.desarrollos) subMundo.desarrollos = [];
-        if (!subMundo.subWorlds) subMundo.subWorlds = [];
         
         // Agregar el nuevo desarrollo al estado local
         const nuevoDesarrollo = {
@@ -1686,11 +1693,16 @@ async function createDesarrollo(data) {
         };
         
         subMundo.desarrollos.push(nuevoDesarrollo);
-        subMundo.subWorlds.push(nuevoDesarrollo);
+        
+        // Sincronizar subWorlds para compatibilidad
+        subMundo.subWorlds = subMundo.desarrollos;
         
         console.log('✅ Desarrollo agregado al estado local:', nuevoDesarrollo);
         console.log('✅ Estado actual del sub-mundo:', subMundo);
         console.log('✅ Cantidad de desarrollos después de agregar:', subMundo.desarrollos.length);
+        
+        // Forzar re-renderizado inmediato
+        await renderDesarrollos();
       } else {
         console.log('❌ No se pudo obtener el sub-mundo actual');
         console.log('❌ state.data:', state.data);
