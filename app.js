@@ -1545,9 +1545,31 @@ async function createSubMundo(data) {
     
     if (response.ok) {
       const newSubMundo = await response.json();
-      console.log('✅ Sub-mundo creado en el servidor');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      console.log('✅ Sub-mundo creado en el servidor:', newSubMundo.data);
+      
+      // ACTUALIZACIÓN INSTANTÁNEA: Agregar al estado local inmediatamente
+      const mundo = getCurrentWorld();
+      if (mundo) {
+        if (!mundo.subMundos) mundo.subMundos = [];
+        if (!mundo.subWorlds) mundo.subWorlds = [];
+        
+        // Agregar el nuevo sub-mundo al estado local
+        const nuevoSubMundo = {
+          id: newSubMundo.data.id,
+          nombre: newSubMundo.data.nombre,
+          name: newSubMundo.data.nombre,
+          descripcion: newSubMundo.data.descripcion,
+          desarrollos: [],
+          subWorlds: []
+        };
+        
+        mundo.subMundos.push(nuevoSubMundo);
+        mundo.subWorlds.push(nuevoSubMundo);
+        
+        console.log('✅ Sub-mundo agregado al estado local:', nuevoSubMundo);
+        console.log('✅ Estado actual del mundo:', mundo);
+      }
+      
       return newSubMundo.data;
     } else {
       const errorData = await response.json().catch(() => ({}));
@@ -1614,9 +1636,31 @@ async function createDesarrollo(data) {
     
     if (response.ok) {
       const newDesarrollo = await response.json();
-      console.log('✅ Desarrollo creado en el servidor');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      console.log('✅ Desarrollo creado en el servidor:', newDesarrollo.data);
+      
+      // ACTUALIZACIÓN INSTANTÁNEA: Agregar al estado local inmediatamente
+      const subMundo = getCurrentSub();
+      if (subMundo) {
+        if (!subMundo.desarrollos) subMundo.desarrollos = [];
+        if (!subMundo.subWorlds) subMundo.subWorlds = [];
+        
+        // Agregar el nuevo desarrollo al estado local
+        const nuevoDesarrollo = {
+          id: newDesarrollo.data.id,
+          titulo: newDesarrollo.data.titulo,
+          title: newDesarrollo.data.titulo,
+          url: newDesarrollo.data.url,
+          descripcion: newDesarrollo.data.descripcion,
+          tags: newDesarrollo.data.tags || []
+        };
+        
+        subMundo.desarrollos.push(nuevoDesarrollo);
+        subMundo.subWorlds.push(nuevoDesarrollo);
+        
+        console.log('✅ Desarrollo agregado al estado local:', nuevoDesarrollo);
+        console.log('✅ Estado actual del sub-mundo:', subMundo);
+      }
+      
       return newDesarrollo.data;
     } else {
       const errorData = await response.json().catch(() => ({}));
