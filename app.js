@@ -789,19 +789,31 @@ async function renderSubWorlds(mundoId) {
 
 // Función para renderizar desarrollos
 async function renderDesarrollos(subMundoId) {
+  console.log('🔍 renderDesarrollos llamado con subMundoId:', subMundoId);
+  console.log('🔍 state.currentSubId:', state.currentSubId);
+  
   const sw = getCurrentSub();
+  console.log('🔍 getCurrentSub() retornó:', sw);
+  
   const grid = $("#devsGrid");
-  if (!grid) return;
+  if (!grid) {
+    console.log('❌ No se encontró el grid de desarrollos');
+    return;
+  }
   
   try {
     grid.innerHTML = "";
     $("#devsEmpty").style.display = sw && sw.desarrollos && sw.desarrollos.length ? "none" : "block";
     
-    if (!sw) return;
+    if (!sw) {
+      console.log('❌ No se encontró el sub-mundo actual');
+      return;
+    }
     
     // Usar estado local en lugar de cargar desde API
     const desarrollos = sw.desarrollos || [];
     console.log('🔍 Desarrollos desde estado local:', desarrollos);
+    console.log('🔍 Cantidad de desarrollos:', desarrollos.length);
     
     desarrollos.forEach(d => {
       const card = document.createElement("div");
@@ -842,15 +854,31 @@ function getCurrentWorld() {
 }
 
 function getCurrentSub() { 
+  console.log('🔍 getCurrentSub - state.currentWorldId:', state.currentWorldId);
+  console.log('🔍 getCurrentSub - state.currentSubId:', state.currentSubId);
+  
   const w = getCurrentWorld(); 
-  if (!w) return null;
+  console.log('🔍 getCurrentSub - mundo encontrado:', w);
+  
+  if (!w) {
+    console.log('❌ getCurrentSub - No se encontró el mundo');
+    return null;
+  }
   
   // Buscar en subMundos o subWorlds
   const subMundos = w.subMundos || w.subWorlds || [];
+  console.log('🔍 getCurrentSub - subMundos disponibles:', subMundos);
+  
   const subMundo = subMundos.find(s => s.id === state.currentSubId);
+  console.log('🔍 getCurrentSub - sub-mundo encontrado:', subMundo);
   
   if (subMundo && !subMundo.desarrollos && subMundo.subWorlds) {
     subMundo.desarrollos = subMundo.subWorlds;
+    console.log('🔍 getCurrentSub - Desarrollos sincronizados desde subWorlds');
+  }
+  
+  if (subMundo) {
+    console.log('🔍 getCurrentSub - Desarrollos del sub-mundo:', subMundo.desarrollos);
   }
   
   return subMundo;
