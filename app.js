@@ -1056,7 +1056,10 @@ function setSection(id) {
   $(id).classList.add("active"); 
   
   // Actualizar la visibilidad de los botones según la nueva sección
-  updateToolbarForSection(id);
+  // Usar setTimeout para asegurar que el DOM se haya actualizado
+  setTimeout(() => {
+    updateToolbarForSection(id);
+  }, 0);
 }
 
 // Función para actualizar la toolbar según la sección activa
@@ -1064,15 +1067,17 @@ function updateToolbarForSection(sectionId) {
   // Obtener la sección activa actual
   const activeSection = document.querySelector("main section.active");
   const isLoginView = activeSection && activeSection.id === "authSection";
-  
-  // En la vista de login, ocultar todos los botones excepto logout (si hay usuario)
+  const toolbar = document.querySelector('header.appbar .toolbar');
+
+  // En la vista de login, ocultar toda la toolbar y todos los botones
   if (isLoginView) {
+    if (toolbar) toolbar.style.display = 'none';
     $("#btnNewWorld").style.display = "none";
     $("#btnNewSubWorld").style.display = "none";
     $("#btnAddDev").style.display = "none";
     $("#btnBack").style.display = "none";
     $("#btnAdmin").style.display = "none";
-    $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+    $("#btnLogout").style.display = "none";
     return;
   }
   
@@ -1080,6 +1085,7 @@ function updateToolbarForSection(sectionId) {
   switch (sectionId) {
     case "#worldsSection":
       // Solo mostrar botón de crear mundo y admin/logout
+      if (toolbar) toolbar.style.display = 'flex';
       $("#btnNewWorld").style.display = isAdmin() ? "inline-block" : "none";
       $("#btnNewSubWorld").style.display = "none";
       $("#btnAddDev").style.display = "none";
@@ -1090,6 +1096,7 @@ function updateToolbarForSection(sectionId) {
       
     case "#subWorldsSection":
       // Mostrar botón de crear sub-mundo y volver
+      if (toolbar) toolbar.style.display = 'flex';
       $("#btnNewWorld").style.display = "none";
       $("#btnNewSubWorld").style.display = isAdmin() ? "inline-block" : "none";
       $("#btnAddDev").style.display = "none";
@@ -1100,6 +1107,7 @@ function updateToolbarForSection(sectionId) {
       
     case "#devsSection":
       // Mostrar botón de agregar desarrollo y volver
+      if (toolbar) toolbar.style.display = 'flex';
       $("#btnNewWorld").style.display = "none";
       $("#btnNewSubWorld").style.display = "none";
       $("#btnAddDev").style.display = "inline-block";
@@ -1110,6 +1118,7 @@ function updateToolbarForSection(sectionId) {
       
     case "#adminSection":
       // Solo mostrar botón de volver y logout
+      if (toolbar) toolbar.style.display = 'flex';
       $("#btnNewWorld").style.display = "none";
       $("#btnNewSubWorld").style.display = "none";
       $("#btnAddDev").style.display = "none";
@@ -1120,6 +1129,7 @@ function updateToolbarForSection(sectionId) {
       
     default:
       // Para cualquier otra sección, ocultar todos los botones
+      if (toolbar) toolbar.style.display = 'flex';
       $("#btnNewWorld").style.display = "none";
       $("#btnNewSubWorld").style.display = "none";
       $("#btnAddDev").style.display = "none";
@@ -2752,6 +2762,7 @@ async function initializeApp() {
     // Asegurar que la toolbar se actualice correctamente
     const activeSection = document.querySelector("main section.active");
     if (activeSection) {
+      console.log('🚀 initializeApp: Actualizando toolbar para sección:', activeSection.id);
       updateToolbarForSection(activeSection.id);
     }
   } catch (error) {
