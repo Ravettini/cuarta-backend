@@ -931,12 +931,15 @@ async function renderDesarrollos(subMundoId) {
     
     // Renderizar desarrollos de forma eficiente
     desarrollos.forEach(d => {
+      // Asegurar que tags sea siempre un array
+      const tags = Array.isArray(d.tags) ? d.tags : [];
+      
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
         <h3>${d.titulo || d.title || 'Sin título'}</h3>
         <p class="muted t-body">${d.descripcion || d.desc || ""}</p>
-        <div class="tags">${(d.tags || []).map(t => `<span class="tag cyan">${t}</span>`).join("")}</div>
+        <div class="tags">${tags.map(t => `<span class="tag cyan">${t}</span>`).join("")}</div>
         <div class="actions">
           ${d.url ? `<a class="button-link full-width" href="${d.url}" target="_blank" rel="noopener">Abrir</a>` : ""}
           <div class="secondary-actions">
