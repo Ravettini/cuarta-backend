@@ -1640,6 +1640,9 @@ async function createDesarrollo(data) {
       
       // ACTUALIZACIÓN INSTANTÁNEA: Agregar al estado local inmediatamente
       const subMundo = getCurrentSub();
+      console.log('🔍 getCurrentSub() retornó:', subMundo);
+      console.log('🔍 state.currentSubId:', state.currentSubId);
+      
       if (subMundo) {
         if (!subMundo.desarrollos) subMundo.desarrollos = [];
         if (!subMundo.subWorlds) subMundo.subWorlds = [];
@@ -1659,6 +1662,12 @@ async function createDesarrollo(data) {
         
         console.log('✅ Desarrollo agregado al estado local:', nuevoDesarrollo);
         console.log('✅ Estado actual del sub-mundo:', subMundo);
+        console.log('✅ Cantidad de desarrollos después de agregar:', subMundo.desarrollos.length);
+      } else {
+        console.log('❌ No se pudo obtener el sub-mundo actual');
+        console.log('❌ state.data:', state.data);
+        console.log('❌ state.currentWorldId:', state.currentWorldId);
+        console.log('❌ state.currentSubId:', state.currentSubId);
       }
       
       return newDesarrollo.data;
