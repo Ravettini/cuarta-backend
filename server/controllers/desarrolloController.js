@@ -5,9 +5,13 @@ const { Desarrollo, SubMundo } = require('../models');
 // Crear desarrollo
 async function createDesarrollo(req, res) {
   try {
+    console.log('🚀 createDesarrollo - Request body:', req.body);
     const { titulo, url, descripcion, tags, subMundoId } = req.body;
     
+    console.log('🔍 Datos recibidos:', { titulo, url, descripcion, tags, subMundoId });
+    
     if (!titulo || !titulo.trim()) {
+      console.log('❌ Validación fallida: título faltante');
       return res.status(400).json({
         success: false,
         message: 'El título del desarrollo es requerido'
@@ -15,6 +19,7 @@ async function createDesarrollo(req, res) {
     }
 
     if (!subMundoId) {
+      console.log('❌ Validación fallida: subMundoId faltante');
       return res.status(400).json({
         success: false,
         message: 'El ID del sub-mundo es requerido'
@@ -22,23 +27,43 @@ async function createDesarrollo(req, res) {
     }
 
     // Verificar que el sub-mundo existe
+    console.log('🔍 Verificando existencia del sub-mundo:', subMundoId);
     const subMundo = await SubMundo.findByPk(subMundoId);
+    console.log('🔍 Sub-mundo encontrado:', subMundo);
+    
     if (!subMundo) {
+      console.log('❌ Sub-mundo no encontrado');
       return res.status(404).json({
         success: false,
         message: 'Sub-mundo no encontrado'
       });
     }
 
-    const desarrollo = await Desarrollo.create({
+    // Convertir tags de array a string separado por comas
+    const tagsString = Array.isArray(tags) ? tags.join(', ') : (tags || '');
+    console.log('🔍 Tags convertidos:', tagsString);
+    
+    console.log('🔍 Creando desarrollo con datos:', {
       titulo: titulo.trim(),
       url: url?.trim() || '',
       descripcion: descripcion?.trim() || '',
-      tags: tags || [],
+      tags: tagsString,
       subMundoId: subMundoId,
       activo: true,
       orden: 1
     });
+    
+    const desarrollo = await Desarrollo.create({
+      titulo: titulo.trim(),
+      url: url?.trim() || '',
+      descripcion: descripcion?.trim() || '',
+      tags: tagsString,
+      subMundoId: subMundoId,
+      activo: true,
+      orden: 1
+    });
+    
+    console.log('✅ Desarrollo creado exitosamente:', desarrollo.toJSON());
 
     res.status(201).json({
       success: true,
