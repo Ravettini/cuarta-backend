@@ -492,7 +492,44 @@ async function createDesarrolloAPI(desarrolloData) {
       method: 'POST',
       body: JSON.stringify(desarrolloData)
     });
-    return response.data;
+    
+    if (response.ok) {
+      const newDesarrollo = await response.json();
+      console.log('✅ Desarrollo creado en el servidor:', newDesarrollo.data);
+      
+      // ACTUALIZACIÓN INSTANTÁNEA: Agregar al estado local inmediatamente
+      const subMundo = getCurrentSub();
+      if (subMundo) {
+        if (!subMundo.desarrollos) subMundo.desarrollos = [];
+        
+        // Agregar el nuevo desarrollo al estado local
+        const nuevoDesarrollo = {
+          id: newDesarrollo.data.id,
+          titulo: newDesarrollo.data.titulo,
+          title: newDesarrollo.data.titulo,
+          url: newDesarrollo.data.url,
+          descripcion: newDesarrollo.data.descripcion,
+          desc: newDesarrollo.data.descripcion,
+          tags: newDesarrollo.data.tags || []
+        };
+        
+        subMundo.desarrollos.push(nuevoDesarrollo);
+        
+        // Sincronizar subWorlds para compatibilidad
+        subMundo.subWorlds = subMundo.desarrollos;
+        
+        console.log('✅ Desarrollo agregado al estado local:', nuevoDesarrollo);
+        console.log('✅ Cantidad de desarrollos después de agregar:', subMundo.desarrollos.length);
+        
+        // Forzar re-renderizado inmediato
+        await renderDesarrollos();
+      }
+      
+      return newDesarrollo.data;
+    } else {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`Error creando desarrollo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
+    }
   } catch (error) {
     console.error('Error creando desarrollo:', error);
     throw error;
@@ -1017,15 +1054,88 @@ function getCurrentSub() {
 function setSection(id) { 
   $$("main section").forEach(s => s.classList.remove("active")); 
   $(id).classList.add("active"); 
+  
+  // Actualizar la visibilidad de los botones según la nueva sección
+  updateToolbarForSection(id);
+}
+
+// Función para actualizar la toolbar según la sección activa
+function updateToolbarForSection(sectionId) {
+  // Obtener la sección activa actual
+  const activeSection = document.querySelector("main section.active");
+  const isLoginView = activeSection && activeSection.id === "authSection";
+  
+  // En la vista de login, ocultar todos los botones excepto logout (si hay usuario)
+  if (isLoginView) {
+    $("#btnNewWorld").style.display = "none";
+    $("#btnNewSubWorld").style.display = "none";
+    $("#btnAddDev").style.display = "none";
+    $("#btnBack").style.display = "none";
+    $("#btnAdmin").style.display = "none";
+    $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+    return;
+  }
+  
+  // Para otras vistas, mostrar botones según la sección
+  switch (sectionId) {
+    case "#worldsSection":
+      // Solo mostrar botón de crear mundo y admin/logout
+      $("#btnNewWorld").style.display = isAdmin() ? "inline-block" : "none";
+      $("#btnNewSubWorld").style.display = "none";
+      $("#btnAddDev").style.display = "none";
+      $("#btnBack").style.display = "none";
+      $("#btnAdmin").style.display = (state.user && isAdmin()) ? "inline-block" : "none";
+      $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+      break;
+      
+    case "#subWorldsSection":
+      // Mostrar botón de crear sub-mundo y volver
+      $("#btnNewWorld").style.display = "none";
+      $("#btnNewSubWorld").style.display = isAdmin() ? "inline-block" : "none";
+      $("#btnAddDev").style.display = "none";
+      $("#btnBack").style.display = "inline-block";
+      $("#btnAdmin").style.display = (state.user && isAdmin()) ? "inline-block" : "none";
+      $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+      break;
+      
+    case "#devsSection":
+      // Mostrar botón de agregar desarrollo y volver
+      $("#btnNewWorld").style.display = "none";
+      $("#btnNewSubWorld").style.display = "none";
+      $("#btnAddDev").style.display = "inline-block";
+      $("#btnBack").style.display = "inline-block";
+      $("#btnAdmin").style.display = (state.user && isAdmin()) ? "inline-block" : "none";
+      $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+      break;
+      
+    case "#adminSection":
+      // Solo mostrar botón de volver y logout
+      $("#btnNewWorld").style.display = "none";
+      $("#btnNewSubWorld").style.display = "none";
+      $("#btnAddDev").style.display = "none";
+      $("#btnBack").style.display = "inline-block";
+      $("#btnAdmin").style.display = "none";
+      $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+      break;
+      
+    default:
+      // Para cualquier otra sección, ocultar todos los botones
+      $("#btnNewWorld").style.display = "none";
+      $("#btnNewSubWorld").style.display = "none";
+      $("#btnAddDev").style.display = "none";
+      $("#btnBack").style.display = "none";
+      $("#btnAdmin").style.display = "none";
+      $("#btnLogout").style.display = state.user ? "inline-block" : "none";
+  }
 }
 
 function toggleToolbar(show, scope = {}) {
-  $("#btnNewWorld").style.display = (show && isAdmin()) ? "inline-block" : "none";
-  $("#btnNewSubWorld").style.display = (show && scope.world && isAdmin()) ? "inline-block" : "none";
-  $("#btnAddDev").style.display = (show && scope.sub) ? "inline-block" : "none";
-  $("#btnBack").style.display = show ? "inline-block" : "none";
-  $("#btnLogout").style.display = state.user ? "inline-block" : "none";
-  $("#btnAdmin").style.display = (state.user && isAdmin()) ? "inline-block" : "none";
+  // Esta función se mantiene para compatibilidad con código existente
+  // pero ahora la lógica principal está en updateToolbarForSection
+  const activeSection = document.querySelector("main section.active");
+  if (activeSection) {
+    updateToolbarForSection(activeSection.id);
+  }
 }
 
 function updateHero() {
@@ -1051,7 +1161,7 @@ function updateHero() {
 function goAuth() { 
   setSection("#authSection"); 
   updateHero(); 
-  toggleToolbar(false); 
+  // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
 }
 
 function goWorlds() { 
@@ -1059,14 +1169,14 @@ function goWorlds() {
   setSection("#worldsSection"); 
   renderWorlds(); 
   updateHero(); 
-  toggleToolbar(true, {world: true}); 
+  // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
 }
 
 function goSubWorlds() { 
   setSection("#subWorldsSection"); 
   renderSubWorlds(state.currentWorldId); 
   updateHero(); 
-  toggleToolbar(true, {world: true, sub: true}); 
+  // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
   persistSession(); // Persistir el estado de navegación
 }
 
@@ -1074,7 +1184,7 @@ function goDevs() {
   setSection("#devsSection");
   renderDesarrollos(state.currentSubId); 
   updateHero(); 
-  toggleToolbar(true, {world: true, sub: true, dev: true}); 
+  // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
   persistSession(); // Persistir el estado de navegación
 }
 
@@ -1083,7 +1193,7 @@ function goAdmin() {
   setSection("#adminSection"); 
   renderAdmin(); 
   updateHero(); 
-  toggleToolbar(true, {world: true}); 
+  // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
 }
 
 // ===== Formularios en modal =====
@@ -2396,7 +2506,7 @@ function showDevForm() {
       try {
         await createDesarrolloAPI(desarrolloData);
         modal.hide();
-        await renderDesarrollos(state.currentSubId);
+        // No es necesario llamar a renderDesarrollos aquí, createDesarrolloAPI ya lo hace
       } catch (error) {
         alert("Error creando desarrollo: " + error.message);
       }
@@ -2637,6 +2747,12 @@ async function initializeApp() {
       // No hay usuario, mostrar login
       console.log('👤 No hay usuario, mostrando login');
       goAuth();
+    }
+    
+    // Asegurar que la toolbar se actualice correctamente
+    const activeSection = document.querySelector("main section.active");
+    if (activeSection) {
+      updateToolbarForSection(activeSection.id);
     }
   } catch (error) {
     console.error('Error inicializando la aplicación:', error);
