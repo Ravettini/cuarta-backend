@@ -2515,11 +2515,18 @@ function setupDropzone() {
     e?.preventDefault?.();
     e?.stopPropagation?.();
     if (!getCurrentSub()) return alert("Elegí un sub-mundo.");
-    if (fileInput) fileInput.click();
+    if (fileInput) {
+      console.log("Abriendo explorador de archivos...");
+      fileInput.click();
+    } else {
+      console.error("fileInput no encontrado");
+    }
   };
 
-  dropzone.addEventListener("click", openPicker);
-  if (dropzoneButton) dropzoneButton.addEventListener("click", openPicker);
+  // Solo el botón abre el explorador, no toda la zona
+  if (dropzoneButton) {
+    dropzoneButton.addEventListener("click", openPicker);
+  }
 
   // Al seleccionar archivos desde el explorador
   if (fileInput) {
