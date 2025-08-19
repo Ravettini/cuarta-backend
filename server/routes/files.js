@@ -9,6 +9,9 @@ router.get('/health', fileController.health);
 // Endpoint de diagnóstico para verificar el estado de la base de datos
 router.get('/diagnose', fileController.diagnose);
 
+// Endpoint de prueba simple
+router.get('/test', fileController.test);
+
 // Verificar uso del disco
 router.get('/disk-usage', fileController.getDiskUsage);
 

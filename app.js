@@ -2253,7 +2253,12 @@ async function createDesarrollo(data) {
           console.log('🔄 URL actualizada para usar archivo del servidor:', data.url);
         } else {
           const errorData = await fileResponse.json().catch(() => ({}));
-          throw new Error(`Error subiendo archivo: ${errorData.error || 'Error desconocido'}`);
+          console.error('❌ Error response del servidor:', {
+            status: fileResponse.status,
+            statusText: fileResponse.statusText,
+            errorData: errorData
+          });
+          throw new Error(`Error subiendo archivo: ${errorData.error || 'Error desconocido'} (Status: ${fileResponse.status})`);
         }
       } catch (fileError) {
         console.error('❌ Error subiendo archivo:', fileError);

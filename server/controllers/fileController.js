@@ -70,6 +70,28 @@ exports.diagnose = async (req, res) => {
   }
 };
 
+// Endpoint de prueba simple para verificar si el problema es básico
+exports.test = async (req, res) => {
+  try {
+    console.log('🧪 Endpoint de prueba ejecutándose...');
+    
+    // Prueba básica de respuesta
+    res.json({
+      status: 'ok',
+      message: 'Endpoint de prueba funcionando',
+      timestamp: new Date().toISOString(),
+      test: 'simple'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en endpoint de prueba:', error);
+    res.status(500).json({ 
+      status: 'error',
+      error: error.message
+    });
+  }
+};
+
 // Verificar espacio disponible en disco
 exports.getDiskUsage = async (req, res) => {
   try {
