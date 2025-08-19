@@ -14,6 +14,8 @@ const FILE_SIZE_LIMITS = {
   // Documentos pequeños
   'application/pdf': 10 * 1024 * 1024,        // 10MB
   'text/csv': 5 * 1024 * 1024,                // 5MB
+  'text/html': 5 * 1024 * 1024,               // 5MB para HTML
+  'text/plain': 5 * 1024 * 1024,              // 5MB para texto plano
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': 20 * 1024 * 1024, // 20MB
   
   // Archivos comprimidos
@@ -64,6 +66,8 @@ const allowedMimeTypes = process.env.ALLOWED_MIME_TYPES?.split(',') || [
   'application/pdf',
   'application/zip',
   'text/csv',
+  'text/html',  // Agregar HTML
+  'text/plain', // Agregar texto plano
   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
   'image/jpeg',
   'image/png',
