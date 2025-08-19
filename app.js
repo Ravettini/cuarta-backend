@@ -722,18 +722,7 @@ async function updateUserPermissionsForNewWorld(mundoId) {
 
 // ===== Funciones de API para Usuarios =====
 
-async function updateUserAPI(userId, userData) {
-  try {
-    const response = await api(`/users/${userId}`, {
-      method: 'PUT',
-      body: JSON.stringify(userData)
-    });
-    return response.data;
-  } catch (error) {
-    console.error('Error actualizando usuario:', error);
-    throw error;
-  }
-}
+
 
 async function createUserAPI(userData) {
   try {
@@ -1808,10 +1797,6 @@ function setupUIEvents() {
 }
 
 // ===== Funciones de usuario =====
-function openUserForm(user = null) {
-  // Por ahora, función básica - se puede expandir después
-  alert("Función de gestión de usuarios en desarrollo");
-}
 
 // ===== Funciones de eliminación =====
 async function deleteMundo(id) {
@@ -2197,38 +2182,42 @@ async function updateDesarrollo(id, data) {
 
 // Función para renderizar admin
 async function renderAdmin() {
-  const adminContainer = $("#adminContainer");
-  if (!adminContainer) return;
+  const usersListContainer = $("#usersList");
+  const worldsSummaryContainer = $("#worldsSummary");
+  
+  if (!usersListContainer) {
+    console.error('❌ No se encontró el contenedor usersList');
+    return;
+  }
+  
+  if (!worldsSummaryContainer) {
+    console.error('❌ No se encontró el contenedor worldsSummary');
+    return;
+  }
   
   try {
     console.log('🔧 Renderizando panel de administración...');
+    console.log('🔍 Contenedor usersList encontrado:', usersListContainer);
+    console.log('🔍 Contenedor worldsSummary encontrado:', worldsSummaryContainer);
+    
     // Cargar usuarios y mundos
     const users = await loadUserListFromAPI();
     const mundos = state.data?.worlds || [];
     
     console.log('👥 Usuarios cargados:', users);
+    console.log('👥 Cantidad de usuarios:', users ? users.length : 'undefined');
     console.log('🌍 Mundos disponibles:', mundos);
     
-    // Crear el HTML del panel de administración
-    let adminHTML = `
-      <div class="admin-header">
-        <h2>Panel de Administración</h2>
-        <button onclick="openUserForm()" class="btn btn-primary">Nuevo Usuario</button>
-      </div>
-      
-      <div class="admin-sections">
-        <!-- Sección de Usuarios -->
-        <div class="admin-section">
-          <h3>Usuarios</h3>
-          <p class="section-description">Crear, editar y asignar permisos de mundos.</p>
-          <button onclick="openUserForm()" class="btn btn-secondary">+ Nuevo usuario</button>
-          <div class="users-list">
-    `;
+    // Renderizar usuarios
+    let usersHTML = '';
     
     if (!users || users.length === 0) {
-      adminHTML += '<p class="empty-message">No hay usuarios registrados. Crea el primer usuario.</p>';
+      console.log('⚠️ No hay usuarios para mostrar, agregando mensaje vacío');
+      usersHTML = '<p class="empty-message">No hay usuarios registrados. Crea el primer usuario.</p>';
     } else {
-      users.forEach(user => {
+      console.log('✅ Renderizando usuarios:', users.length);
+      users.forEach((user, index) => {
+        console.log(`👤 Renderizando usuario ${index + 1}:`, user);
         // Crear badges de mundos permitidos (igual que en el original)
         let worldsBadgesHTML = "";
         if (user.permittedWorldIds === "*") {
@@ -2243,7 +2232,7 @@ async function renderAdmin() {
           }
         }
         
-        adminHTML += `
+        usersHTML += `
           <div class="user-item">
             <div class="user-row">
               <div class="t-body"><strong>Usuario:</strong> ${user.username}</div>
@@ -2259,38 +2248,29 @@ async function renderAdmin() {
       });
     }
     
-    adminHTML += `
-          </div>
-        </div>
-        
-        <!-- Sección de Mundos -->
-        <div class="admin-section">
-          <h3>Mundos disponibles</h3>
-          <p class="section-description">Resumen de mundos actuales. Los permisos se asignan en cada usuario.</p>
-          <div class="worlds-summary">
-    `;
+    // Renderizar mundos
+    let worldsHTML = '';
     
     if (!mundos || mundos.length === 0) {
-      adminHTML += '<p class="empty-message">No hay mundos creados. Crea el primer mundo desde la vista principal.</p>';
+      worldsHTML = '<p class="empty-message">No hay mundos creados. Crea el primer mundo desde la vista principal.</p>';
     } else {
       mundos.forEach(mundo => {
         const subMundosCount = (mundo.subMundos && mundo.subMundos.length) || (mundo.subWorlds && mundo.subWorlds.length) || 0;
-        adminHTML += `<span class="badge">${mundo.name || mundo.nombre} (${subMundosCount} sub-mundos)</span>`;
+        worldsHTML += `<span class="badge">${mundo.name || mundo.nombre} (${subMundosCount} sub-mundos)</span>`;
       });
     }
     
-    adminHTML += `
-          </div>
-        </div>
-      </div>
-    `;
-    
-    adminContainer.innerHTML = adminHTML;
+    // Aplicar el HTML a los contenedores
+    usersListContainer.innerHTML = usersHTML;
+    worldsSummaryContainer.innerHTML = worldsHTML;
     
     console.log('✅ Panel de administración renderizado correctamente');
+    console.log('🔍 Contenedor usersList después del render:', usersListContainer.innerHTML.substring(0, 500) + '...');
+    console.log('🔍 Contenedor worldsSummary después del render:', worldsSummaryContainer.innerHTML.substring(0, 500) + '...');
   } catch (error) {
-    console.error('Error renderizando admin:', error);
-    adminContainer.innerHTML = '<p>Error cargando datos del panel de administración</p>';
+    console.error('❌ Error renderizando admin:', error);
+    if (usersListContainer) usersListContainer.innerHTML = '<p>Error cargando usuarios</p>';
+    if (worldsSummaryContainer) worldsSummaryContainer.innerHTML = '<p>Error cargando mundos</p>';
   }
 }
 
