@@ -2344,35 +2344,94 @@ function showLoginForm() {
 }
 
 // Función para mostrar formulario de usuario
-function openUserForm(userId = null) {
+async function openUserForm(userId = null) {
   const isEdit = userId !== null;
   const title = isEdit ? "Editar Usuario" : "Nuevo Usuario";
+  
+  // Cargar mundos disponibles
+  let mundos = [];
+  try {
+    mundos = await loadMundosFromAPI();
+  } catch (error) {
+    console.error('Error cargando mundos:', error);
+    mundos = [];
+  }
+  
+  // Cargar datos del usuario si es edición
+  let userData = null;
+  if (isEdit) {
+    try {
+      const users = await loadUserListFromAPI();
+      userData = users.find(u => u.id === userId);
+    } catch (error) {
+      console.error('Error cargando datos del usuario:', error);
+    }
+  }
+  
+  // Generar HTML para la selección de mundos
+  const mundosHTML = mundos.map(mundo => {
+    const isSelected = userData && userData.permittedWorldIds && 
+      (userData.permittedWorldIds === '*' || userData.permittedWorldIds.includes(mundo.id));
+    
+    return `
+      <div class="checkbox-group">
+        <input type="checkbox" id="mundo_${mundo.id}" value="${mundo.id}" ${isSelected ? 'checked' : ''}>
+        <label for="mundo_${mundo.id}">${mundo.nombre}</label>
+      </div>
+    `;
+  }).join('');
   
   modal.show({
     title,
     bodyHTML: `
       <div class="form-group">
         <label for="formUsername">Usuario:</label>
-        <input type="text" id="formUsername" placeholder="Ingrese el usuario">
+        <input type="text" id="formUsername" placeholder="Ingrese el usuario" value="${userData ? userData.username : ''}">
       </div>
       <div class="form-group">
         <label for="formPassword">Contraseña:</label>
-        <input type="password" id="formPassword" placeholder="Ingrese la contraseña">
+        <input type="password" id="formPassword" placeholder="Ingrese la contraseña" ${isEdit ? '' : 'required'}>
+        ${isEdit ? '<small class="form-help">Dejar vacío para mantener la contraseña actual</small>' : ''}
       </div>
       <div class="form-group">
         <label for="formRole">Rol:</label>
         <select id="formRole">
-          <option value="user">Usuario</option>
-          <option value="admin">Administrador</option>
+          <option value="user" ${userData && userData.role === 'user' ? 'selected' : ''}>Usuario</option>
+          <option value="admin" ${userData && userData.role === 'admin' ? 'selected' : ''}>Administrador</option>
         </select>
+      </div>
+      <div class="form-group">
+        <label>Mundos permitidos:</label>
+        <div class="worlds-selection">
+          ${mundosHTML}
+        </div>
+        <small class="form-help">Seleccione los mundos que este usuario podrá ver</small>
       </div>
     `,
     onSubmit: async () => {
+      const username = $("#formUsername").value;
+      const password = $("#formPassword").value;
+      const role = $("#formRole").value;
+      
+      // Obtener mundos seleccionados
+      const selectedMundos = [];
+      mundos.forEach(mundo => {
+        const checkbox = document.getElementById(`mundo_${mundo.id}`);
+        if (checkbox && checkbox.checked) {
+          selectedMundos.push(mundo.id);
+        }
+      });
+      
       const userData = {
-        username: $("#formUsername").value,
-        password: $("#formPassword").value,
-        role: $("#formRole").value
+        username,
+        role,
+        permittedWorldIds: selectedMundos
       };
+      
+      // Solo incluir contraseña si se proporcionó una nueva
+      if (password.trim()) {
+        userData.password = password;
+      }
       
       console.log('💾 Guardando usuario:', userData);
       
