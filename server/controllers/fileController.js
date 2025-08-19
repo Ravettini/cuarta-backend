@@ -92,6 +92,53 @@ exports.test = async (req, res) => {
   }
 };
 
+// Endpoint de prueba para simular el proceso de upload
+exports.testUpload = async (req, res) => {
+  try {
+    console.log('🧪 testUpload - Iniciando prueba de upload...');
+    console.log('🧪 testUpload - req.body:', req.body);
+    console.log('🧪 testUpload - req.headers:', req.headers);
+    
+    // Simular la creación de un archivo en la base de datos
+    console.log('🧪 testUpload - Intentando crear registro en BD...');
+    
+    const testFileRecord = await File.create({
+      name: 'test-file.html',
+      file_name: 'test-file.html',
+      path: '/tmp/test-path',
+      content_type: 'text/html',
+      size: 1024,
+      tags: 'test',
+      folder: 'test'
+    });
+    
+    console.log('✅ testUpload - Archivo de prueba creado en BD:', testFileRecord.id);
+    
+    // Eliminar el archivo de prueba
+    await testFileRecord.destroy();
+    console.log('🧹 testUpload - Archivo de prueba eliminado');
+    
+    res.json({
+      status: 'ok',
+      message: 'Prueba de upload completada exitosamente',
+      timestamp: new Date().toISOString(),
+      test: 'upload-simulation',
+      database: 'working',
+      fileCreation: 'success'
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en testUpload:', error);
+    console.error('❌ Error stack:', error.stack);
+    res.status(500).json({ 
+      status: 'error',
+      error: error.message,
+      stack: error.stack,
+      test: 'upload-simulation-failed'
+    });
+  }
+};
+
 // Verificar espacio disponible en disco
 exports.getDiskUsage = async (req, res) => {
   try {
