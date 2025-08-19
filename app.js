@@ -987,7 +987,7 @@ async function renderDesarrollos(subMundoId) {
       
       // Determinar si es un archivo o un enlace
       const isFile = d.fileId || (d.url && d.url.includes('/api/v1/files/'));
-      const isLink = d.url && d.url.startsWith('http');
+      const isLink = d.url && d.url.startsWith('http') && !isFile;
       
       // Preparar información del archivo
       let fileInfo = '';
@@ -1008,6 +1008,9 @@ async function renderDesarrollos(subMundoId) {
         actionButton = `<a class="button-link full-width" href="${d.url}" target="_blank" rel="noopener">⬇️ Descargar</a>`;
       } else if (isLink) {
         actionButton = `<a class="button-link full-width" href="${d.url}" target="_blank" rel="noopener">🔗 Abrir Enlace</a>`;
+      } else if (d.url && !d.url.includes('/api/v1/files/')) {
+        // Para URLs locales o relativas, mostrar botón ABRIR
+        actionButton = `<a class="button-link full-width" href="${d.url}" target="_blank" rel="noopener">🔗 ABRIR</a>`;
       }
       
       const card = document.createElement("div");
@@ -2281,6 +2284,18 @@ async function createDesarrollo(data) {
         
         // Forzar re-renderizado inmediato
         await renderDesarrollos();
+        
+        // Si se subió un archivo, refrescar la información del disco
+        if (data.file) {
+          console.log('🔄 Archivo subido, refrescando información del disco...');
+          // Pequeño delay para asegurar que el archivo esté procesado
+          setTimeout(() => {
+            // Solo refrescar si el usuario es admin y está en la sección de desarrollos
+            if (isAdmin() && document.querySelector('#devsSection.active')) {
+              showDiskUsage();
+            }
+          }, 1000);
+        }
       } else {
         console.log('❌ No se pudo obtener el sub-mundo actual');
         console.log('❌ state.data:', state.data);
@@ -3137,11 +3152,20 @@ async function showDiskUsage() {
     message += `• Excel: 20MB\n`;
     message += `• ZIP/RAR: 50MB\n`;
     message += `• Imágenes: 5-10MB\n`;
-    message += `• Otros: 25MB`;
+    message += `• Otros: 25MB\n\n`;
+    
+    message += `🔄 **Última actualización:** ${new Date().toLocaleTimeString()}`;
 
     modal.show({
       title: '💾 Estado del Almacenamiento',
-      bodyHTML: `<div style="white-space: pre-line; font-family: monospace;">${message}</div>`,
+      bodyHTML: `
+        <div style="white-space: pre-line; font-family: monospace;">${message}</div>
+        <div style="margin-top: 20px; text-align: center;">
+          <button onclick="showDiskUsage()" style="background: #2196F3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+            🔄 Actualizar
+          </button>
+        </div>
+      `,
       submitLabel: 'Cerrar',
       onSubmit: () => modal.hide()
     });

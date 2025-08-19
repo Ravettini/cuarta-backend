@@ -17,6 +17,10 @@ exports.getDiskUsage = async (req, res) => {
     const totalSize = await File.sum('size') || 0;
     const totalFiles = await File.count();
     
+    // Debug: Mostrar información detallada
+    console.log('🔍 getDiskUsage - totalSize:', totalSize, 'bytes');
+    console.log('🔍 getDiskUsage - totalFiles:', totalFiles);
+    
     // Límites de Render Disk (1GB = 1,073,741,824 bytes)
     const DISK_LIMIT_BYTES = 1 * 1024 * 1024 * 1024;
     const availableSpace = Math.max(0, DISK_LIMIT_BYTES - totalSize);
@@ -104,6 +108,11 @@ exports.uploadFile = async (req, res) => {
     const { folder, tags } = req.body;
     const file = req.file;
 
+    // Debug: Mostrar información del archivo
+    console.log('🔍 uploadFile - file.size:', file.size, 'bytes');
+    console.log('🔍 uploadFile - file.originalname:', file.originalname);
+    console.log('🔍 uploadFile - file.mimetype:', file.mimetype);
+    
     // Crear registro en la base de datos
     const fileRecord = await File.create({
       name: file.originalname,
@@ -114,6 +123,8 @@ exports.uploadFile = async (req, res) => {
       tags: tags || null,
       folder: folder || null
     });
+    
+    console.log('✅ uploadFile - Archivo creado en BD con ID:', fileRecord.id, 'y tamaño:', fileRecord.size);
 
     res.status(201).json({
       message: 'Archivo subido exitosamente',
