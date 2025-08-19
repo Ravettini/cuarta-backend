@@ -33,20 +33,83 @@ const modal = {
   }
 };
 
+// ===== Sistema de Loader =====
+const loader = {
+  el: null,
+  activeRequests: 0,
+  
+  init() {
+    this.el = $("#globalLoader");
+    console.log('🔄 Loader inicializado');
+  },
+  
+  show(message = 'Cargando...') {
+    if (this.el) {
+      const textEl = this.el.querySelector('.loader-text');
+      if (textEl) textEl.textContent = message;
+      this.el.style.display = 'flex';
+      console.log('🔄 Loader mostrado:', message);
+    }
+  },
+  
+  hide() {
+    if (this.el && this.activeRequests <= 0) {
+      this.el.style.display = 'none';
+      console.log('✅ Loader ocultado');
+    }
+  },
+  
+  // Contador de requests activos
+  startRequest() {
+    this.activeRequests++;
+    if (this.activeRequests === 1) {
+      this.show();
+    }
+    console.log(`🔄 Request iniciado (total: ${this.activeRequests})`);
+  },
+  
+  endRequest() {
+    this.activeRequests = Math.max(0, this.activeRequests - 1);
+    console.log(`✅ Request finalizado (total: ${this.activeRequests})`);
+    if (this.activeRequests === 0) {
+      this.hide();
+    }
+  },
+  
+  // Para requests individuales
+  async withLoader(promise, message = 'Cargando...') {
+    try {
+      this.startRequest();
+      if (message) this.show(message);
+      const result = await promise;
+      return result;
+    } finally {
+      this.endRequest();
+    }
+  }
+};
+
 // ===== Configuración API =====
 const BASE_API = '/api/v1';
 
 // Función helper para llamadas a la API
 async function api(url, opts = {}) {
-  const response = await fetch(BASE_API + url, {
-    ...opts,
-    headers: {
-      'Content-Type': 'application/json',
-      ...opts.headers
-    }
-  });
+  // Mostrar loader automáticamente para todas las llamadas a la API
+  loader.startRequest();
   
-  return response;
+  try {
+    const response = await fetch(BASE_API + url, {
+      ...opts,
+      headers: {
+        'Content-Type': 'application/json',
+        ...opts.headers
+      }
+    });
+    
+    return response;
+  } finally {
+    loader.endRequest();
+  }
 }
 
 // ===== Estado & Storage =====
@@ -120,6 +183,7 @@ function persistSession(){
 async function loadUserListFromAPI() {
   try {
     console.log('👥 Cargando usuarios desde la API...');
+    loader.show('Cargando usuarios...');
     const response = await api('/users');
     
     if (response.ok) {
@@ -160,6 +224,7 @@ function saveUserList(users) {
 async function login(username, password) {
   try {
     console.log('🔐 Intentando login con:', { username, password });
+    loader.show('Verificando credenciales...');
     
     // Primero intentar con la API
     try {
@@ -295,6 +360,8 @@ async function loadDataFromAPI(forceRefresh = false) {
     }
     
     console.log('🔄 Cargando datos desde la API...');
+    // Mostrar mensaje personalizado para la carga de datos
+    loader.show('Cargando mundos y desarrollos...');
     const mundos = await loadMundosFromAPI();
     
     console.log('📊 Mundos cargados:', mundos);
@@ -402,6 +469,7 @@ function saveData(d){
 
 async function loadMundosFromAPI() {
   try {
+    loader.show('Cargando mundos...');
     const response = await api('/mundos');
     if (response.ok) {
       const data = await response.json();
@@ -418,6 +486,7 @@ async function loadMundosFromAPI() {
 
 async function loadSubMundosForMundo(mundoId) {
   try {
+    loader.show('Cargando sub-mundos...');
     const response = await api(`/sub-mundos`);
     if (response.ok) {
       const data = await response.json();
@@ -435,6 +504,7 @@ async function loadSubMundosForMundo(mundoId) {
 
 async function loadDesarrollosForSubMundo(subMundoId) {
   try {
+    loader.show('Cargando desarrollos...');
     const response = await api(`/desarrollos`);
     if (response.ok) {
       const data = await response.json();
@@ -452,6 +522,7 @@ async function loadDesarrollosForSubMundo(subMundoId) {
 
 async function createMundoAPI(mundoData) {
   try {
+    loader.show('Creando mundo...');
     const response = await api('/mundos', {
       method: 'POST',
       body: JSON.stringify(mundoData)
@@ -470,6 +541,7 @@ async function createMundoAPI(mundoData) {
 
 async function createSubMundoAPI(subMundoData) {
   try {
+    loader.show('Creando sub-mundo...');
     const response = await api('/sub-mundos', {
       method: 'POST',
       body: JSON.stringify(subMundoData)
@@ -488,6 +560,7 @@ async function createSubMundoAPI(subMundoData) {
 
 async function createDesarrolloAPI(desarrolloData) {
   try {
+    loader.show('Creando desarrollo...');
     const response = await api('/desarrollos', {
       method: 'POST',
       body: JSON.stringify(desarrolloData)
@@ -539,6 +612,7 @@ async function createDesarrolloAPI(desarrolloData) {
 // Función para crear mundos por defecto
 async function createDefaultMundos() {
   try {
+    loader.show('Creando mundos por defecto...');
     const defaultMundos = [
       { nombre: "Estaciones Saludables", descripcion: "Mundo de estaciones saludables", activo: true, orden: 1 },
       { nombre: "San Fernando", descripcion: "Mundo de San Fernando", activo: true, orden: 2 }
@@ -558,6 +632,7 @@ async function createDefaultMundos() {
 async function createDefaultUsers() {
   try {
     console.log('👥 Creando usuarios por defecto en la base de datos...');
+    loader.show('Creando usuarios por defecto...');
     
     const defaultUsers = [
       { username: "admin", password: "1234", role: "admin", permittedWorldIds: "*" },
@@ -589,6 +664,7 @@ async function createDefaultUsers() {
 async function ensureDefaultPermissions(users, data) {
   try {
     console.log('🔐 Configurando permisos por defecto...');
+    loader.show('Configurando permisos...');
     
     if (!users || !Array.isArray(users)) {
       console.log('⚠️ Usuarios no válidos, usando usuarios por defecto');
@@ -1154,6 +1230,7 @@ function goAuth() {
 function goWorlds() { 
   state.currentSubId = null; 
   setSection("#worldsSection"); 
+  loader.show('Cargando mundos...');
   renderWorlds(); 
   updateHero(); 
   // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
@@ -1161,6 +1238,7 @@ function goWorlds() {
 
 function goSubWorlds() { 
   setSection("#subWorldsSection"); 
+  loader.show('Cargando sub-mundos...');
   renderSubWorlds(state.currentWorldId); 
   updateHero(); 
   // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
@@ -1169,6 +1247,7 @@ function goSubWorlds() {
 
 function goDevs() { 
   setSection("#devsSection");
+  loader.show('Cargando desarrollos...');
   renderDesarrollos(state.currentSubId); 
   updateHero(); 
   // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
@@ -1178,6 +1257,7 @@ function goDevs() {
 function goAdmin() { 
   if (!guardAdmin()) return; 
   setSection("#adminSection"); 
+  loader.show('Cargando panel de administración...');
   renderAdmin(); 
   updateHero(); 
   // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
@@ -1716,6 +1796,7 @@ function setupUIEvents() {
     btnRefresh.onclick = async () => {
       try {
         console.log('🔄 Refrescando datos...');
+        loader.show('Refrescando datos...');
         invalidateCache();
         state.data = await loadDataFromAPI(true); // Forzar refrescar
         
@@ -1766,6 +1847,7 @@ function openUserForm(user = null) {
 async function deleteMundo(id) {
   try {
     console.log(`🗑️ Eliminando mundo con ID: ${id}`);
+    loader.show('Eliminando mundo...');
     
     // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
     state.data.worlds = state.data.worlds.filter(w => w.id !== id);
@@ -1802,6 +1884,7 @@ async function deleteMundo(id) {
 async function deleteSubMundo(id) {
   try {
     console.log(`🗑️ Eliminando sub-mundo con ID: ${id}`);
+    loader.show('Eliminando sub-mundo...');
     
     // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
     const mundo = getCurrentWorld();
@@ -1840,6 +1923,7 @@ async function deleteSubMundo(id) {
 async function deleteDesarrollo(id) {
   try {
     console.log(`🗑️ Eliminando desarrollo con ID: ${id}`);
+    loader.show('Eliminando desarrollo...');
     
     // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
     const subMundo = getCurrentSub();
@@ -1874,6 +1958,7 @@ async function deleteDesarrollo(id) {
 async function createMundo(data) {
   try {
     console.log(`🆕 Creando mundo con datos:`, data);
+    loader.show('Creando mundo...');
     
     const response = await api('/mundos', {
       method: 'POST',
@@ -1899,6 +1984,7 @@ async function createMundo(data) {
 async function updateMundo(id, data) {
   try {
     console.log(`🔄 Actualizando mundo ${id} con datos:`, data);
+    loader.show('Actualizando mundo...');
     
     // ACTUALIZACIÓN INSTANTÁNEA: Primero en el frontend
     const mundo = state.data.worlds?.find(w => w.id === id);
@@ -1940,6 +2026,7 @@ async function updateMundo(id, data) {
 async function createSubMundo(data) {
   try {
     console.log(`🆕 Creando sub-mundo con datos:`, data);
+    loader.show('Creando sub-mundo...');
     
     const response = await api('/sub-mundos', {
       method: 'POST',
@@ -1995,6 +2082,7 @@ async function createSubMundo(data) {
 async function updateSubMundo(id, data) {
   try {
     console.log(`🔄 Actualizando sub-mundo ${id} con datos:`, data);
+    loader.show('Actualizando sub-mundo...');
     
     // ACTUALIZACIÓN INSTANTÁNEA: Primero en el frontend
     const mundo = getCurrentWorld();
@@ -2039,6 +2127,7 @@ async function updateSubMundo(id, data) {
 async function createDesarrollo(data) {
   try {
     console.log(`🆕 Creando desarrollo con datos:`, data);
+    loader.show('Creando desarrollo...');
     
     const response = await api('/desarrollos', {
       method: 'POST',
@@ -2103,6 +2192,7 @@ async function createDesarrollo(data) {
 async function updateDesarrollo(id, data) {
   try {
     console.log(`🔄 Actualizando desarrollo ${id} con datos:`, data);
+    loader.show('Actualizando desarrollo...');
     
     // ACTUALIZACIÓN INSTANTÁNEA: Primero en el frontend
     const subMundo = getCurrentSub();
@@ -2151,6 +2241,7 @@ async function renderAdmin() {
   
   try {
     console.log('🔧 Renderizando panel de administración...');
+    loader.show('Cargando panel de administración...');
     
     // Cargar usuarios y mundos
     const users = await loadUserListFromAPI();
@@ -2247,6 +2338,7 @@ async function renderAdmin() {
 // Función para seleccionar mundo
 async function selectWorld(worldId) {
   state.currentWorldId = worldId;
+  loader.show('Cargando sub-mundos...');
   await renderSubWorlds(worldId);
   
   // Mostrar contenedor de sub-mundos
@@ -2262,6 +2354,7 @@ async function selectWorld(worldId) {
 // Función para seleccionar sub-mundo
 async function selectSubWorld(subWorldId) {
   state.currentSubId = subWorldId;
+  loader.show('Cargando desarrollos...');
   await renderDesarrollos(subWorldId);
   
   // Mostrar contenedor de desarrollos
@@ -2652,6 +2745,7 @@ function setupDropzone() {
 async function initializeApp() {
   try {
     console.log('🚀 Inicializando aplicación...');
+    loader.show('Inicializando aplicación...');
     
     // Cargar datos desde la API
     state.data = await loadDataFromAPI();
@@ -2842,10 +2936,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  modal.init();
-  restoreSession();
-  setupDropzone();
-  setupUIEvents();
+        modal.init();
+      loader.init();
+      restoreSession();
+      setupDropzone();
+      setupUIEvents();
 
   // Inicializar la aplicación de forma asíncrona
   initializeApp();
