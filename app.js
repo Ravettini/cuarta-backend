@@ -86,10 +86,14 @@ async function api(url, opts = {}) {
   loader.startRequest();
   
   try {
+    // Determinar si es una petición de archivo
+    const isFileUpload = opts.body instanceof FormData;
+    
     const response = await fetch(BASE_API + url, {
       ...opts,
       headers: {
-        'Content-Type': 'application/json',
+        // Solo agregar Content-Type si NO es un FormData
+        ...(isFileUpload ? {} : { 'Content-Type': 'application/json' }),
         ...opts.headers
       }
     });
