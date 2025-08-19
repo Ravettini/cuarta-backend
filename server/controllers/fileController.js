@@ -101,7 +101,12 @@ exports.listFiles = async (req, res) => {
 // Subir archivo
 exports.uploadFile = async (req, res) => {
   try {
+    console.log('🔍 uploadFile - Iniciando subida de archivo');
+    console.log('🔍 uploadFile - req.file:', req.file);
+    console.log('🔍 uploadFile - req.body:', req.body);
+    
     if (!req.file) {
+      console.log('❌ uploadFile - No se proporcionó ningún archivo');
       return res.status(400).json({ error: 'No se proporcionó ningún archivo' });
     }
 
@@ -112,6 +117,9 @@ exports.uploadFile = async (req, res) => {
     console.log('🔍 uploadFile - file.size:', file.size, 'bytes');
     console.log('🔍 uploadFile - file.originalname:', file.originalname);
     console.log('🔍 uploadFile - file.mimetype:', file.mimetype);
+    console.log('🔍 uploadFile - file.path:', file.path);
+    
+    console.log('🔍 uploadFile - Intentando crear registro en la base de datos...');
     
     // Crear registro en la base de datos
     const fileRecord = await File.create({
@@ -131,7 +139,8 @@ exports.uploadFile = async (req, res) => {
       file: fileRecord
     });
   } catch (error) {
-    console.error('Error subiendo archivo:', error);
+    console.error('❌ Error subiendo archivo:', error);
+    console.error('❌ Error stack:', error.stack);
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 };

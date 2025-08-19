@@ -114,8 +114,16 @@ const upload = multer({
 
 // Middleware wrapper que incluye validación de tamaño inteligente
 const uploadWithSmartValidation = (req, res, next) => {
+  console.log('🔍 uploadWithSmartValidation - Iniciando middleware de upload');
+  console.log('🔍 uploadWithSmartValidation - req.body antes de multer:', req.body);
+  
   upload(req, res, (err) => {
+    console.log('🔍 uploadWithSmartValidation - Callback de multer ejecutado');
+    console.log('🔍 uploadWithSmartValidation - Error de multer:', err);
+    console.log('🔍 uploadWithSmartValidation - req.file después de multer:', req.file);
+    
     if (err) {
+      console.log('❌ uploadWithSmartValidation - Error en multer:', err);
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ 
           error: 'Archivo demasiado grande',
@@ -136,8 +144,10 @@ const uploadWithSmartValidation = (req, res, next) => {
     
     // Validar tamaño según tipo MIME
     if (req.file) {
+      console.log('🔍 uploadWithSmartValidation - Validando tamaño del archivo...');
       validateFileSize(req, req.file, (err) => {
         if (err) {
+          console.log('❌ uploadWithSmartValidation - Error en validación de tamaño:', err);
           // Eliminar archivo si ya se subió pero no pasa validación
           if (req.file.path && fs.existsSync(req.file.path)) {
             fs.unlinkSync(req.file.path);
@@ -147,9 +157,11 @@ const uploadWithSmartValidation = (req, res, next) => {
             details: err.message 
           });
         }
+        console.log('✅ uploadWithSmartValidation - Archivo validado correctamente');
         next();
       });
     } else {
+      console.log('🔍 uploadWithSmartValidation - No hay archivo para validar');
       next();
     }
   });
