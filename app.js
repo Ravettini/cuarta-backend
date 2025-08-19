@@ -1815,10 +1815,19 @@ function showDragDropModal(data) {
         <label for="dragTitle">Título</label>
         <input id="dragTitle" placeholder="Título del desarrollo" value="${data.titulo}" />
       </div>
-      <div class="field">
-        <label for="dragURL">URL</label>
-        <input id="dragURL" placeholder="URL del desarrollo" value="${data.url}" readonly />
-      </div>
+      ${data.file ? 
+        `<div class="field">
+          <label>Archivo</label>
+          <div style="padding: 8px; background: #f5f5f5; border-radius: 4px; border: 1px solid #ddd;">
+            <strong>${data.file.name}</strong><br>
+            <small>Tamaño: ${Math.round(data.file.size/1024)} KB | Tipo: ${data.file.type || 'Desconocido'}</small>
+          </div>
+        </div>` :
+        `<div class="field">
+          <label for="dragURL">URL</label>
+          <input id="dragURL" placeholder="URL del desarrollo" value="${data.url}" readonly />
+        </div>`
+      }
       <div class="field">
         <label for="dragDesc">Descripción</label>
         <textarea id="dragDesc" placeholder="Descripción del desarrollo">${data.descripcion}</textarea>
@@ -1829,14 +1838,27 @@ function showDragDropModal(data) {
       </div>`,
     onSubmit: async () => {
       const titulo = $("#dragTitle").value.trim();
-      const url = $("#dragURL").value.trim();
       const descripcion = $("#dragDesc").value.trim();
       const tags = $("#dragTags").value.split(",").map(t => t.trim()).filter(Boolean);
       
       if (!titulo) return;
       
       try {
-        await createDesarrollo({ titulo, url, descripcion, tags, subMundoId: getCurrentSub().id });
+        // Si hay un archivo, pasarlo directamente; si no, usar la URL
+        const desarrolloData = { 
+          titulo, 
+          descripcion, 
+          tags, 
+          subMundoId: getCurrentSub().id 
+        };
+        
+        if (data.file) {
+          desarrolloData.file = data.file;
+        } else {
+          desarrolloData.url = $("#dragURL").value.trim();
+        }
+        
+        await createDesarrollo(desarrolloData);
         modal.hide();
       } catch (error) {
         console.error('Error creando desarrollo desde drag & drop:', error);
@@ -2850,10 +2872,9 @@ function setupDropzone() {
         } else if (it.kind === "file") {
           const file = it.getAsFile();
           if (!file) continue;
-          const url = URL.createObjectURL(file);
           showDragDropModal({
             titulo: file.name,
-            url,
+            file: file, // Pasar el archivo real, no la URL temporal
             descripcion: `Archivo local (${Math.round(file.size/1024)} KB)`,
             tags: ["archivo"]
           });
@@ -2901,10 +2922,9 @@ function setupDropzone() {
       const files = Array.from(e.target.files || []);
       if (!files.length) return;
       for (const file of files) {
-        const url = URL.createObjectURL(file);
         showDragDropModal({
           titulo: file.name,
-          url,
+          file: file, // Pasar el archivo real, no la URL temporal
           descripcion: `Archivo local (${Math.round(file.size/1024)} KB)`,
           tags: ["archivo"]
         });
