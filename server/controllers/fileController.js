@@ -99,6 +99,16 @@ exports.testUpload = async (req, res) => {
     console.log('🧪 testUpload - req.body:', req.body);
     console.log('🧪 testUpload - req.headers:', req.headers);
     
+    // Verificar que el modelo File esté disponible
+    console.log('🧪 testUpload - Verificando modelo File...');
+    if (!File) {
+      console.error('❌ testUpload - Modelo File no disponible');
+      return res.status(500).json({ 
+        error: 'Modelo File no disponible',
+        test: 'upload-simulation-failed'
+      });
+    }
+    
     // Simular la creación de un archivo en la base de datos
     console.log('🧪 testUpload - Intentando crear registro en BD...');
     
@@ -124,17 +134,22 @@ exports.testUpload = async (req, res) => {
       timestamp: new Date().toISOString(),
       test: 'upload-simulation',
       database: 'working',
-      fileCreation: 'success'
+      fileCreation: 'success',
+      modelFile: 'available'
     });
     
   } catch (error) {
     console.error('❌ Error en testUpload:', error);
     console.error('❌ Error stack:', error.stack);
+    
+    // Devolver información más detallada del error
     res.status(500).json({ 
       status: 'error',
       error: error.message,
       stack: error.stack,
-      test: 'upload-simulation-failed'
+      test: 'upload-simulation-failed',
+      errorType: error.constructor.name,
+      modelFile: File ? 'available' : 'not-available'
     });
   }
 };
