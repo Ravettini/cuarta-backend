@@ -2937,4 +2937,341 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Inicializar la aplicación de forma asíncrona
   initializeApp();
+  
+  // Agregar botones de gestión de archivos después de la inicialización
+  setTimeout(() => {
+    addFileManagementButtons();
+  }, 1000);
 })();
+
+// ===== Funciones de Gestión de Archivos =====
+
+// Función para obtener información del espacio en disco
+async function getDiskUsage() {
+  try {
+    const response = await api('/files/disk-usage');
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      console.error('Error obteniendo uso del disco:', response.statusText);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error obteniendo uso del disco:', error);
+    return null;
+  }
+}
+
+// Función para mostrar información del espacio en disco
+async function showDiskUsage() {
+  const usage = await getDiskUsage();
+  if (!usage) {
+    alert('Error obteniendo información del disco');
+    return;
+  }
+
+  const usedMB = Math.round(usage.disk.used / (1024 * 1024));
+  const availableMB = Math.round(usage.disk.available / (1024 * 1024));
+  const totalMB = Math.round(usage.disk.total / (1024 * 1024));
+
+  let message = `💾 **Uso del Disco**\n\n`;
+  message += `📊 **Espacio Total:** ${totalMB} MB\n`;
+  message += `📁 **Espacio Usado:** ${usedMB} MB (${usage.disk.usedPercentage}%)\n`;
+  message += `🆓 **Espacio Disponible:** ${availableMB} MB (${usage.disk.availablePercentage}%)\n`;
+  message += `📄 **Archivos:** ${usage.files.count}\n\n`;
+
+  if (usage.recommendations.warning) {
+    message += `⚠️ **Advertencia:** ${usage.recommendations.warning}\n\n`;
+  }
+  if (usage.recommendations.critical) {
+    message += `🚨 **CRÍTICO:** ${usage.recommendations.critical}\n\n`;
+  }
+
+  message += `📋 **Límites por tipo de archivo:**\n`;
+  message += `• PDF: 10MB\n`;
+  message += `• Excel: 20MB\n`;
+  message += `• ZIP/RAR: 50MB\n`;
+  message += `• Imágenes: 5-10MB\n`;
+  message += `• Otros: 25MB`;
+
+  modal.show({
+    title: '💾 Estado del Almacenamiento',
+    bodyHTML: `<div style="white-space: pre-line; font-family: monospace;">${message}</div>`,
+    submitLabel: 'Cerrar',
+    onSubmit: () => modal.hide()
+  });
+}
+
+// Función para listar archivos
+async function listFiles(options = {}) {
+  try {
+    const { folder, q, limit = 50, offset = 0 } = options;
+    const params = new URLSearchParams();
+    
+    if (folder) params.append('folder', folder);
+    if (q) params.append('q', q);
+    if (limit) params.append('limit', limit);
+    if (offset) params.append('offset', offset);
+
+    const response = await api(`/files?${params.toString()}`);
+    if (response.ok) {
+      const data = await response.json();
+      return data;
+    } else {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error listando archivos:', error);
+    throw error;
+  }
+}
+
+// Función para mostrar lista de archivos
+async function showFileList(folder = null) {
+  try {
+    const data = await listFiles({ folder, limit: 100 });
+    
+    if (data.files.length === 0) {
+      modal.show({
+        title: '📁 Lista de Archivos',
+        bodyHTML: `
+          <div style="text-align: center; padding: 20px;">
+            <p>📂 No hay archivos${folder ? ` en la carpeta "${folder}"` : ''}</p>
+            <p>Sube tu primer archivo para comenzar</p>
+          </div>
+        `,
+        submitLabel: 'Cerrar',
+        onSubmit: () => modal.hide()
+      });
+      return;
+    }
+
+    let filesHTML = '';
+    data.files.forEach(file => {
+      const sizeMB = Math.round(file.size / (1024 * 1024));
+      const date = new Date(file.created_at).toLocaleDateString('es-ES');
+      
+      filesHTML += `
+        <div class="file-item" style="border: 1px solid #ddd; padding: 10px; margin: 5px 0; border-radius: 5px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong>📄 ${file.name}</strong><br>
+              <small>📁 ${file.folder || 'Sin carpeta'} | 📏 ${sizeMB}MB | 📅 ${date}</small>
+              ${file.tags ? `<br><small>🏷️ ${file.tags}</small>` : ''}
+            </div>
+            <div>
+              <button onclick="downloadFile('${file.id}')" style="background: #4CAF50; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin: 2px;">⬇️</button>
+              <button onclick="deleteFile('${file.id}')" style="background: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; margin: 2px;">🗑️</button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    modal.show({
+      title: `📁 Archivos${folder ? ` - ${folder}` : ''} (${data.total})`,
+      bodyHTML: `
+        <div style="max-height: 400px; overflow-y: auto;">
+          ${filesHTML}
+        </div>
+        <div style="margin-top: 15px; text-align: center;">
+          <small>Mostrando ${data.files.length} de ${data.total} archivos</small>
+        </div>
+      `,
+      submitLabel: 'Cerrar',
+      onSubmit: () => modal.hide()
+    });
+  } catch (error) {
+    console.error('Error mostrando lista de archivos:', error);
+    alert('Error cargando archivos: ' + error.message);
+  }
+}
+
+// Función para subir archivo
+async function uploadFile(file, folder = null, tags = null) {
+  try {
+    const formData = new FormData();
+    formData.append('file', file);
+    if (folder) formData.append('folder', folder);
+    if (tags) formData.append('tags', tags);
+
+    const response = await api('/files', {
+      method: 'POST',
+      body: formData,
+      headers: {} // No incluir Content-Type para FormData
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      console.log('✅ Archivo subido:', data);
+      return data;
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Error ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error subiendo archivo:', error);
+    throw error;
+  }
+}
+
+// Función para mostrar selector de archivo y subida
+function showFileUpload(folder = null) {
+  const folderInput = folder ? `<input type="text" id="uploadFolder" value="${folder}" readonly style="background: #f5f5f5;">` : 
+    `<input type="text" id="uploadFolder" placeholder="Carpeta (opcional)" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 3px;">`;
+  
+  const tagsInput = `<input type="text" id="uploadTags" placeholder="Tags separados por coma (opcional)" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 3px;">`;
+
+  modal.show({
+    title: '📤 Subir Archivo',
+    bodyHTML: `
+      <div style="margin-bottom: 15px;">
+        <label for="fileInput" style="display: block; margin-bottom: 5px; font-weight: bold;">Seleccionar archivo:</label>
+        <input type="file" id="fileInput" accept=".pdf,.zip,.csv,.xlsx,.jpg,.jpeg,.png,.gif,.webp,.svg" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 3px;">
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <label for="uploadFolder" style="display: block; margin-bottom: 5px; font-weight: bold;">Carpeta:</label>
+        ${folderInput}
+      </div>
+      
+      <div style="margin-bottom: 15px;">
+        <label for="uploadTags" style="display: block; margin-bottom: 5px; font-weight: bold;">Tags:</label>
+        ${tagsInput}
+      </div>
+      
+      <div id="uploadProgress" style="display: none; margin-top: 15px;">
+        <div style="background: #f0f0f0; border-radius: 3px; height: 20px; overflow: hidden;">
+          <div id="progressBar" style="background: #4CAF50; height: 100%; width: 0%; transition: width 0.3s;"></div>
+        </div>
+        <div id="progressText" style="text-align: center; margin-top: 5px; font-size: 12px;">0%</div>
+      </div>
+      
+      <div id="uploadStatus" style="margin-top: 15px;"></div>
+    `,
+    submitLabel: 'Subir',
+    onSubmit: async () => {
+      const fileInput = document.getElementById('fileInput');
+      const folderInput = document.getElementById('uploadFolder');
+      const tagsInput = document.getElementById('uploadTags');
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressBar = document.getElementById('progressBar');
+      const progressText = document.getElementById('progressText');
+      const statusDiv = document.getElementById('uploadStatus');
+
+      if (!fileInput.files[0]) {
+        alert('Por favor selecciona un archivo');
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const folder = folderInput.value.trim() || null;
+      const tags = tagsInput.value.trim() || null;
+
+      try {
+        // Mostrar progreso
+        progressDiv.style.display = 'block';
+        statusDiv.innerHTML = '<p style="color: #2196F3;">🔄 Subiendo archivo...</p>';
+        
+        // Simular progreso (en una implementación real usarías XMLHttpRequest para progreso real)
+        let progress = 0;
+        const progressInterval = setInterval(() => {
+          progress += Math.random() * 20;
+          if (progress > 90) progress = 90;
+          progressBar.style.width = progress + '%';
+          progressText.textContent = Math.round(progress) + '%';
+        }, 200);
+
+        // Subir archivo
+        const result = await uploadFile(file, folder, tags);
+        
+        // Completar progreso
+        clearInterval(progressInterval);
+        progressBar.style.width = '100%';
+        progressText.textContent = '100%';
+        
+        statusDiv.innerHTML = '<p style="color: #4CAF50;">✅ Archivo subido exitosamente</p>';
+        
+        // Cerrar modal después de 2 segundos
+        setTimeout(() => {
+          modal.hide();
+        }, 2000);
+        
+      } catch (error) {
+        statusDiv.innerHTML = `<p style="color: #f44336;">❌ Error: ${error.message}</p>`;
+        console.error('Error en subida:', error);
+      }
+    }
+  });
+}
+
+// Función para descargar archivo
+async function downloadFile(fileId) {
+  try {
+    const response = await api(`/files/${fileId}/download`);
+    if (response.ok) {
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'archivo-descargado';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+    } else {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error descargando archivo:', error);
+    alert('Error descargando archivo: ' + error.message);
+  }
+}
+
+// Función para eliminar archivo
+async function deleteFile(fileId) {
+  if (!confirm('¿Estás seguro de que quieres eliminar este archivo? Esta acción no se puede deshacer.')) {
+    return;
+  }
+
+  try {
+    const response = await api(`/files/${fileId}`, { method: 'DELETE' });
+    if (response.ok) {
+      console.log('✅ Archivo eliminado');
+      alert('Archivo eliminado exitosamente');
+      // Si estamos en una lista, refrescar
+      if (modal.el.classList.contains('open')) {
+        modal.hide();
+      }
+    } else {
+      throw new Error(`Error ${response.status}: ${response.statusText}`);
+    }
+  } catch (error) {
+    console.error('Error eliminando archivo:', error);
+    alert('Error eliminando archivo: ' + error.message);
+  }
+}
+
+// Función para agregar botones de gestión de archivos al toolbar
+function addFileManagementButtons() {
+  const toolbar = document.querySelector('header.appbar .toolbar');
+  if (!toolbar) return;
+
+  // Verificar si ya existen los botones
+  if (toolbar.querySelector('#btnDiskUsage')) return;
+
+  const buttonsHTML = `
+    <button id="btnDiskUsage" onclick="showDiskUsage()" style="background: #2196F3; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 0 5px;">
+      💾 Espacio
+    </button>
+    <button id="btnListFiles" onclick="showFileList()" style="background: #4CAF50; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 0 5px;">
+      📁 Listar
+    </button>
+    <button id="btnUploadFile" onclick="showFileUpload()" style="background: #FF9800; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; margin: 0 5px;">
+      📤 Subir
+    </button>
+  `;
+
+  toolbar.insertAdjacentHTML('beforeend', buttonsHTML);
+}

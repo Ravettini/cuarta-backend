@@ -8,6 +8,50 @@ exports.health = (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 };
 
+// Verificar espacio disponible en disco
+exports.getDiskUsage = async (req, res) => {
+  try {
+    const uploadDir = process.env.UPLOAD_DIR || './uploads';
+    
+    // Calcular espacio usado por archivos en la base de datos
+    const totalSize = await File.sum('size') || 0;
+    const totalFiles = await File.count();
+    
+    // Límites de Render Disk (1GB = 1,073,741,824 bytes)
+    const DISK_LIMIT_BYTES = 1 * 1024 * 1024 * 1024;
+    const availableSpace = Math.max(0, DISK_LIMIT_BYTES - totalSize);
+    
+    // Calcular porcentajes
+    const usedPercentage = Math.round((totalSize / DISK_LIMIT_BYTES) * 100);
+    const availablePercentage = 100 - usedPercentage;
+    
+    res.json({
+      disk: {
+        total: DISK_LIMIT_BYTES,
+        used: totalSize,
+        available: availableSpace,
+        usedPercentage,
+        availablePercentage
+      },
+      files: {
+        count: totalFiles,
+        totalSize
+      },
+      limits: {
+        maxFileSize: process.env.MAX_UPLOAD_BYTES || 157286400,
+        maxFileSizeMB: Math.round((process.env.MAX_UPLOAD_BYTES || 157286400) / (1024 * 1024))
+      },
+      recommendations: {
+        warning: usedPercentage > 80 ? 'El disco está casi lleno. Considera eliminar archivos antiguos.' : null,
+        critical: usedPercentage > 95 ? '¡CRÍTICO! El disco está casi lleno. Elimina archivos inmediatamente.' : null
+      }
+    });
+  } catch (error) {
+    console.error('Error obteniendo uso del disco:', error);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
 // Listar archivos con filtros
 exports.listFiles = async (req, res) => {
   try {

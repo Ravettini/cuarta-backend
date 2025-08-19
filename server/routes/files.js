@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const fileController = require('../controllers/fileController');
-const upload = require('../middlewares/upload');
+const { upload } = require('../middlewares/upload');
 
 // Health check
 router.get('/health', fileController.health);
+
+// Verificar uso del disco
+router.get('/disk-usage', fileController.getDiskUsage);
 
 // Listar archivos
 router.get('/', fileController.listFiles);
@@ -13,7 +16,7 @@ router.get('/', fileController.listFiles);
 router.get('/:id', fileController.getFile);
 
 // Subir archivo
-router.post('/', upload.single('file'), fileController.uploadFile);
+router.post('/', upload, fileController.uploadFile);
 
 // Descargar archivo
 router.get('/:id/download', fileController.downloadFile);
