@@ -92,13 +92,25 @@ const fileFilter = (req, file, cb) => {
 
 // Middleware personalizado para validar tamaño según tipo
 const validateFileSize = (req, file, cb) => {
+  console.log('🔍 validateFileSize - Iniciando validación de tamaño');
+  console.log('🔍 validateFileSize - Archivo a validar:', {
+    originalname: file.originalname,
+    mimetype: file.mimetype,
+    size: file.size
+  });
+  
   const maxSize = getFileSizeLimit(file.mimetype);
   const maxSizeMB = Math.round(maxSize / (1024 * 1024));
   
+  console.log('🔍 validateFileSize - Límite máximo:', maxSize, 'bytes (', maxSizeMB, 'MB)');
+  console.log('🔍 validateFileSize - Tamaño del archivo:', file.size, 'bytes');
+  
   if (file.size > maxSize) {
+    console.log('❌ validateFileSize - Archivo demasiado grande');
     return cb(new Error(`Archivo demasiado grande. Máximo ${maxSizeMB}MB para ${file.mimetype}`), false);
   }
   
+  console.log('✅ validateFileSize - Archivo cumple con el límite de tamaño');
   cb(null, true);
 };
 
@@ -116,14 +128,19 @@ const upload = multer({
 const uploadWithSmartValidation = (req, res, next) => {
   console.log('🔍 uploadWithSmartValidation - Iniciando middleware de upload');
   console.log('🔍 uploadWithSmartValidation - req.body antes de multer:', req.body);
+  console.log('🔍 uploadWithSmartValidation - req.headers:', req.headers);
   
   upload(req, res, (err) => {
     console.log('🔍 uploadWithSmartValidation - Callback de multer ejecutado');
     console.log('🔍 uploadWithSmartValidation - Error de multer:', err);
     console.log('🔍 uploadWithSmartValidation - req.file después de multer:', req.file);
+    console.log('🔍 uploadWithSmartValidation - req.body después de multer:', req.body);
     
     if (err) {
       console.log('❌ uploadWithSmartValidation - Error en multer:', err);
+      console.log('❌ uploadWithSmartValidation - Error code:', err.code);
+      console.log('❌ uploadWithSmartValidation - Error message:', err.message);
+      
       if (err.code === 'LIMIT_FILE_SIZE') {
         return res.status(400).json({ 
           error: 'Archivo demasiado grande',
@@ -145,6 +162,13 @@ const uploadWithSmartValidation = (req, res, next) => {
     // Validar tamaño según tipo MIME
     if (req.file) {
       console.log('🔍 uploadWithSmartValidation - Validando tamaño del archivo...');
+      console.log('🔍 uploadWithSmartValidation - Archivo recibido:', {
+        originalname: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        path: req.file.path
+      });
+      
       validateFileSize(req, req.file, (err) => {
         if (err) {
           console.log('❌ uploadWithSmartValidation - Error en validación de tamaño:', err);
