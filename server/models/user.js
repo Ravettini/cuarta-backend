@@ -45,7 +45,37 @@ module.exports = (sequelize) => {
         unique: true,
         fields: ['username']
       }
-    ]
+    ],
+    hooks: {
+      beforeSave: (user) => {
+        // Asegurar que permittedWorldIds sea siempre un string JSON
+        if (user.permittedWorldIds !== undefined) {
+          if (Array.isArray(user.permittedWorldIds)) {
+            user.permittedWorldIds = JSON.stringify(user.permittedWorldIds);
+          } else if (typeof user.permittedWorldIds === 'object' && user.permittedWorldIds !== null) {
+            user.permittedWorldIds = JSON.stringify(user.permittedWorldIds);
+          }
+        }
+      },
+      afterFind: (users) => {
+        // Convertir string JSON de vuelta a array
+        const userArray = Array.isArray(users) ? users : [users];
+        userArray.forEach(user => {
+          if (user && user.permittedWorldIds && typeof user.permittedWorldIds === 'string') {
+            try {
+              if (user.permittedWorldIds === '*') {
+                user.permittedWorldIds = '*';
+              } else {
+                user.permittedWorldIds = JSON.parse(user.permittedWorldIds);
+              }
+            } catch (error) {
+              console.error('Error parsing permittedWorldIds:', error);
+              user.permittedWorldIds = [];
+            }
+          }
+        });
+      }
+    }
   });
 
   return User;

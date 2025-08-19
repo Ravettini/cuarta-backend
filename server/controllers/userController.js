@@ -90,7 +90,7 @@ const crearUsuario = async (req, res) => {
       username,
       password, // En producción, aquí se debería hashear
       role: role || 'user',
-      permittedWorldIds: permittedWorldIds ? JSON.stringify(permittedWorldIds) : '[]'
+      permittedWorldIds: permittedWorldIds || []
     });
 
     // Retornar usuario sin contraseña
