@@ -1219,7 +1219,7 @@ function goSubWorlds() {
 }
 
 function goDevs() { 
-  setSection("#devSection");
+  setSection("#devsSection");
   renderDesarrollos(state.currentSubId); 
   updateHero(); 
   // toggleToolbar ya no es necesario aquí porque setSection llama a updateToolbarForSection
