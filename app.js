@@ -875,9 +875,8 @@ async function renderWorlds() {
         <p class="muted t-body">Sub-mundos: ${w.subWorlds ? w.subWorlds.length : (w.subMundos ? w.subMundos.length : 0)}</p>
         <div class="tags"><span class="tag cyan">mundo</span></div>
         <div class="actions">
-          <button class="btn btn-secondary">Abrir</button>
-          ${isAdmin() ? '<button class="btn btn-rename">Renombrar</button>' : ''}
-          ${isAdmin() ? '<button class="btn btn-danger">Eliminar</button>' : ''}
+          <button class="btn btn-secondary btn-primary-action">Abrir</button>
+          ${isAdmin() ? '<div class="secondary-actions"><button class="btn btn-rename">Renombrar</button><button class="btn btn-danger">Eliminar</button></div>' : ''}
         </div>`;
       
       card.querySelector(".btn.btn-secondary").onclick = () => { 
@@ -928,9 +927,8 @@ async function renderSubWorlds(mundoId) {
         <p class="muted t-body">Desarrollos: ${sw.desarrollos ? sw.desarrollos.length : 0}</p>
         <div class="tags"><span class="tag cyan">sub-mundo</span></div>
         <div class="actions">
-          <button class="btn btn-secondary">Abrir</button>
-          ${isAdmin() ? '<button class="btn btn-rename">Renombrar</button>' : ''}
-          ${isAdmin() ? '<button class="btn btn-danger">Eliminar</button>' : ''}
+          <button class="btn btn-secondary btn-primary-action">Abrir</button>
+          ${isAdmin() ? '<div class="secondary-actions"><button class="btn btn-rename">Renombrar</button><button class="btn btn-danger">Eliminar</button></div>' : ''}
         </div>`;
       
       card.querySelector(".btn.btn-secondary").onclick = () => { 

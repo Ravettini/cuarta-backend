@@ -47,12 +47,53 @@ header.appbar{
   background:var(--ba-amarillo);
   color:var(--ba-gris);
   border-bottom:4px solid var(--ba-cyan);
+  flex-wrap: wrap;
 }
-.brand{ display:flex; align-items:center; gap:12px; min-width:0; font-weight:var(--fw-bold); letter-spacing:.2px; }
-.brand-badge{ width:42px; height:42px; border-radius:14px; background:var(--ba-azul); display:grid; place-items:center; color:var(--ba-off); font-weight:700; }
-.brand-title{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
-.toolbar{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+.brand{ 
+  display:flex; 
+  align-items:center; 
+  gap:12px; 
+  min-width:0; 
+  font-weight:var(--fw-bold); 
+  letter-spacing:.2px; 
+  flex: 1;
+  min-width: 200px;
+}
+
+.brand-badge{ 
+  width:42px; 
+  height:42px; 
+  border-radius:14px; 
+  background:var(--ba-azul); 
+  display:grid; 
+  place-items:center; 
+  color:var(--ba-off); 
+  font-weight:700; 
+}
+
+.brand-title{
+  white-space:nowrap; 
+  overflow:hidden; 
+  text-overflow:ellipsis;
+  font-size: clamp(16px, 2.5vw, 18px);
+}
+
+.brand-logo img{
+  max-height: 48px;
+  height: auto;
+  width: auto;
+  max-width: 120px;
+}
+
+.toolbar{ 
+  margin-left:auto; 
+  display:flex; 
+  gap:8px; 
+  flex-wrap:wrap; 
+  justify-content: flex-end;
+  align-items: center;
+}
 .btn{
   border:0; border-radius:12px; padding:10px 14px;
   font-weight:var(--fw-bold); font-size:var(--fz-body);
@@ -96,8 +137,37 @@ header.appbar{
 .card .tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
 .tag{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18)}
 .tag.cyan{background:rgba(141,226,214,.15); color:var(--ba-off); border-color:rgba(141,226,214,.4)}
-.card .actions{margin-top:12px; display:flex; gap:8px; flex-wrap:wrap}
+
+/* Nuevo layout para las actions de las cards */
+.card .actions{
+  margin-top:12px; 
+  display:flex; 
+  flex-direction: column;
+  gap:8px;
+}
+
+.card .actions .btn-primary-action{
+  width: 100%;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.card .actions .secondary-actions{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .card .actions .btn{ backdrop-filter: saturate(120%); }
+
+/* Estilos específicos para el botón Abrir en desarrollos */
+.card .actions .button-link.full-width{
+  width: 100%;
+  text-align: center;
+  margin-bottom: 8px;
+  display: block;
+}
 
 /* Mensajes de autenticación */
 #authMsg.error{color:#ff5a5a}
@@ -537,21 +607,98 @@ footer{
   .grid.cols-4{ grid-template-columns: repeat(auto-fill, minmax(220px,1fr)); }
 }
 @media (max-width: 768px){
-  .toolbar{ gap: 6px; }
+  header.appbar{ 
+    padding: 12px 16px; 
+    gap: 12px; 
+  }
+  .brand{ 
+    min-width: 150px; 
+    gap: 8px; 
+  }
+  .brand-title{ 
+    font-size: clamp(14px, 2.2vw, 16px); 
+  }
+  .brand-logo img{
+    max-height: 40px;
+    max-width: 100px;
+  }
+  .toolbar{ 
+    gap: 6px; 
+    justify-content: center;
+    width: 100%;
+    margin-left: 0;
+    margin-top: 8px;
+  }
+  .toolbar .btn{ 
+    padding: 8px 12px; 
+    font-size: clamp(12px, 1.6vw, 14px);
+  }
   .grid.cols-4{ grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); }
   .user-row{ grid-template-columns: 1fr; }
   .auth-card{ margin: 28px 12px; }
   .card .actions{ gap: 6px; }
 }
 @media (max-width: 520px){
-  header.appbar{ flex-wrap: wrap; }
-  .brand-title{ max-width: 60vw; }
-  .toolbar{ width: 100%; justify-content: flex-start; gap: 6px; }
-  .toolbar .btn{ padding: 8px 12px; }
+  header.appbar{ 
+    padding: 10px 12px; 
+    gap: 8px; 
+  }
+  .brand{ 
+    min-width: 120px; 
+    gap: 6px; 
+  }
+  .brand-title{ 
+    max-width: 60vw; 
+    font-size: clamp(12px, 2vw, 14px);
+  }
+  .brand-logo img{
+    max-height: 36px;
+    max-width: 80px;
+  }
+  .toolbar{ 
+    width: 100%; 
+    justify-content: center; 
+    gap: 4px; 
+    margin-top: 6px;
+  }
+  .toolbar .btn{ 
+    padding: 6px 10px; 
+    font-size: clamp(11px, 1.4vw, 13px);
+    min-height: 36px;
+  }
   .grid.cols-4{ grid-template-columns: 1fr; }
-  .card .actions{ flex-direction: column; }
-  .card .actions .btn, .card .actions .button-link{ width: 100%; text-align: center; }
+  .card .actions .secondary-actions{ flex-direction: column; align-items: center; }
+  .card .actions .secondary-actions .btn{ width: 100%; max-width: 200px; }
   .dropzone{ padding: 16px; font-size: 0.95rem; }
+}
+
+/* Breakpoint para pantallas muy pequeñas */
+@media (max-width: 380px){
+  header.appbar{ 
+    padding: 8px 10px; 
+    gap: 6px; 
+  }
+  .brand{ 
+    min-width: 100px; 
+    gap: 4px; 
+  }
+  .brand-title{ 
+    max-width: 50vw; 
+    font-size: clamp(10px, 1.8vw, 12px);
+  }
+  .brand-logo img{
+    max-height: 32px;
+    max-width: 70px;
+  }
+  .toolbar{ 
+    gap: 3px; 
+    margin-top: 4px;
+  }
+  .toolbar .btn{ 
+    padding: 5px 8px; 
+    font-size: clamp(10px, 1.2vw, 12px);
+    min-height: 32px;
+  }
 }
 
 
