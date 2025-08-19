@@ -154,6 +154,82 @@ exports.testUpload = async (req, res) => {
   }
 };
 
+// Endpoint de debug para identificar exactamente dónde falla
+exports.debug = async (req, res) => {
+  try {
+    console.log('🔍 debug - Iniciando debug completo...');
+    
+    const debugInfo = {
+      timestamp: new Date().toISOString(),
+      environment: {
+        NODE_ENV: process.env.NODE_ENV,
+        UPLOAD_DIR: process.env.UPLOAD_DIR,
+        MAX_UPLOAD_BYTES: process.env.MAX_UPLOAD_BYTES,
+        ALLOWED_MIME_TYPES: process.env.ALLOWED_MIME_TYPES
+      },
+      models: {
+        File: File ? 'available' : 'not-available',
+        sequelize: sequelize ? 'available' : 'not-available'
+      },
+      database: {
+        connected: false,
+        tables: []
+      }
+    };
+    
+    // Verificar conexión a la base de datos
+    try {
+      await sequelize.authenticate();
+      debugInfo.database.connected = true;
+      console.log('✅ debug - Conexión a BD exitosa');
+      
+      // Verificar tablas
+      const tables = await sequelize.getQueryInterface().showAllTables();
+      debugInfo.database.tables = tables;
+      console.log('✅ debug - Tablas encontradas:', tables);
+      
+    } catch (dbError) {
+      console.error('❌ debug - Error de BD:', dbError);
+      debugInfo.database.error = dbError.message;
+    }
+    
+    // Verificar directorio de uploads
+    try {
+      const fs = require('fs');
+      const uploadDir = process.env.UPLOAD_DIR || './uploads';
+      debugInfo.uploadDir = {
+        path: uploadDir,
+        exists: fs.existsSync(uploadDir),
+        writable: false
+      };
+      
+      if (fs.existsSync(uploadDir)) {
+        try {
+          fs.accessSync(uploadDir, fs.constants.W_OK);
+          debugInfo.uploadDir.writable = true;
+        } catch (permError) {
+          debugInfo.uploadDir.writable = false;
+          debugInfo.uploadDir.permissionError = permError.message;
+        }
+      }
+      
+    } catch (fsError) {
+      console.error('❌ debug - Error de sistema de archivos:', fsError);
+      debugInfo.uploadDir.error = fsError.message;
+    }
+    
+    console.log('✅ debug - Debug completado');
+    res.json(debugInfo);
+    
+  } catch (error) {
+    console.error('❌ Error en debug:', error);
+    res.status(500).json({ 
+      error: error.message,
+      stack: error.stack
+    });
+  }
+};
+
 // Verificar espacio disponible en disco
 exports.getDiskUsage = async (req, res) => {
   try {

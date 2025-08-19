@@ -15,6 +15,9 @@ router.get('/test', fileController.test);
 // Endpoint de prueba para simular upload
 router.post('/test-upload', fileController.testUpload);
 
+// Endpoint de debug para identificar problemas
+router.get('/debug', fileController.debug);
+
 // Verificar uso del disco
 router.get('/disk-usage', fileController.getDiskUsage);
 
