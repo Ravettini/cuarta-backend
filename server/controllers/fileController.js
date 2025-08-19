@@ -2,10 +2,72 @@ const { File } = require('../models');
 const { Op } = require('sequelize');
 const fs = require('fs').promises;
 const path = require('path');
+const sequelize = require('../config/db'); // Added sequelize import
 
 // Health check
 exports.health = (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+};
+
+// Endpoint de diagnóstico para verificar el estado de la base de datos
+exports.diagnose = async (req, res) => {
+  try {
+    console.log('🔍 Diagnóstico de base de datos iniciado');
+    
+    // Verificar conexión
+    await sequelize.authenticate();
+    console.log('✅ Conexión a la base de datos establecida');
+    
+    // Obtener información de la base de datos
+    const [results] = await sequelize.query('SELECT current_database() as db_name, current_user as user_name');
+    console.log('🔍 Base de datos actual:', results[0]);
+    
+    // Verificar tablas existentes
+    const tables = await sequelize.getQueryInterface().showAllTables();
+    console.log('📋 Tablas existentes:', tables);
+    
+    // Verificar si la tabla files existe
+    const filesTableExists = tables.includes('files');
+    console.log('🔍 Tabla files existe:', filesTableExists);
+    
+    // Si la tabla files existe, verificar su estructura
+    let tableStructure = null;
+    if (filesTableExists) {
+      try {
+        const [columns] = await sequelize.query(`
+          SELECT column_name, data_type, is_nullable, column_default
+          FROM information_schema.columns 
+          WHERE table_name = 'files'
+          ORDER BY ordinal_position
+        `);
+        tableStructure = columns;
+        console.log('🔍 Estructura de tabla files:', columns);
+      } catch (error) {
+        console.error('❌ Error obteniendo estructura de tabla files:', error);
+      }
+    }
+    
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      database: {
+        connected: true,
+        name: results[0]?.db_name,
+        user: results[0]?.user_name,
+        tables: tables,
+        filesTableExists: filesTableExists,
+        filesTableStructure: tableStructure
+      }
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en diagnóstico:', error);
+    res.status(500).json({ 
+      status: 'error',
+      error: error.message,
+      stack: error.stack
+    });
+  }
 };
 
 // Verificar espacio disponible en disco

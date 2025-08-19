@@ -6,6 +6,9 @@ const { upload } = require('../middlewares/upload');
 // Health check
 router.get('/health', fileController.health);
 
+// Endpoint de diagnóstico para verificar el estado de la base de datos
+router.get('/diagnose', fileController.diagnose);
+
 // Verificar uso del disco
 router.get('/disk-usage', fileController.getDiskUsage);
 
