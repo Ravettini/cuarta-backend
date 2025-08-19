@@ -10,6 +10,7 @@ const subMundoRoutes = require('./routes/subMundos');
 const desarrolloRoutes = require('./routes/desarrollos');
 const errorHandler = require('./middlewares/error');
 const { initStorage } = require('./scripts/initStorage');
+const { initDatabase } = require('./scripts/initDatabase');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -96,6 +97,11 @@ const startServer = async () => {
     console.log('📁 Inicializando almacenamiento...');
     await initStorage();
     console.log('✅ Almacenamiento inicializado');
+    
+    // Inicializar base de datos
+    console.log('🗄️ Inicializando base de datos...');
+    await initDatabase();
+    console.log('✅ Base de datos inicializada');
     
     // Sincronizar modelos con la base de datos
     await syncModels();
