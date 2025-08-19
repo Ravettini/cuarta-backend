@@ -28,32 +28,11 @@
 *{box-sizing:border-box}
 html,body{height:100%}
 
-/* Fondo principal */
-body {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  background-attachment: fixed;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  min-height: 100vh;
-  margin: 0;
-  font-family: var(--ff-primary);
-  color: var(--ba-off);
-  overflow-x: hidden;
-}
-
-/* Asegurar que el fondo sea consistente en todas las vistas */
-#app, .main-content, .section, .worlds-section, .sub-worlds-section, .devs-section {
-  background: transparent;
-}
-
-/* Eliminar cualquier fondo que pueda estar causando repetición */
-.section {
-  background: transparent !important;
-}
-
-.worlds-section, .sub-worlds-section, .devs-section {
-  background: transparent !important;
+body{
+  margin:0;
+  font-family:var(--ff);
+  color:var(--ba-off);
+  background:linear-gradient(180deg, #102333 0%, var(--ba-azul) 100%);
 }
 
 /* Tipografías */
@@ -149,17 +128,17 @@ header.appbar{
 /* Tarjetas */
 .card{
   position:relative;
-  background:rgba(0,0,0,.15);
+  background:rgba(255,255,255,.06);
   border:var(--border-soft); border-radius:18px; padding:16px;
   box-shadow:var(--shadow-1);
   transition:.2s transform ease, .2s background ease, .2s border-color ease;
 }
-.card:hover{transform:translateY(-3px); background:rgba(141,226,214,.12); border-color:rgba(141,226,214,.55)}
-.card h3{margin:8px 0 6px; color:#2c3e50; font-weight:var(--fw-medium); font-size:clamp(18px,2.4vw,22px); text-shadow: 0 1px 2px rgba(255,255,255,.3);}
-.card p{margin:0; color:#34495e; font-size:var(--fz-body); text-shadow: 0 1px 2px rgba(255,255,255,.3);}
+.card:hover{transform:translateY(-3px); background:rgba(141,226,214,.08); border-color:rgba(141,226,214,.55)}
+.card h3{margin:8px 0 6px; color:var(--ba-off); font-weight:var(--fw-medium); font-size:clamp(18px,2.4vw,22px)}
+.card p{margin:0; color:#cfe9e5; font-size:var(--fz-body)}
 .card .tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
-.tag{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18); text-shadow: 0 1px 2px rgba(0,0,0,.2);}
-.tag.cyan{background:rgba(141,226,214,.25); color:var(--ba-azul); border-color:rgba(141,226,214,.5); font-weight: 600;}
+.tag{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18)}
+.tag.cyan{background:rgba(141,226,214,.15); color:var(--ba-off); border-color:rgba(141,226,214,.4)}
 
 /* Información de archivos en las cards */
 .file-info {
@@ -180,37 +159,33 @@ header.appbar{
 
 /* Nuevo layout para las actions de las cards */
 .card .actions{
-  display: flex;
+  margin-top:12px; 
+  display:flex; 
   flex-direction: column;
-  gap: 8px;
-  margin-top: 12px;
+  gap:8px;
 }
 
-.card .actions .button-link{
-  padding: 8px 16px;
-  border-radius: 8px;
-  text-decoration: none;
+.card .actions .btn-primary-action{
+  width: 100%;
   text-align: center;
-  font-weight: 500;
-  transition: all 0.2s ease;
-  border: 1px solid rgba(141, 226, 214, 0.3);
-  background: rgba(141, 226, 214, 0.1);
-  color: var(--ba-azul);
+  margin-bottom: 8px;
 }
 
-.card .actions .button-link:hover{
-  background: rgba(141, 226, 214, 0.2);
-  border-color: rgba(141, 226, 214, 0.5);
-  transform: translateY(-1px);
+.card .actions .secondary-actions{
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
+.card .actions .btn{ backdrop-filter: saturate(120%); }
+
+/* Estilos específicos para el botón Abrir en desarrollos */
 .card .actions .button-link.full-width{
   width: 100%;
   text-align: center;
   margin-bottom: 8px;
   display: block;
-  text-shadow: 0 1px 2px rgba(0,0,0,.2);
-  font-weight: 600;
 }
 
 /* Mensajes de autenticación */
