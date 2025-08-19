@@ -21,11 +21,11 @@ router.get('/disk-usage', fileController.getDiskUsage);
 // Listar archivos
 router.get('/', fileController.listFiles);
 
-// Obtener archivo por ID
-router.get('/:id', fileController.getFile);
-
 // Subir archivo
 router.post('/', upload, fileController.uploadFile);
+
+// Obtener archivo por ID (DEBE ir DESPUÉS de las rutas específicas)
+router.get('/:id', fileController.getFile);
 
 // Descargar archivo
 router.get('/:id/download', fileController.downloadFile);
