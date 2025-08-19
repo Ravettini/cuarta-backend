@@ -1,3 +1,5 @@
+const multer = require('multer');
+
 const errorHandler = (err, req, res, next) => {
   console.error('❌ Error:', {
     message: err.message,
