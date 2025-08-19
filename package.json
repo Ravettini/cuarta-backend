@@ -13,6 +13,7 @@
     "migrate:data": "node server/scripts/migrateData.js",
     "migrate:users": "node server/scripts/migrateUsers.js",
     "test:api": "node server/scripts/testAPI.js",
+    "init:storage": "node server/scripts/initStorage.js",
     "build": "echo 'No build step required'",
     "postinstall": "echo 'Post-install complete'"
   },

@@ -9,6 +9,7 @@ const mundoRoutes = require('./routes/mundos');
 const subMundoRoutes = require('./routes/subMundos');
 const desarrolloRoutes = require('./routes/desarrollos');
 const errorHandler = require('./middlewares/error');
+const { initStorage } = require('./scripts/initStorage');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -91,6 +92,11 @@ app.use(errorHandler);
 // Inicializar servidor
 const startServer = async () => {
   try {
+    // Inicializar almacenamiento
+    console.log('📁 Inicializando almacenamiento...');
+    await initStorage();
+    console.log('✅ Almacenamiento inicializado');
+    
     // Sincronizar modelos con la base de datos
     await syncModels();
     
@@ -99,6 +105,7 @@ const startServer = async () => {
       console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
       console.log(`📁 API disponible en http://localhost:${PORT}/api/v1`);
       console.log(`🔍 Health check: http://localhost:${PORT}/api/v1/health`);
+      console.log(`💾 Almacenamiento: ${process.env.UPLOAD_DIR || './uploads'}`);
     });
   } catch (error) {
     console.error('❌ Error iniciando servidor:', error);

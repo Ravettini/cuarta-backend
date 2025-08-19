@@ -3,11 +3,11 @@ const path = require('path');
 const fs = require('fs');
 const { v4: uuidv4 } = require('uuid');
 
-// Crear directorio de uploads si no existe
+// Obtener directorio de uploads desde variables de entorno
 const uploadDir = process.env.UPLOAD_DIR || './uploads';
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
+
+// Nota: No creamos el directorio aquí, se hace en initStorage.js
+// para asegurar que funcione correctamente en Render
 
 // Configurar almacenamiento
 const storage = multer.diskStorage({

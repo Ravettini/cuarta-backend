@@ -15,9 +15,13 @@ services:
       - key: MAX_UPLOAD_BYTES
         value: "157286400"
       - key: UPLOAD_DIR
-        value: "uploads"
+        value: "/opt/render/project/src/uploads"
       - key: ALLOWED_MIME_TYPES
         value: "application/pdf,application/zip,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*"
+    disk:
+      name: cuarta-storage
+      mountPath: /opt/render/project/src/uploads
+      sizeGB: 1
     databases:
       - name: cuarta-postgres
         databaseName: cuarta_db
