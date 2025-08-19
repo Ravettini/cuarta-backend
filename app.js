@@ -1413,10 +1413,16 @@ function showRenameSubWorldModal(subId) {
 }
 
 function showDevForm({mode = "create", devId = null} = {}) {
+  console.log('🔍 showDevForm llamado con:', { mode, devId });
+  
   const sw = getCurrentSub();
-  if (!sw) return;
+  if (!sw) {
+    console.error('❌ No se pudo obtener el sub-mundo actual');
+    return;
+  }
   
   const existing = devId ? sw.desarrollos?.find(d => d.id === devId) : null;
+  console.log('🔍 Desarrollo existente encontrado:', existing);
   
   modal.show({
     title: mode === "create" ? "Nuevo desarrollo" : "Editar desarrollo",
@@ -1449,6 +1455,8 @@ function showDevForm({mode = "create", devId = null} = {}) {
         <br><small id="fileInfo"></small>
       </div>`,
     onSubmit: async () => {
+      console.log('🔍 onSubmit ejecutándose con mode:', mode);
+      
       const titulo = $("#devTitle").value.trim();
       if (!titulo) return;
       
@@ -1473,6 +1481,7 @@ function showDevForm({mode = "create", devId = null} = {}) {
         const folder = sw.nombre.toLowerCase().replace(/\s+/g, '-');
         
         if (mode === "create") {
+          console.log('🔍 Creando nuevo desarrollo...');
           await createDesarrollo({ 
             titulo, 
             url, 
@@ -1483,6 +1492,7 @@ function showDevForm({mode = "create", devId = null} = {}) {
             file // Pasar archivo si existe
           });
         } else {
+          console.log('🔍 Actualizando desarrollo existente...');
           await updateDesarrollo(devId, { titulo, url, descripcion, tags });
         }
         modal.hide();
@@ -3072,6 +3082,9 @@ async function initializeApp() {
 document.addEventListener('DOMContentLoaded', function() {
   const btnInitUsers = document.getElementById('btnInitUsers');
   if (btnInitUsers) {
+    // Ocultar el botón por defecto
+    btnInitUsers.style.display = 'none';
+    
     btnInitUsers.addEventListener('click', async function() {
       try {
         this.disabled = true;
@@ -3138,11 +3151,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-        modal.init();
-      loader.init();
-      restoreSession();
-      setupDropzone();
-      setupUIEvents();
+  // Configurar visibilidad del botón de inicializar usuarios
+  showInitUsersButtonIfNeeded();
+
+  modal.init();
+  loader.init();
+  restoreSession();
+  setupDropzone();
+  setupUIEvents();
 
   // Inicializar la aplicación de forma asíncrona
   initializeApp();
@@ -3230,3 +3246,80 @@ function addStorageButton() {
     toolbar.appendChild(storageButton);
   }
 }
+
+// Función para mostrar el botón de inicializar usuarios solo cuando sea necesario
+function showInitUsersButtonIfNeeded() {
+  const btnInitUsers = document.getElementById('btnInitUsers');
+  if (btnInitUsers) {
+    // Solo mostrar si estamos en modo debug o no hay usuarios
+    const isDebugMode = window.location.search.includes('debug=true') || 
+                       window.location.hostname === 'localhost' ||
+                       window.location.hostname === '127.0.0.1';
+    
+    if (isDebugMode) {
+      btnInitUsers.style.display = 'inline-block';
+      console.log('🔧 Botón de inicializar usuarios mostrado (modo debug)');
+    } else {
+      btnInitUsers.style.display = 'none';
+      console.log('🔧 Botón de inicializar usuarios oculto (modo producción)');
+    }
+  }
+}
+
+// Event listener para el botón de inicializar usuarios
+document.addEventListener('DOMContentLoaded', function() {
+  const btnInitUsers = document.getElementById('btnInitUsers');
+  if (btnInitUsers) {
+    // Ocultar el botón por defecto
+    btnInitUsers.style.display = 'none';
+    
+    btnInitUsers.addEventListener('click', async function() {
+      try {
+        this.disabled = true;
+        this.textContent = '🔄 Inicializando...';
+        
+        await createDefaultUsers();
+        
+        this.textContent = '✅ Usuarios Inicializados';
+        this.style.backgroundColor = '#4CAF50';
+        this.style.color = 'white';
+        
+        // Mostrar mensaje de éxito
+        const authMsg = document.getElementById('authMsg');
+        if (authMsg) {
+          authMsg.textContent = 'Usuarios inicializados correctamente. Ahora puedes hacer login con admin/1234';
+          authMsg.className = 't-body success';
+        }
+        
+        // Resetear botón después de 3 segundos
+        setTimeout(() => {
+          this.disabled = false;
+          this.textContent = '🔧 Inicializar Usuarios';
+          this.style.backgroundColor = '';
+          this.style.color = '';
+        }, 3000);
+        
+      } catch (error) {
+        console.error('Error inicializando usuarios:', error);
+        this.textContent = '❌ Error';
+        this.style.backgroundColor = '#f44336';
+        this.style.color = 'white';
+        
+        // Mostrar mensaje de error
+        const authMsg = document.getElementById('authMsg');
+        if (authMsg) {
+          authMsg.textContent = 'Error inicializando usuarios: ' + error.message;
+          authMsg.className = 't-body error';
+        }
+        
+        // Resetear botón después de 3 segundos
+        setTimeout(() => {
+          this.disabled = false;
+          this.textContent = '🔧 Inicializar Usuarios';
+          this.style.backgroundColor = '';
+          this.style.color = '';
+        }, 3000);
+      }
+    });
+  }
+});

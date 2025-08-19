@@ -126,17 +126,17 @@ header.appbar{
 
 /* Tarjetas */
 .card{
-  position:relative; background:rgba(255,255,255,.06);
+  position:relative; background:rgba(0,0,0,.15);
   border:var(--border-soft); border-radius:18px; padding:16px;
   box-shadow:var(--shadow-1);
   transition:.2s transform ease, .2s background ease, .2s border-color ease;
 }
-.card:hover{transform:translateY(-3px); background:rgba(141,226,214,.08); border-color:rgba(141,226,214,.55)}
-.card h3{margin:8px 0 6px; color:var(--ba-off); font-weight:var(--fw-medium); font-size:clamp(18px,2.4vw,22px)}
-.card p{margin:0; color:#cfe9e5; font-size:var(--fz-body)}
+.card:hover{transform:translateY(-3px); background:rgba(141,226,214,.12); border-color:rgba(141,226,214,.55)}
+.card h3{margin:8px 0 6px; color:var(--ba-off); font-weight:var(--fw-medium); font-size:clamp(18px,2.4vw,22px); text-shadow: 0 1px 2px rgba(0,0,0,.3);}
+.card p{margin:0; color:#e8f4f2; font-size:var(--fz-body); text-shadow: 0 1px 2px rgba(0,0,0,.2);}
 .card .tags{display:flex; gap:6px; flex-wrap:wrap; margin-top:10px}
-.tag{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18)}
-.tag.cyan{background:rgba(141,226,214,.15); color:var(--ba-off); border-color:rgba(141,226,214,.4)}
+.tag{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,.18); text-shadow: 0 1px 2px rgba(0,0,0,.2);}
+.tag.cyan{background:rgba(141,226,214,.25); color:var(--ba-azul); border-color:rgba(141,226,214,.5); font-weight: 600;}
 
 /* Nuevo layout para las actions de las cards */
 .card .actions{
@@ -167,6 +167,8 @@ header.appbar{
   text-align: center;
   margin-bottom: 8px;
   display: block;
+  text-shadow: 0 1px 2px rgba(0,0,0,.2);
+  font-weight: 600;
 }
 
 /* Mensajes de autenticación */
@@ -803,4 +805,14 @@ header.appbar .brand-logo img {
   font-size: 14px;
   color: var(--ba-primary);
   text-shadow: none;
+}
+
+/* Ocultar botón de inicializar usuarios por defecto */
+#btnInitUsers {
+  display: none;
+}
+
+/* Mostrar solo cuando sea necesario (por ejemplo, en modo debug) */
+#btnInitUsers.show {
+  display: inline-block;
 }
