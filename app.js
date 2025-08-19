@@ -998,11 +998,12 @@ async function renderDesarrollos(subMundoId) {
       if (isFile && d.fileSize) {
         const sizeKB = Math.round(d.fileSize / 1024);
         const sizeMB = (d.fileSize / (1024 * 1024)).toFixed(1);
+        const fileName = d.fileName || d.titulo || d.title || 'Archivo';
         fileInfo = `
-          <div class="file-info" style="margin: 8px 0; padding: 8px; background: #f0f8ff; border-radius: 3px; border-left: 3px solid #2196F3;">
-            <strong>📁 Archivo:</strong> ${d.titulo || d.title}
-            <br><small>📏 Tamaño: ${sizeKB} KB (${sizeMB} MB)</small>
-            ${d.fileType ? `<br><small>📋 Tipo: ${d.fileType}</small>` : ''}
+          <div class="file-info">
+            <p>📁 Archivo: ${fileName}</p>
+            <p>📏 Tamaño: ${sizeKB} KB (${sizeMB} MB)</p>
+            ${d.fileType ? `<p>📋 Tipo: ${d.fileType}</p>` : ''}
           </div>`;
       }
       
@@ -1032,7 +1033,7 @@ async function renderDesarrollos(subMundoId) {
           </div>
         </div>`;
       
-      card.querySelector(".btn.btn-edit").onclick = () => showDevForm({mode: "edit", devId: d.id});
+      card.querySelector(".btn.btn-edit").onclick = () => showEditDesarrolloModal(d.id);
       card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("dev", d.id, d.titulo || d.title || 'Sin título');
       
       grid.appendChild(card);
@@ -3323,3 +3324,76 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// ===== MODAL PERSONALIZADO PARA EDITAR DESARROLLO =====
+function showEditDesarrolloModal(devId) {
+  const sw = getCurrentSub();
+  if (!sw) {
+    console.error('❌ No se pudo obtener el sub-mundo actual');
+    return;
+  }
+  
+  const existing = sw.desarrollos?.find(d => d.id === devId);
+  if (!existing) {
+    console.error('❌ No se encontró el desarrollo a editar');
+    return;
+  }
+  
+  console.log('🔍 Editando desarrollo:', existing);
+  
+  modal.show({
+    title: "Editar Desarrollo",
+    bodyHTML: `
+      <div class="field">
+        <label for="editDevTitle">Título</label>
+        <input id="editDevTitle" placeholder="Ingrese el título" value="${existing.titulo || ''}" />
+      </div>
+      <div class="field">
+        <label for="editDevDesc">Descripción</label>
+        <textarea id="editDevDesc" placeholder="Ingrese la descripción">${existing.descripcion || ''}</textarea>
+      </div>
+      <div class="field">
+        <label for="editDevUrl">URL o Enlace</label>
+        <input id="editDevUrl" placeholder="Ingrese la URL o enlace" value="${existing.url || ''}" />
+      </div>
+      <div class="field">
+        <label for="editDevTags">Tags (separados por comas)</label>
+        <input id="editDevTags" placeholder="tag1, tag2, tag3" value="${existing.tags ? existing.tags.join(', ') : ''}" />
+      </div>`,
+    onSubmit: async () => {
+      const titulo = $("#editDevTitle").value.trim();
+      const descripcion = $("#editDevDesc").value.trim();
+      const url = $("#editDevUrl").value.trim();
+      const tags = $("#editDevTags").value.trim().split(',').map(t => t.trim()).filter(t => t);
+      
+      if (!titulo) {
+        alert('El título es obligatorio');
+        return;
+      }
+      
+      try {
+        console.log('🔍 Actualizando desarrollo con datos:', { titulo, descripcion, url, tags });
+        
+        // Actualizar el desarrollo existente
+        await updateDesarrollo(devId, {
+          titulo,
+          descripcion,
+          url,
+          tags
+        });
+        
+        modal.hide();
+        
+        // Recargar y renderizar
+        await renderDesarrollos();
+        console.log('✅ Desarrollo actualizado exitosamente');
+        
+      } catch (error) {
+        console.error('❌ Error actualizando desarrollo:', error);
+        alert(`Error: ${error.message}`);
+      }
+    },
+    initialFocus: "#editDevTitle",
+    submitLabel: "Guardar Cambios"
+  });
+}
