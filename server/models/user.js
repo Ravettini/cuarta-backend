@@ -30,7 +30,29 @@ module.exports = (sequelize) => {
     permittedWorldIds: {
       type: DataTypes.TEXT, // JSON string para compatibilidad con SQLite
       allowNull: false,
-      defaultValue: '[]'
+      defaultValue: '[]',
+      get() {
+        const value = this.getDataValue('permittedWorldIds');
+        if (value === '*') return '*';
+        if (typeof value === 'string') {
+          try {
+            return JSON.parse(value);
+          } catch (error) {
+            console.error('Error parsing permittedWorldIds:', error);
+            return [];
+          }
+        }
+        return value;
+      },
+      set(value) {
+        if (Array.isArray(value)) {
+          this.setDataValue('permittedWorldIds', JSON.stringify(value));
+        } else if (typeof value === 'object' && value !== null) {
+          this.setDataValue('permittedWorldIds', JSON.stringify(value));
+        } else {
+          this.setDataValue('permittedWorldIds', value);
+        }
+      }
     },
     activo: {
       type: DataTypes.BOOLEAN,
@@ -45,37 +67,7 @@ module.exports = (sequelize) => {
         unique: true,
         fields: ['username']
       }
-    ],
-    hooks: {
-      beforeSave: (user) => {
-        // Asegurar que permittedWorldIds sea siempre un string JSON
-        if (user.permittedWorldIds !== undefined) {
-          if (Array.isArray(user.permittedWorldIds)) {
-            user.permittedWorldIds = JSON.stringify(user.permittedWorldIds);
-          } else if (typeof user.permittedWorldIds === 'object' && user.permittedWorldIds !== null) {
-            user.permittedWorldIds = JSON.stringify(user.permittedWorldIds);
-          }
-        }
-      },
-      afterFind: (users) => {
-        // Convertir string JSON de vuelta a array
-        const userArray = Array.isArray(users) ? users : [users];
-        userArray.forEach(user => {
-          if (user && user.permittedWorldIds && typeof user.permittedWorldIds === 'string') {
-            try {
-              if (user.permittedWorldIds === '*') {
-                user.permittedWorldIds = '*';
-              } else {
-                user.permittedWorldIds = JSON.parse(user.permittedWorldIds);
-              }
-            } catch (error) {
-              console.error('Error parsing permittedWorldIds:', error);
-              user.permittedWorldIds = [];
-            }
-          }
-        });
-      }
-    }
+    ]
   });
 
   return User;
