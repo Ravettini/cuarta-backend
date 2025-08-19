@@ -3,17 +3,6 @@ const router = express.Router();
 const fileController = require('../controllers/fileController');
 const { upload } = require('../middlewares/upload');
 
-// Middleware específico para rutas de archivos - NO procesar body
-router.use((req, res, next) => {
-  // Para rutas de archivos, no procesar el body
-  if (req.method === 'POST' && (req.path === '/' || req.path === '/test-upload')) {
-    // No procesar body para uploads
-    return next();
-  }
-  // Para otras rutas, procesar normalmente
-  next();
-});
-
 // Health check
 router.get('/health', fileController.health);
 

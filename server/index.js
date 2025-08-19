@@ -21,10 +21,6 @@ app.use(cors({
   credentials: true
 }));
 
-// Configurar límites para archivos grandes (solo para rutas que no sean de archivos)
-app.use(express.json({ limit: '150mb' }));
-app.use(express.urlencoded({ extended: true, limit: '150mb' }));
-
 // Logging de requests
 app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);

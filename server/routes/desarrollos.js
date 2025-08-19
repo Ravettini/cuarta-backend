@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const desarrolloController = require('../controllers/desarrolloController');
 
+// Middleware para procesar JSON en rutas de desarrollos
+router.use(express.json({ limit: '150mb' }));
+router.use(express.urlencoded({ extended: true, limit: '150mb' }));
+
 // ===== RUTAS DESARROLLOS =====
 
 // GET /api/v1/desarrollos - Listar todos los desarrollos

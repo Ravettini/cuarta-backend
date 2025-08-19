@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const subMundoController = require('../controllers/subMundoController');
 
+// Middleware para procesar JSON en rutas de sub-mundos
+router.use(express.json({ limit: '150mb' }));
+router.use(express.urlencoded({ extended: true, limit: '150mb' }));
+
 // ===== RUTAS SUB-MUNDOS =====
 
 // GET /api/v1/sub-mundos - Listar todos los sub-mundos

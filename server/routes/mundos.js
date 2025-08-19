@@ -2,6 +2,10 @@ const express = require('express');
 const router = express.Router();
 const mundoController = require('../controllers/mundoController');
 
+// Middleware para procesar JSON en rutas de mundos
+router.use(express.json({ limit: '150mb' }));
+router.use(express.urlencoded({ extended: true, limit: '150mb' }));
+
 // ===== RUTAS MUNDOS =====
 
 // GET /api/v1/mundos - Listar todos los mundos

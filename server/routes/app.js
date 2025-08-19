@@ -4,6 +4,10 @@ const userRoutes = require('./users');
 
 const router = express.Router();
 
+// Middleware para procesar JSON en rutas de app
+router.use(express.json({ limit: '150mb' }));
+router.use(express.urlencoded({ extended: true, limit: '150mb' }));
+
 // ===== RUTAS PARA USUARIOS =====
 router.use('/users', userRoutes);
 
