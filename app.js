@@ -867,8 +867,13 @@ async function renderWorlds() {
     visible.forEach(w => {
       const card = document.createElement("div");
       card.className = "card";
+      // Preparar descripción con mejor manejo de campos vacíos
+      const descripcion = w.descripcion || w.desc || "";
+      const descripcionHTML = descripcion.trim() ? `<p class="muted t-body">${descripcion}</p>` : '';
+      
       card.innerHTML = `
         <h3>${w.nombre || w.name || 'Sin nombre'}</h3>
+        ${descripcionHTML}
         <p class="muted t-body">Sub-carpetas: ${w.subMundos ? w.subMundos.length : 0}</p>
         <div class="tags"><span class="tag cyan">carpeta</span></div>
         <div class="actions">
@@ -919,10 +924,15 @@ async function renderSubWorlds(mundoId) {
     subMundos.forEach(sw => {
       const card = document.createElement("div");
       card.className = "card";
+      // Preparar descripción con mejor manejo de campos vacíos
+      const descripcion = sw.descripcion || sw.desc || "";
+      const descripcionHTML = descripcion.trim() ? `<p class="muted t-body">${descripcion}</p>` : '';
+      
       card.innerHTML = `
         <h3>${sw.name || sw.nombre || 'Sin nombre'}</h3>
+        ${descripcionHTML}
         <p class="muted t-body">Desarrollos: ${sw.desarrollos ? sw.desarrollos.length : 0}</p>
-                  <div class="tags"><span class="tag cyan">sub-carpeta</span></div>
+        <div class="tags"><span class="tag cyan">sub-carpeta</span></div>
         <div class="actions">
           <button class="btn btn-secondary btn-primary-action">Abrir</button>
           ${isAdmin() ? '<div class="secondary-actions"><button class="btn btn-rename">Renombrar</button><button class="btn btn-danger">Eliminar</button></div>' : ''}
@@ -1890,6 +1900,9 @@ function setupUIEvents() {
   };
   
   $("#btnAddDev").onclick = addDevManually;
+  
+  // Botón +Desarrollo prominente
+  $("#btnNewDesarrollo").onclick = addDevManually;
   
   $("#btnBack").onclick = () => { 
     if (state.currentSubId) { 
