@@ -1889,6 +1889,7 @@ function showDragDropModal(data) {
 }
 
 function setupUIEvents() {
+  console.log("🔧 Configurando eventos de UI...");
   $("#btnNewWorld").onclick = () => { 
     if (isAdmin()) createWorld(); 
     else alert("Solo ADMIN."); 
@@ -1901,8 +1902,32 @@ function setupUIEvents() {
   
   $("#btnAddDev").onclick = addDevManually;
   
-  // Botón +Desarrollo prominente
-  $("#btnNewDesarrollo").onclick = addDevManually;
+  // Botón +Desarrollo prominente - configurar después de que el DOM esté listo
+  const setupNewDesarrolloButton = () => {
+    const btnNewDesarrollo = $("#btnNewDesarrollo");
+    if (btnNewDesarrollo) {
+      btnNewDesarrollo.addEventListener('click', addDevManually);
+      console.log("✅ Botón +Desarrollo conectado exitosamente");
+      return true;
+    } else {
+      console.warn("⚠️ Elemento btnNewDesarrollo no encontrado");
+      return false;
+    }
+  };
+  
+  // Configurar el botón cuando el DOM esté listo
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!setupNewDesarrolloButton()) {
+        console.error("❌ No se pudo conectar el botón +Desarrollo en DOMContentLoaded");
+      }
+    });
+  } else {
+    // DOM ya está listo
+    if (!setupNewDesarrolloButton()) {
+      console.error("❌ No se pudo conectar el botón +Desarrollo inmediatamente");
+    }
+  }
   
   $("#btnBack").onclick = () => { 
     if (state.currentSubId) { 

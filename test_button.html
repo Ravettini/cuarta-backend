@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prueba Botón</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .btn { 
+            font-size: 18px; 
+            padding: 15px 30px; 
+            background-color: #FFD700; 
+            color: #000; 
+            border: none; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            cursor: pointer;
+            margin: 20px;
+        }
+        .btn:hover { background-color: #FFED4E; }
+    </style>
+</head>
+<body>
+    <h1>Prueba del Botón +Desarrollo</h1>
+    
+    <!-- Botón +Desarrollo prominente -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button class="btn" id="btnNewDesarrollo">
+            ➕ + Desarrollo
+        </button>
+    </div>
+    
+    <div id="output"></div>
+    
+    <script>
+        // Función simple para probar
+        function addDevManually() {
+            document.getElementById('output').innerHTML = '<p style="color: green;">✅ ¡El botón funciona correctamente!</p>';
+            console.log('✅ Botón +Desarrollo clickeado');
+        }
+        
+        // Configurar el botón
+        function setupButton() {
+            const btn = document.getElementById('btnNewDesarrollo');
+            if (btn) {
+                btn.addEventListener('click', addDevManually);
+                console.log('✅ Botón +Desarrollo conectado exitosamente');
+                document.getElementById('output').innerHTML = '<p style="color: blue;">🔧 Botón configurado correctamente</p>';
+            } else {
+                console.error('❌ Elemento btnNewDesarrollo no encontrado');
+                document.getElementById('output').innerHTML = '<p style="color: red;">❌ Error: Elemento no encontrado</p>';
+            }
+        }
+        
+        // Ejecutar cuando el DOM esté listo
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', setupButton);
+        } else {
+            setupButton();
+        }
+    </script>
+</body>
+</html>
