@@ -1360,7 +1360,7 @@ function showCreateSubWorldModal() {
       try {
         await createSubMundo({ nombre: name, descripcion: desc, mundoId: w.id });
         modal.hide();
-        await renderSubWorlds();
+        await renderSubWorlds(state.currentWorldId);
         updateHero();
       } catch (error) {
         console.error('Error creando sub-mundo:', error);
@@ -1401,7 +1401,7 @@ function showRenameSubWorldModal(subId) {
       try {
         await updateSubMundo(subId, { nombre: name, descripcion: desc });
         modal.hide();
-        await renderSubWorlds();
+        await renderSubWorlds(state.currentWorldId);
         updateHero();
       } catch (error) {
         console.error('Error actualizando sub-mundo:', error);
@@ -1926,7 +1926,7 @@ function setupUIEvents() {
         if (state.currentSubId) {
           await renderDesarrollos();
         } else if (state.currentWorldId) {
-          await renderSubWorlds();
+          await renderSubWorlds(state.currentWorldId);
         } else {
           await renderWorlds();
         }
@@ -2018,7 +2018,7 @@ async function deleteSubMundo(id) {
     if (response.ok) {
       console.log('✅ Sub-mundo eliminado correctamente del servidor');
       // Re-renderizar inmediatamente
-      await renderSubWorlds();
+      await renderSubWorlds(state.currentWorldId);
       return true;
     } else {
       // Si falla el backend, revertir el cambio en el frontend
@@ -2082,8 +2082,26 @@ async function createMundo(data) {
     if (response.ok) {
       const newMundo = await response.json();
       console.log('✅ Mundo creado en el servidor');
-      // Recargar datos desde la API
-      state.data = await loadDataFromAPI();
+      
+      // ACTUALIZACIÓN INSTANTÁNEA: Agregar al estado local inmediatamente
+      if (!state.data.worlds) state.data.worlds = [];
+      
+      const nuevoMundo = {
+        id: newMundo.data.id,
+        nombre: newMundo.data.nombre,
+        name: newMundo.data.nombre,
+        descripcion: newMundo.data.descripcion,
+        subMundos: [],
+        subWorlds: []
+      };
+      
+      state.data.worlds.push(nuevoMundo);
+      console.log('✅ Mundo agregado al estado local:', nuevoMundo);
+      
+      // Guardar en caché y re-renderizar inmediatamente
+      saveData(state.data);
+      await renderWorlds();
+      
       return newMundo.data;
     } else {
       const errorData = await response.json().catch(() => ({}));
@@ -2156,29 +2174,37 @@ async function createSubMundo(data) {
       const mundo = getCurrentWorld();
       if (mundo) {
         if (!mundo.subMundos) mundo.subMundos = [];
-        
-        // Agregar el nuevo sub-mundo al estado local
-        const nuevoSubMundo = {
-          id: newSubMundo.data.id,
-          nombre: newSubMundo.data.nombre,
-          name: newSubMundo.data.nombre,
-          descripcion: newSubMundo.data.descripcion,
-          desarrollos: []
-        };
-        
-        // Sincronizar subWorlds para compatibilidad
-        nuevoSubMundo.subWorlds = nuevoSubMundo.desarrollos;
-        
-        mundo.subMundos.push(nuevoSubMundo);
-        
-        // También sincronizar subWorlds del mundo para compatibilidad
         if (!mundo.subWorlds) mundo.subWorlds = [];
-        mundo.subWorlds.push(nuevoSubMundo);
         
-        console.log('✅ Sub-mundo agregado al estado local:', nuevoSubMundo);
-        console.log('✅ Estado actual del mundo:', mundo);
-        console.log('✅ Cantidad de sub-mundos después de agregar:', mundo.subMundos.length);
+        // Verificar que no exista ya un sub-mundo con el mismo ID
+        const existingSubMundo = mundo.subMundos.find(sw => sw.id === newSubMundo.data.id);
+        if (existingSubMundo) {
+          console.log('⚠️ Sub-mundo ya existe en el estado local, no se duplicará');
+        } else {
+          // Agregar el nuevo sub-mundo al estado local
+          const nuevoSubMundo = {
+            id: newSubMundo.data.id,
+            nombre: newSubMundo.data.nombre,
+            name: newSubMundo.data.nombre,
+            descripcion: newSubMundo.data.descripcion,
+            desarrollos: []
+          };
+          
+          // Sincronizar subWorlds para compatibilidad
+          nuevoSubMundo.subWorlds = nuevoSubMundo.desarrollos;
+          
+          mundo.subMundos.push(nuevoSubMundo);
+          mundo.subWorlds.push(nuevoSubMundo);
+          
+          console.log('✅ Sub-mundo agregado al estado local:', nuevoSubMundo);
+          console.log('✅ Estado actual del mundo:', mundo);
+          console.log('✅ Cantidad de sub-mundos después de agregar:', mundo.subMundos.length);
+        }
       }
+      
+      // Guardar en caché y re-renderizar inmediatamente
+      saveData(state.data);
+      await renderSubWorlds(state.currentWorldId);
       
       return newSubMundo.data;
     } else {
@@ -2219,7 +2245,7 @@ async function updateSubMundo(id, data) {
     if (response.ok) {
       console.log('✅ Sub-mundo actualizado en el servidor');
       // Re-renderizar inmediatamente
-      await renderSubWorlds();
+      await renderSubWorlds(state.currentWorldId);
       return true;
     } else {
       // Si falla el backend, revertir el cambio en el frontend
