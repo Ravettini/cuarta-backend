@@ -363,7 +363,7 @@ async function loadDataFromAPI(forceRefresh = false) {
         worlds: mundosCreados.map(mundo => ({
           id: mundo.id,
           name: mundo.nombre,
-          subWorlds: [] // Los sub-mundos se cargarán cuando se necesiten
+          subMundos: [] // Los sub-mundos se cargarán cuando se necesiten
         }))
       };
     }
@@ -402,9 +402,6 @@ async function loadDataFromAPI(forceRefresh = false) {
           }))
         };
         
-        // Sincronizar subWorlds para compatibilidad
-        subMundoFormateado.subWorlds = subMundoFormateado.desarrollos;
-        
         return subMundoFormateado;
       }));
       
@@ -413,8 +410,7 @@ async function loadDataFromAPI(forceRefresh = false) {
         id: mundo.id,
         name: mundo.nombre,
         nombre: mundo.nombre,
-        subMundos: subMundosConDesarrollos,
-        subWorlds: subMundosConDesarrollos // Sincronizar para compatibilidad
+        subMundos: subMundosConDesarrollos
       };
       
       return mundoFormateado;
@@ -569,9 +565,6 @@ async function createDesarrolloAPI(desarrolloData) {
         };
         
         subMundo.desarrollos.push(nuevoDesarrollo);
-        
-        // Sincronizar subWorlds para compatibilidad
-        subMundo.subWorlds = subMundo.desarrollos;
         
         console.log('✅ Desarrollo agregado al estado local:', nuevoDesarrollo);
         console.log('✅ Cantidad de desarrollos después de agregar:', subMundo.desarrollos.length);
@@ -875,9 +868,9 @@ async function renderWorlds() {
       const card = document.createElement("div");
       card.className = "card";
       card.innerHTML = `
-        <h3>${w.name || w.nombre || 'Sin nombre'}</h3>
-        <p class="muted t-body">Sub-carpetas: ${w.subWorlds ? w.subWorlds.length : (w.subMundos ? w.subMundos.length : 0)}</p>
-                  <div class="tags"><span class="tag cyan">carpeta</span></div>
+        <h3>${w.nombre || w.name || 'Sin nombre'}</h3>
+        <p class="muted t-body">Sub-carpetas: ${w.subMundos ? w.subMundos.length : 0}</p>
+        <div class="tags"><span class="tag cyan">carpeta</span></div>
         <div class="actions">
           <button class="btn btn-secondary btn-primary-action">Abrir</button>
           ${isAdmin() ? '<div class="secondary-actions"><button class="btn btn-rename">Renombrar</button><button class="btn btn-danger">Eliminar</button></div>' : ''}
@@ -890,7 +883,7 @@ async function renderWorlds() {
       
       if (isAdmin()) {
         card.querySelector(".btn.btn-rename").onclick = () => renameWorld(w.id);
-        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("world", w.id, w.name || w.nombre || 'Sin nombre');
+        card.querySelector(".btn.btn-danger").onclick = () => confirmDelete("world", w.id, w.nombre || w.name || 'Sin nombre');
       }
       
       grid.appendChild(card);
@@ -1020,9 +1013,14 @@ async function renderDesarrollos(subMundoId) {
       
       const card = document.createElement("div");
       card.className = "card";
+      
+      // Preparar descripción con mejor manejo de campos vacíos
+      const descripcion = d.descripcion || d.desc || "";
+      const descripcionHTML = descripcion.trim() ? `<p class="muted t-body">${descripcion}</p>` : '';
+      
       card.innerHTML = `
         <h3>${d.titulo || d.title || 'Sin título'}</h3>
-        <p class="muted t-body">${d.descripcion || d.desc || ""}</p>
+        ${descripcionHTML}
         ${fileInfo}
         <div class="tags">${tags.map(t => `<span class="tag cyan">${t}</span>`).join("")}</div>
         <div class="actions">
@@ -1048,13 +1046,14 @@ async function renderDesarrollos(subMundoId) {
 
 // ===== Funciones auxiliares =====
 function getCurrentWorld() { 
-  if (!state.data?.worlds) return null;
-  const mundo = state.data.worlds.find(w => w.id === state.currentWorldId);
-  if (!mundo) return null;
+  if (!state.currentWorldId) return null;
   
-  // Asegurar que tenga la estructura correcta
-  if (!mundo.subMundos && mundo.subWorlds) {
+  const mundo = state.data.worlds.find(w => w.id === state.currentWorldId);
+  
+  // Migrar de subWorlds a subMundos si es necesario
+  if (mundo && !mundo.subMundos && mundo.subWorlds) {
     mundo.subMundos = mundo.subWorlds;
+    console.log('🔄 Migrando subWorlds a subMundos para compatibilidad');
   }
   
   return mundo;
@@ -1072,8 +1071,8 @@ function getCurrentSub() {
     return null;
   }
   
-  // Buscar en subMundos o subWorlds
-  const subMundos = w.subMundos || w.subWorlds || [];
+  // Usar solo subMundos para evitar duplicados
+  const subMundos = w.subMundos || [];
   console.log('🔍 getCurrentSub - subMundos disponibles:', subMundos);
   
   const subMundo = subMundos.find(s => s.id === state.currentSubId);
@@ -1084,12 +1083,6 @@ function getCurrentSub() {
     if (!subMundo.desarrollos) {
       subMundo.desarrollos = [];
       console.log('🔍 getCurrentSub - Array desarrollos inicializado');
-    }
-    
-    // Sincronizar subWorlds con desarrollos para compatibilidad
-    if (subMundo.subWorlds !== subMundo.desarrollos) {
-      subMundo.subWorlds = subMundo.desarrollos;
-      console.log('🔍 getCurrentSub - subWorlds sincronizado con desarrollos');
     }
     
     console.log('🔍 getCurrentSub - Desarrollos del sub-mundo:', subMundo.desarrollos);
@@ -2000,38 +1993,33 @@ async function deleteMundo(id) {
 
 async function deleteSubMundo(id) {
   try {
-    console.log(`🗑️ Eliminando sub-mundo con ID: ${id}`);
+    console.log(`🗑️ Eliminando sub-mundo ${id}`);
     
-    // ELIMINACIÓN INSTANTÁNEA: Primero del frontend
-    const mundo = getCurrentWorld();
-    if (mundo && mundo.subMundos) {
-      mundo.subMundos = mundo.subMundos.filter(s => s.id !== id);
-    }
+    const response = await api(`/sub-mundos/${id}`, {
+      method: 'DELETE'
+    });
     
-    // Limpiar selección si se eliminó el sub-mundo actual
-    if (state.currentSubId === id) {
-      state.currentSubId = null;
-    }
-    
-    // Luego eliminar del backend
-    const response = await api(`/sub-mundos/${id}`, { method: 'DELETE' });
     if (response.ok) {
-      console.log('✅ Sub-mundo eliminado correctamente del servidor');
-      // Re-renderizar inmediatamente
+      console.log('✅ Sub-mundo eliminado del servidor');
+      
+      // ACTUALIZACIÓN INSTANTÁNEA: Eliminar del estado local
+      const mundo = getCurrentWorld();
+      if (mundo && mundo.subMundos) {
+        mundo.subMundos = mundo.subMundos.filter(s => s.id !== id);
+        console.log('✅ Sub-mundo eliminado del estado local');
+      }
+      
+      // Guardar en caché y re-renderizar
+      saveData(state.data);
       await renderSubWorlds(state.currentWorldId);
+      
       return true;
     } else {
-      // Si falla el backend, revertir el cambio en el frontend
-      console.log('⚠️ Error del backend, revirtiendo cambios del frontend');
-      state.data = await loadDataFromAPI();
       const errorData = await response.json().catch(() => ({}));
       throw new Error(`Error eliminando sub-mundo: ${response.status} - ${errorData.message || 'Error desconocido'}`);
     }
   } catch (error) {
     console.error('Error eliminando sub-mundo:', error);
-    // Revertir cambios en caso de error
-    console.log('🔄 Revirtiendo cambios por error');
-    state.data = await loadDataFromAPI();
     throw error;
   }
 }
@@ -2174,7 +2162,6 @@ async function createSubMundo(data) {
       const mundo = getCurrentWorld();
       if (mundo) {
         if (!mundo.subMundos) mundo.subMundos = [];
-        if (!mundo.subWorlds) mundo.subWorlds = [];
         
         // Verificar que no exista ya un sub-mundo con el mismo ID
         const existingSubMundo = mundo.subMundos.find(sw => sw.id === newSubMundo.data.id);
@@ -2190,11 +2177,8 @@ async function createSubMundo(data) {
             desarrollos: []
           };
           
-          // Sincronizar subWorlds para compatibilidad
-          nuevoSubMundo.subWorlds = nuevoSubMundo.desarrollos;
-          
+          // Solo agregar a subMundos, no duplicar en subWorlds
           mundo.subMundos.push(nuevoSubMundo);
-          mundo.subWorlds.push(nuevoSubMundo);
           
           console.log('✅ Sub-mundo agregado al estado local:', nuevoSubMundo);
           console.log('✅ Estado actual del mundo:', mundo);
@@ -2226,7 +2210,7 @@ async function updateSubMundo(id, data) {
     if (mundo && mundo.subMundos) {
       const subMundo = mundo.subMundos.find(s => s.id === id);
       if (subMundo) {
-        // Actualizar ambas propiedades para compatibilidad
+        // Actualizar propiedades
         subMundo.nombre = data.nombre;
         subMundo.name = data.nombre;
         if (data.descripcion !== undefined) {
@@ -2255,8 +2239,6 @@ async function updateSubMundo(id, data) {
     }
   } catch (error) {
     console.error('Error actualizando sub-mundo:', error);
-    // Revertir cambios en caso de error
-    state.data = await loadDataFromAPI();
     throw error;
   }
 }
@@ -2342,9 +2324,6 @@ async function createDesarrollo(data) {
         };
         
         subMundo.desarrollos.push(nuevoDesarrollo);
-        
-        // Sincronizar subWorlds para compatibilidad
-        subMundo.subWorlds = subMundo.desarrollos;
         
         console.log('✅ Desarrollo agregado al estado local:', nuevoDesarrollo);
         console.log('✅ Estado actual del sub-mundo:', subMundo);
@@ -2501,7 +2480,7 @@ async function renderAdmin() {
       worldsHTML = '<p class="empty-message">No hay mundos creados. Crea el primer mundo desde la vista principal.</p>';
     } else {
       mundos.forEach(mundo => {
-        const subMundosCount = (mundo.subMundos && mundo.subMundos.length) || (mundo.subWorlds && mundo.subWorlds.length) || 0;
+        const subMundosCount = mundo.subMundos ? mundo.subMundos.length : 0;
         worldsHTML += `<span class="badge">${mundo.name || mundo.nombre} (${subMundosCount} sub-carpetas)</span>`;
       });
     }
