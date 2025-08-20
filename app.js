@@ -1900,7 +1900,7 @@ function setupUIEvents() {
     else alert("Solo ADMIN."); 
   };
   
-  $("#btnAddDev").onclick = addDevManually;
+
   
   // Botón +Desarrollo prominente - configurar después de que el DOM esté listo
   const setupNewDesarrolloButton = () => {
