@@ -12,6 +12,7 @@
     "migrate:undo:all": "sequelize-cli db:migrate:undo:all",
     "init:storage": "node server/scripts/initStorage.js",
     "init:database": "node server/scripts/initDatabase.js",
+    "maintenance": "node server/scripts/maintenance.js",
     "migrate:data": "node server/scripts/migrateData.js",
     "migrate:users": "node server/scripts/migrateUsers.js",
     "test:api": "node server/scripts/testAPI.js",

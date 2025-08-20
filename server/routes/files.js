@@ -3,37 +3,22 @@ const router = express.Router();
 const fileController = require('../controllers/fileController');
 const { upload } = require('../middlewares/upload');
 
-// Health check
+// Rutas específicas primero (antes de las dinámicas)
 router.get('/health', fileController.health);
-
-// Endpoint de diagnóstico para verificar el estado de la base de datos
 router.get('/diagnose', fileController.diagnose);
-
-// Endpoint de prueba simple
 router.get('/test', fileController.test);
-
-// Endpoint de prueba para simular upload
 router.post('/test-upload', fileController.testUpload);
-
-// Endpoint de debug para identificar problemas
-router.get('/debug', fileController.debug);
-
-// Verificar uso del disco
 router.get('/disk-usage', fileController.getDiskUsage);
+router.get('/recover', fileController.recoverFiles);
+router.get('/cleanup', fileController.cleanupOrphanFiles);
 
-// Listar archivos
+// Rutas principales
 router.get('/', fileController.listFiles);
-
-// Subir archivo
 router.post('/', upload, fileController.uploadFile);
 
-// Obtener archivo por ID (DEBE ir DESPUÉS de las rutas específicas)
-router.get('/:id', fileController.getFile);
-
-// Descargar archivo
+// Rutas dinámicas al final
 router.get('/:id/download', fileController.downloadFile);
-
-// Eliminar archivo
 router.delete('/:id', fileController.deleteFile);
+router.get('/:id', fileController.getFile);
 
 module.exports = router;

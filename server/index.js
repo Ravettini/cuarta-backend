@@ -9,7 +9,7 @@ const mundoRoutes = require('./routes/mundos');
 const subMundoRoutes = require('./routes/subMundos');
 const desarrolloRoutes = require('./routes/desarrollos');
 const errorHandler = require('./middlewares/error');
-const { initStorage } = require('./scripts/initStorage');
+const { initStorage, verifyStorageIntegrity } = require('./scripts/initStorage');
 const { initDatabase } = require('./scripts/initDatabase');
 
 const app = express();
@@ -102,6 +102,12 @@ const startServer = async () => {
     
     // Sincronizar modelos con la base de datos
     await syncModels();
+    
+    // Verificar integridad del almacenamiento después de sincronizar modelos
+    console.log('🔍 Verificando integridad del almacenamiento...');
+    const { File } = require('./models');
+    await verifyStorageIntegrity(File);
+    console.log('✅ Verificación de integridad completada');
     
     // Iniciar servidor
     app.listen(PORT, () => {

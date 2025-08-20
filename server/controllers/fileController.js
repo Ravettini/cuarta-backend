@@ -381,7 +381,23 @@ exports.downloadFile = async (req, res) => {
     try {
       await fs.access(file.path);
     } catch (error) {
-      return res.status(404).json({ error: 'Archivo físico no encontrado' });
+      console.warn(`⚠️ Archivo físico no encontrado: ${file.path} (ID: ${id})`);
+      
+      // Si el archivo físico no existe, devolver información del archivo pero con error
+      return res.status(404).json({ 
+        error: 'Archivo físico no encontrado',
+        fileInfo: {
+          id: file.id,
+          name: file.name,
+          file_name: file.file_name,
+          content_type: file.content_type,
+          size: file.size,
+          path: file.path,
+          created_at: file.created_at
+        },
+        message: 'El archivo existe en la base de datos pero no se encuentra físicamente. Esto puede ocurrir después de un reinicio del servidor.',
+        suggestion: 'Intente subir el archivo nuevamente o contacte al administrador.'
+      });
     }
 
     // Enviar archivo como adjunto
@@ -433,5 +449,145 @@ exports.getFile = async (req, res) => {
   } catch (error) {
     console.error('Error obteniendo archivo:', error);
     res.status(500).json({ error: 'Error interno del servidor' });
+  }
+};
+
+// Endpoint para recuperar archivos perdidos
+exports.recoverFiles = async (req, res) => {
+  try {
+    console.log('🔧 Iniciando recuperación de archivos...');
+    
+    // Obtener todos los archivos de la base de datos
+    const files = await File.findAll();
+    console.log(`📊 Total de archivos en BD: ${files.length}`);
+    
+    const results = {
+      total: files.length,
+      existing: 0,
+      missing: 0,
+      recovered: 0,
+      details: []
+    };
+    
+    for (const file of files) {
+      try {
+        // Verificar si el archivo físico existe
+        await fs.access(file.path);
+        results.existing++;
+        results.details.push({
+          id: file.id,
+          name: file.name,
+          status: 'ok',
+          path: file.path
+        });
+      } catch (error) {
+        results.missing++;
+        results.details.push({
+          id: file.id,
+          name: file.name,
+          status: 'missing',
+          path: file.path,
+          error: 'Archivo físico no encontrado'
+        });
+        
+        console.warn(`⚠️ Archivo perdido: ${file.path} (ID: ${file.id})`);
+      }
+    }
+    
+    console.log(`📊 Resumen de recuperación:`, {
+      total: results.total,
+      existentes: results.existing,
+      faltantes: results.missing
+    });
+    
+    res.json({
+      status: 'ok',
+      message: 'Recuperación de archivos completada',
+      timestamp: new Date().toISOString(),
+      results: results
+    });
+    
+  } catch (error) {
+    console.error('❌ Error en recuperación de archivos:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      message: error.message
+    });
+  }
+};
+
+// Endpoint para limpiar archivos huérfanos (registros en BD sin archivos físicos)
+exports.cleanupOrphanFiles = async (req, res) => {
+  try {
+    console.log('🧹 Iniciando limpieza de archivos huérfanos...');
+    
+    // Obtener todos los archivos de la base de datos
+    const files = await File.findAll();
+    console.log(`📊 Total de archivos en BD: ${files.length}`);
+    
+    const orphanFiles = [];
+    
+    for (const file of files) {
+      try {
+        // Verificar si el archivo físico existe
+        await fs.access(file.path);
+      } catch (error) {
+        // El archivo físico no existe, es un huérfano
+        orphanFiles.push(file);
+      }
+    }
+    
+    console.log(`📊 Archivos huérfanos encontrados: ${orphanFiles.length}`);
+    
+    if (orphanFiles.length === 0) {
+      return res.json({
+        status: 'ok',
+        message: 'No se encontraron archivos huérfanos',
+        timestamp: new Date().toISOString(),
+        orphanCount: 0
+      });
+    }
+    
+    // Si se solicita limpiar, eliminar los registros huérfanos
+    if (req.query.clean === 'true') {
+      console.log(`🧹 Eliminando ${orphanFiles.length} archivos huérfanos...`);
+      
+      for (const orphanFile of orphanFiles) {
+        await orphanFile.destroy();
+        console.log(`🗑️ Eliminado registro huérfano: ${orphanFile.name} (ID: ${orphanFile.id})`);
+      }
+      
+      res.json({
+        status: 'ok',
+        message: `Limpieza completada. ${orphanFiles.length} archivos huérfanos eliminados.`,
+        timestamp: new Date().toISOString(),
+        orphanCount: orphanFiles.length,
+        cleaned: true
+      });
+    } else {
+      // Solo mostrar información, no limpiar
+      res.json({
+        status: 'ok',
+        message: `${orphanFiles.length} archivos huérfanos encontrados`,
+        timestamp: new Date().toISOString(),
+        orphanCount: orphanFiles.length,
+        orphanFiles: orphanFiles.map(f => ({
+          id: f.id,
+          name: f.name,
+          file_name: f.file_name,
+          path: f.path,
+          size: f.size,
+          created_at: f.created_at
+        })),
+        suggestion: 'Use ?clean=true para eliminar archivos huérfanos'
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Error en limpieza de archivos huérfanos:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      message: error.message
+    });
   }
 };
