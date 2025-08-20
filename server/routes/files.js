@@ -11,6 +11,7 @@ router.post('/test-upload', fileController.testUpload);
 router.get('/disk-usage', fileController.getDiskUsage);
 router.get('/recover', fileController.recoverFiles);
 router.get('/cleanup', fileController.cleanupOrphanFiles);
+router.post('/auto-recover', fileController.autoRecover);
 
 // Rutas principales
 router.get('/', fileController.listFiles);

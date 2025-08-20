@@ -591,3 +591,40 @@ exports.cleanupOrphanFiles = async (req, res) => {
     });
   }
 };
+
+// Endpoint para recuperación automática manual
+exports.autoRecover = async (req, res) => {
+  try {
+    console.log('🔧 Iniciando recuperación automática manual...');
+    
+    // Importar la función de recuperación
+    const { recoverLostFiles } = require('../scripts/initStorage');
+    
+    // Ejecutar recuperación automática
+    const result = await recoverLostFiles(File, 10, 3000); // 10 intentos, 3 segundos entre intentos
+    
+    if (result.success) {
+      res.json({
+        status: 'ok',
+        message: 'Recuperación automática completada exitosamente',
+        timestamp: new Date().toISOString(),
+        result: result
+      });
+    } else {
+      res.json({
+        status: 'warning',
+        message: 'Recuperación automática falló, algunos archivos pueden estar temporalmente no disponibles',
+        timestamp: new Date().toISOString(),
+        result: result,
+        suggestion: 'Los archivos pueden aparecer automáticamente en los próximos minutos'
+      });
+    }
+    
+  } catch (error) {
+    console.error('❌ Error en recuperación automática:', error);
+    res.status(500).json({ 
+      error: 'Error interno del servidor',
+      message: error.message
+    });
+  }
+};

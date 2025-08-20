@@ -151,14 +151,26 @@ UPLOAD_DIR=/opt/render/project/src/uploads
 
 **Soluciones**:
 - **Automática**: El servidor verifica automáticamente la integridad al iniciar
+- **Recuperación Automática**: Sistema de reintentos automáticos cada 2 minutos
 - **Manual**: Usar endpoints de recuperación:
   - `GET /api/v1/files/recover` - Verificar archivos perdidos
   - `GET /api/v1/files/cleanup` - Limpiar archivos huérfanos
+  - `POST /api/v1/files/auto-recover` - Recuperación automática manual
 - **Script**: Ejecutar `npm run maintenance` para diagnóstico local
 
-**Prevención**: El sistema ahora incluye verificación automática de integridad al iniciar.
+**Prevención**: 
+- Sistema de monitoreo continuo en segundo plano
+- Verificación automática de integridad cada 2 minutos
+- Recuperación automática con reintentos exponenciales
 
-### 2. Archivos Huérfanos
+### 2. Render Disk "Dormido"
+**Síntoma**: Archivos que aparecen y desaparecen intermitentemente.
+
+**Causa**: Render Disk puede "dormirse" después de períodos de inactividad.
+
+**Solución**: Monitoreo en segundo plano que "despierta" automáticamente el almacenamiento.
+
+### 3. Archivos Huérfanos
 **Síntoma**: Registros en la base de datos sin archivos físicos correspondientes.
 
 **Solución**: Endpoint de limpieza automática:
@@ -170,7 +182,7 @@ GET /api/v1/files/cleanup
 GET /api/v1/files/cleanup?clean=true
 ```
 
-### 3. Problemas de Permisos
+### 4. Problemas de Permisos
 **Síntoma**: Errores de escritura en el directorio de uploads.
 
 **Solución**: El script de inicialización verifica automáticamente los permisos y los corrige si es posible.
@@ -276,6 +288,7 @@ npm run init:database # Crear tablas en base de datos
 - `GET /api/v1/files/disk-usage` - Uso del disco
 - `GET /api/v1/files/recover` - Verificar archivos perdidos
 - `GET /api/v1/files/cleanup` - Limpiar archivos huérfanos
+- `POST /api/v1/files/auto-recover` - Recuperación automática manual
 - `GET /api/v1/files/health` - Estado del servicio
 - `GET /api/v1/files/diagnose` - Diagnóstico completo
 - `GET /api/v1/files/test` - Prueba simple

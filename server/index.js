@@ -9,8 +9,9 @@ const mundoRoutes = require('./routes/mundos');
 const subMundoRoutes = require('./routes/subMundos');
 const desarrolloRoutes = require('./routes/desarrollos');
 const errorHandler = require('./middlewares/error');
-const { initStorage, verifyStorageIntegrity } = require('./scripts/initStorage');
+const { initStorage, verifyStorageIntegrity, recoverLostFiles } = require('./scripts/initStorage');
 const { initDatabase } = require('./scripts/initDatabase');
+const BackgroundMonitor = require('./scripts/backgroundMonitor');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -106,8 +107,30 @@ const startServer = async () => {
     // Verificar integridad del almacenamiento después de sincronizar modelos
     console.log('🔍 Verificando integridad del almacenamiento...');
     const { File } = require('./models');
-    await verifyStorageIntegrity(File);
+    const integrityResult = await verifyStorageIntegrity(File);
     console.log('✅ Verificación de integridad completada');
+    
+    // Si hay archivos perdidos, intentar recuperación automática
+    if (integrityResult.hasIssues && integrityResult.missingCount > 0) {
+      console.log(`⚠️ Se detectaron ${integrityResult.missingCount} archivos perdidos, iniciando recuperación automática...`);
+      
+      const recoveryResult = await recoverLostFiles(File);
+      if (recoveryResult.success) {
+        console.log(`✅ Recuperación automática exitosa: ${recoveryResult.recovered} archivos recuperados`);
+      } else {
+        console.warn(`⚠️ Recuperación automática falló, los archivos pueden estar temporalmente no disponibles`);
+      }
+    }
+    
+    // Iniciar monitoreo en segundo plano para Render Disk
+    console.log('🔍 Iniciando monitoreo en segundo plano...');
+    const backgroundMonitor = new BackgroundMonitor(File, process.env.UPLOAD_DIR || './uploads', {
+      intervalMs: 2 * 60 * 1000, // Verificar cada 2 minutos
+      maxRetries: 5
+    });
+    
+    backgroundMonitor.start();
+    console.log('✅ Monitoreo en segundo plano iniciado');
     
     // Iniciar servidor
     app.listen(PORT, () => {
@@ -115,6 +138,7 @@ const startServer = async () => {
       console.log(`📁 API disponible en http://localhost:${PORT}/api/v1`);
       console.log(`🔍 Health check: http://localhost:${PORT}/api/v1/health`);
       console.log(`💾 Almacenamiento: ${process.env.UPLOAD_DIR || './uploads'}`);
+      console.log(`🔍 Monitoreo: Verificando integridad cada 2 minutos`);
     });
   } catch (error) {
     console.error('❌ Error iniciando servidor:', error);

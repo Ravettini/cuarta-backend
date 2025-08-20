@@ -73,7 +73,63 @@ async function initStorage() {
 }
 
 /**
- * Función para verificar la integridad de archivos existentes
+ * Función para recuperar archivos perdidos automáticamente
+ * Reintenta múltiples veces hasta que los archivos estén disponibles
+ */
+async function recoverLostFiles(File, maxRetries = 5, delayMs = 2000) {
+  if (!File) {
+    console.log('⚠️ Modelo File no disponible, saltando recuperación automática');
+    return;
+  }
+  
+  console.log('🔧 Iniciando recuperación automática de archivos perdidos...');
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    console.log(`🔄 Intento ${attempt}/${maxRetries} de recuperación...`);
+    
+    try {
+      const files = await File.findAll();
+      let missingFiles = 0;
+      let recoveredFiles = 0;
+      
+      for (const file of files) {
+        try {
+          await fs.promises.access(file.path);
+        } catch (error) {
+          missingFiles++;
+          console.warn(`⚠️ Archivo perdido en intento ${attempt}: ${file.path}`);
+        }
+      }
+      
+      if (missingFiles === 0) {
+        console.log('✅ Todos los archivos recuperados exitosamente');
+        return { success: true, recovered: files.length };
+      }
+      
+      console.log(`⚠️ ${missingFiles} archivos aún perdidos después del intento ${attempt}`);
+      
+      if (attempt < maxRetries) {
+        console.log(`⏳ Esperando ${delayMs}ms antes del siguiente intento...`);
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+        
+        // Incrementar el delay exponencialmente
+        delayMs = Math.min(delayMs * 1.5, 10000);
+      }
+      
+    } catch (error) {
+      console.error(`❌ Error en intento ${attempt}:`, error.message);
+      if (attempt < maxRetries) {
+        await new Promise(resolve => setTimeout(resolve, delayMs));
+      }
+    }
+  }
+  
+  console.warn(`⚠️ Recuperación automática falló después de ${maxRetries} intentos`);
+  return { success: false, recovered: 0 };
+}
+
+/**
+ * Función para verificar la integridad del almacenamiento
  * Compara los archivos físicos con los registros de la base de datos
  */
 async function verifyStorageIntegrity(File) {
@@ -114,16 +170,23 @@ async function verifyStorageIntegrity(File) {
     
     if (missingFiles > 0) {
       console.warn(`⚠️ ${missingFiles} archivos físicos no encontrados`);
+      return { hasIssues: true, missingCount: missingFiles };
     } else {
       console.log(`✅ Todos los archivos físicos están presentes`);
+      return { hasIssues: false, missingCount: 0 };
     }
     
   } catch (error) {
     console.error('❌ Error verificando integridad:', error);
+    return { hasIssues: true, missingCount: 0, error: error.message };
   }
 }
 
-module.exports = { initStorage, verifyStorageIntegrity };
+module.exports = { 
+  initStorage, 
+  verifyStorageIntegrity, 
+  recoverLostFiles 
+};
 
 // Si se ejecuta directamente
 if (require.main === module) {
