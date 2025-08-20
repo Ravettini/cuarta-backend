@@ -26,8 +26,8 @@
       <div class="brand-title">Almacén de desarrollos</div>
     </div>
     <div class="toolbar">
-      <button class="btn btn-secondary" id="btnNewWorld" title="Crear nuevo mundo">+ Mundo</button>
-      <button class="btn btn-secondary" id="btnNewSubWorld" title="Crear sub-mundo">+ Sub-mundo</button>
+      <button class="btn btn-secondary" id="btnNewWorld" title="Crear nueva carpeta">+ Carpeta</button>
+      <button class="btn btn-secondary" id="btnNewSubWorld" title="Crear sub-carpeta">+ Sub-carpeta</button>
       <button class="btn btn-primary" id="btnAddDev" title="Agregar desarrollo">+ Desarrollo</button>
       <button class="btn btn-ghost" id="btnBack" title="Volver">Volver</button>
       <button class="btn btn-ghost" id="btnAdmin" title="Panel de control">Panel de control</button>
@@ -47,7 +47,7 @@
     <!-- HERO -->
     <section class="hero" id="hero" aria-label="Cabecera">
       <h1 id="heroTitle" class="t-title">Bienvenido</h1>
-      <p id="heroDesc" class="t-bajada">Ingresá con tu usuario para explorar los mundos autorizados.</p>
+      <p id="heroDesc" class="t-bajada">Ingresá con tu usuario para explorar las carpetas autorizadas.</p>
       <nav class="nav-pills" id="breadcrumbs" aria-label="Ruta de navegación"></nav>
     </section>
 
@@ -79,19 +79,19 @@
     </section>
 
     <!-- SECCIÓN MUNDOS -->
-    <section id="worldsSection" aria-label="Mundos">
-      <h2 class="t-title section-title">Mundos</h2>
+    <section id="worldsSection" aria-label="Carpetas">
+      <h2 class="t-title section-title">Carpetas</h2>
       <div id="worldsGrid" class="grid cols-4"></div>
       <div id="worldsEmpty" class="empty" style="display:none">
-        No hay mundos visibles para tu usuario. Pedí acceso a un ADMIN.
+        No hay carpetas visibles para tu usuario. Pedí acceso a un ADMIN.
       </div>
     </section>
 
     <!-- SECCIÓN SUB-MUNDOS -->
-    <section id="subWorldsSection" aria-label="Sub-mundos">
-      <h2 class="t-title section-title">Sub-mundos</h2>
+    <section id="subWorldsSection" aria-label="Sub-carpetas">
+      <h2 class="t-title section-title">Sub-carpetas</h2>
       <div id="subWorldsGrid" class="grid cols-4"></div>
-      <div id="subWorldsEmpty" class="empty" style="display:none">Este mundo todavía no tiene sub-mundos.</div>
+      <div id="subWorldsEmpty" class="empty" style="display:none">Esta carpeta todavía no tiene sub-carpetas.</div>
     </section>
 
     <!-- SECCIÓN DESARROLLOS -->
@@ -121,7 +121,7 @@
       </div>
 
       <div id="devsGrid" class="grid cols-4" style="margin-top:14px"></div>
-      <div id="devsEmpty" class="empty" style="display:none">Aún no hay desarrollos en este sub-mundo.</div>
+      <div id="devsEmpty" class="empty" style="display:none">Aún no hay desarrollos en esta sub-carpeta.</div>
     </section>
 
     <!-- PANEL DE CONTROL (solo ADMIN) -->
@@ -141,8 +141,8 @@
         </div>
 
         <div class="card">
-          <h3 class="t-title" style="font-size:clamp(18px,2.4vw,22px)">Mundos disponibles</h3>
-          <p class="t-body muted">Resumen de mundos actuales. Los permisos se asignan en cada usuario.</p>
+          <h3 class="t-title" style="font-size:clamp(18px,2.4vw,22px)">Carpetas disponibles</h3>
+          <p class="t-body muted">Resumen de carpetas actuales. Los permisos se asignan en cada usuario.</p>
           <div id="worldsSummary" class="worlds-summary"></div>
         </div>
       </div>

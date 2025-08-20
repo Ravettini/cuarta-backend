@@ -876,8 +876,8 @@ async function renderWorlds() {
       card.className = "card";
       card.innerHTML = `
         <h3>${w.name || w.nombre || 'Sin nombre'}</h3>
-        <p class="muted t-body">Sub-mundos: ${w.subWorlds ? w.subWorlds.length : (w.subMundos ? w.subMundos.length : 0)}</p>
-        <div class="tags"><span class="tag cyan">mundo</span></div>
+        <p class="muted t-body">Sub-carpetas: ${w.subWorlds ? w.subWorlds.length : (w.subMundos ? w.subMundos.length : 0)}</p>
+                  <div class="tags"><span class="tag cyan">carpeta</span></div>
         <div class="actions">
           <button class="btn btn-secondary btn-primary-action">Abrir</button>
           ${isAdmin() ? '<div class="secondary-actions"><button class="btn btn-rename">Renombrar</button><button class="btn btn-danger">Eliminar</button></div>' : ''}
@@ -929,7 +929,7 @@ async function renderSubWorlds(mundoId) {
       card.innerHTML = `
         <h3>${sw.name || sw.nombre || 'Sin nombre'}</h3>
         <p class="muted t-body">Desarrollos: ${sw.desarrollos ? sw.desarrollos.length : 0}</p>
-        <div class="tags"><span class="tag cyan">sub-mundo</span></div>
+                  <div class="tags"><span class="tag cyan">sub-carpeta</span></div>
         <div class="actions">
           <button class="btn btn-secondary btn-primary-action">Abrir</button>
           ${isAdmin() ? '<div class="secondary-actions"><button class="btn btn-rename">Renombrar</button><button class="btn btn-danger">Eliminar</button></div>' : ''}
@@ -1207,11 +1207,11 @@ function updateHero() {
   if (state.currentSubId) {
     const sw = getCurrentSub();
     if (heroTitle) heroTitle.textContent = sw ? sw.nombre : "";
-    if (heroDesc) heroDesc.textContent = "Desarrollos disponibles en este sub-mundo.";
+            if (heroDesc) heroDesc.textContent = "Desarrollos disponibles en esta sub-carpeta.";
   } else if (state.currentWorldId) {
     const w = getCurrentWorld();
     if (heroTitle) heroTitle.textContent = w ? w.nombre : "";
-    if (heroDesc) heroDesc.textContent = "Sub-mundos disponibles en este mundo.";
+            if (heroDesc) heroDesc.textContent = "Sub-carpetas disponibles en esta carpeta.";
   } else {
     if (heroTitle) heroTitle.textContent = "Hola, " + (state.user?.username || "");
     if (heroDesc) heroDesc.textContent = "Elegí un mundo para empezar.";
@@ -1264,11 +1264,11 @@ function showCreateWorldModal() {
   if (!isAdmin()) return;
   
   modal.show({
-    title: "Nuevo Mundo",
+    title: "Nueva Carpeta",
     bodyHTML: `
       <div class="field">
-        <label for="worldName">Nombre del mundo</label>
-        <input id="worldName" placeholder="Ingrese el nombre del mundo" />
+        <label for="worldName">Nombre de la carpeta</label>
+        <input id="worldName" placeholder="Ingrese el nombre de la carpeta" />
       </div>
       <div class="field">
         <label for="worldDesc">Descripción</label>
@@ -1303,10 +1303,10 @@ function showRenameWorldModal(worldId) {
   if (!existing) return;
   
   modal.show({
-    title: "Renombrar Mundo",
+    title: "Renombrar Carpeta",
     bodyHTML: `
       <div class="field">
-        <label for="worldName">Nombre del mundo</label>
+        <label for="worldName">Nombre de la carpeta</label>
         <input id="worldName" placeholder="Ingrese el nuevo nombre" value="${existing.nombre}" />
       </div>
       <div class="field">
@@ -1342,11 +1342,11 @@ function showCreateSubWorldModal() {
   if (!w) return;
   
   modal.show({
-    title: "Nuevo Sub-Mundo",
+    title: "Nueva Sub-carpeta",
     bodyHTML: `
       <div class="field">
-        <label for="subName">Nombre del sub-mundo</label>
-        <input id="subName" placeholder="Ingrese el nombre del sub-mundo" />
+        <label for="subName">Nombre de la sub-carpeta</label>
+        <input id="subName" placeholder="Ingrese el nombre de la sub-carpeta" />
       </div>
       <div class="field">
         <label for="subDesc">Descripción</label>
@@ -1383,10 +1383,10 @@ function showRenameSubWorldModal(subId) {
   if (!existing) return;
   
   modal.show({
-    title: "Renombrar Sub-Mundo",
+    title: "Renombrar Sub-carpeta",
     bodyHTML: `
       <div class="field">
-        <label for="subName">Nombre del sub-mundo</label>
+        <label for="subName">Nombre de la sub-carpeta</label>
         <input id="subName" placeholder="Ingrese el nuevo nombre" value="${existing.nombre}" />
       </div>
       <div class="field">
@@ -1627,7 +1627,7 @@ function setupDropzone() {
   
   dz.addEventListener("drop", async e => {
     const sw = getCurrentSub();
-    if (!sw) return alert("Elegí un sub-mundo.");
+    if (!sw) return alert("Elegí una sub-carpeta.");
     
     const items = e.dataTransfer.items;
     if (items && items.length) {
@@ -1769,7 +1769,7 @@ function setupDropzone() {
   
   dz.addEventListener("drop", e => {
     const sw = getCurrentSub(); 
-    if (!sw) return alert("Elegí un sub-mundo.");
+    if (!sw) return alert("Elegí una sub-carpeta.");
     
     const items = e.dataTransfer.items;
     if (items && items.length) {
@@ -2476,7 +2476,7 @@ async function renderAdmin() {
     } else {
       mundos.forEach(mundo => {
         const subMundosCount = (mundo.subMundos && mundo.subMundos.length) || (mundo.subWorlds && mundo.subWorlds.length) || 0;
-        worldsHTML += `<span class="badge">${mundo.name || mundo.nombre} (${subMundosCount} sub-mundos)</span>`;
+        worldsHTML += `<span class="badge">${mundo.name || mundo.nombre} (${subMundosCount} sub-carpetas)</span>`;
       });
     }
     
@@ -2690,11 +2690,11 @@ async function confirmDeleteUser(userId) {
 // Función para mostrar formulario de mundo
 function showWorldForm() {
   modal.show({
-    title: "Nuevo Mundo",
+    title: "Nueva Carpeta",
     bodyHTML: `
       <div class="form-group">
         <label for="worldName">Nombre:</label>
-        <input type="text" id="worldName" placeholder="Ingrese el nombre del mundo">
+        <input type="text" id="worldName" placeholder="Ingrese el nombre de la carpeta">
       </div>
       <div class="form-group">
         <label for="worldDesc">Descripción:</label>
@@ -2724,16 +2724,16 @@ function showWorldForm() {
 // Función para mostrar formulario de sub-mundo
 function showSubWorldForm() {
   if (!state.currentWorldId) {
-    alert("Debe seleccionar un mundo primero");
+            alert("Debe seleccionar una carpeta primero");
     return;
   }
   
   modal.show({
-    title: "Nuevo Sub-Mundo",
+    title: "Nueva Sub-carpeta",
     bodyHTML: `
       <div class="form-group">
         <label for="subWorldName">Nombre:</label>
-        <input type="text" id="subWorldName" placeholder="Ingrese el nombre del sub-mundo">
+        <input type="text" id="subWorldName" placeholder="Ingrese el nombre de la sub-carpeta">
       </div>
       <div class="form-group">
         <label for="subWorldDesc">Descripción:</label>
@@ -2763,7 +2763,7 @@ function showSubWorldForm() {
 // Función para mostrar formulario de desarrollo
 function showDevForm() {
   if (!state.currentSubId) {
-    alert("Debe seleccionar un sub-mundo primero");
+            alert("Debe seleccionar una sub-carpeta primero");
     return;
   }
 
@@ -2870,7 +2870,7 @@ function setupDropzone() {
   // Soltar archivos/enlaces
   dropzone.addEventListener("drop", async e => {
     const sw = getCurrentSub();
-    if (!sw) return alert("Elegí un sub-mundo.");
+    if (!sw) return alert("Elegí una sub-carpeta.");
 
     const items = e.dataTransfer && e.dataTransfer.items;
     if (items && items.length) {
@@ -2922,7 +2922,7 @@ function setupDropzone() {
   const openPicker = (e) => {
     e?.preventDefault?.();
     e?.stopPropagation?.();
-    if (!getCurrentSub()) return alert("Elegí un sub-mundo.");
+    if (!getCurrentSub()) return alert("Elegí una sub-carpeta.");
     if (fileInput) {
       console.log("Abriendo explorador de archivos...");
       fileInput.click();
