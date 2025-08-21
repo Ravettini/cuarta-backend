@@ -30,6 +30,7 @@
       <button class="btn btn-secondary" id="btnNewSubWorld" title="Crear sub-carpeta">+ Sub-carpeta</button>
       <button class="btn btn-ghost" id="btnBack" title="Volver">Volver</button>
       <button class="btn btn-ghost" id="btnAdmin" title="Panel de control">Panel de control</button>
+      <button class="btn btn-info" id="btnStorageStatus" title="Estado del almacenamiento" style="display: none;">💾 Estado</button>
       <button class="btn btn-danger" id="btnLogout" title="Cerrar sesión">Cerrar sesión</button>
     </div>
   </header>
@@ -151,6 +152,16 @@
           <p class="t-body muted">Resumen de carpetas actuales. Los permisos se asignan en cada usuario.</p>
           <div id="worldsSummary" class="worlds-summary"></div>
         </div>
+
+        <div class="card">
+          <h3 class="t-title" style="font-size:clamp(18px,2.4vw,22px)">Estado del Sistema</h3>
+          <p class="t-body muted">Información sobre el almacenamiento y estado del servidor.</p>
+          <div class="admin-actions">
+            <button class="btn btn-info" id="btnStorageStatus" title="Estado del almacenamiento">
+              💾 Ver Estado del Sistema
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
@@ -168,6 +179,60 @@
       <div class="modal__footer">
         <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
         <button class="btn btn-primary" id="modalSubmit">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Estado del Almacenamiento -->
+  <div id="storageStatusModal" class="modal" aria-hidden="true">
+    <div class="modal__dialog" role="dialog" aria-modal="true" aria-labelledby="storageStatusTitle">
+      <div class="modal__header">
+        <h3 id="storageStatusTitle" class="t-title">Estado del Almacenamiento</h3>
+        <button class="icon-btn" id="storageStatusClose" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="modal__body">
+        <div class="storage-status-content">
+          <div class="storage-info">
+            <div class="storage-item">
+              <span class="storage-label">Espacio Total:</span>
+              <span class="storage-value" id="totalSpace">Calculando...</span>
+            </div>
+            <div class="storage-item">
+              <span class="storage-label">Espacio Ocupado:</span>
+              <span class="storage-value" id="usedSpace">Calculando...</span>
+            </div>
+            <div class="storage-item">
+              <span class="storage-label">Espacio Disponible:</span>
+              <span class="storage-value" id="freeSpace">Calculando...</span>
+              </div>
+            <div class="storage-item">
+              <span class="storage-label">Porcentaje Usado:</span>
+              <span class="storage-value" id="usagePercentage">Calculando...</span>
+            </div>
+          </div>
+          <div class="storage-bar">
+            <div class="storage-progress" id="storageProgress"></div>
+          </div>
+          <div class="storage-details">
+            <h4>Detalles del Sistema</h4>
+            <div class="storage-item">
+              <span class="storage-label">Base de Datos:</span>
+              <span class="storage-value" id="dbStatus">Conectado</span>
+            </div>
+            <div class="storage-item">
+              <span class="storage-label">Archivos:</span>
+              <span class="storage-value" id="filesCount">0</span>
+            </div>
+            <div class="storage-item">
+              <span class="storage-label">Última Actualización:</span>
+              <span class="storage-value" id="lastUpdate">-</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="btn btn-primary" id="refreshStorageStatus">🔄 Actualizar</button>
+        <button class="btn btn-ghost" id="closeStorageStatus">Cerrar</button>
       </div>
     </div>
   </div>

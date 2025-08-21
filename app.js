@@ -2530,6 +2530,15 @@ async function renderAdmin() {
     console.log('✅ Panel de administración renderizado correctamente');
     console.log('🔍 Contenedor usersList después del render:', usersListContainer.innerHTML.substring(0, 500) + '...');
     console.log('🔍 Contenedor worldsSummary después del render:', worldsSummaryContainer.innerHTML.substring(0, 500) + '...');
+    
+    // Configurar event listener para el botón de estado del almacenamiento
+    const btnStorageStatus = $("#btnStorageStatus");
+    if (btnStorageStatus) {
+      btnStorageStatus.onclick = showStorageStatus;
+      console.log('✅ Event listener configurado para btnStorageStatus');
+    } else {
+      console.log('⚠️ No se encontró btnStorageStatus');
+    }
   } catch (error) {
     console.error('❌ Error renderizando admin:', error);
     if (usersListContainer) usersListContainer.innerHTML = '<p>Error cargando usuarios</p>';
@@ -3439,4 +3448,96 @@ function showEditDesarrolloModal(devId) {
     initialFocus: "#editDevTitle",
     submitLabel: "Guardar Cambios"
   });
+}
+
+// ===== FUNCIÓN PARA MOSTRAR ESTADO DEL ALMACENAMIENTO =====
+async function showStorageStatus() {
+  try {
+    console.log('💾 Mostrando estado del almacenamiento...');
+    
+    // Mostrar modal con estado inicial
+    const storageModal = $("#storageStatusModal");
+    storageModal.classList.add("open");
+    
+    // Actualizar datos en tiempo real
+    await updateStorageStatus();
+    
+    // Configurar event listeners para el modal
+    $("#storageStatusClose").onclick = () => {
+      storageModal.classList.remove("open");
+    };
+    
+    $("#closeStorageStatus").onclick = () => {
+      storageModal.classList.remove("open");
+    };
+    
+    $("#refreshStorageStatus").onclick = async () => {
+      await updateStorageStatus();
+    };
+    
+  } catch (error) {
+    console.error('❌ Error mostrando estado del almacenamiento:', error);
+    alert('Error mostrando estado del almacenamiento: ' + error.message);
+  }
+}
+
+async function updateStorageStatus() {
+  try {
+    console.log('🔄 Actualizando estado del almacenamiento...');
+    
+    // Obtener información del sistema desde la API
+    const response = await api('/debug', { method: 'GET' });
+    if (!response.ok) {
+      throw new Error(`Error obteniendo estado: ${response.status}`);
+    }
+    
+    const systemInfo = await response.json();
+    
+    // Calcular espacio disponible (simulado para Render)
+    const totalSpace = 1024 * 1024 * 1024; // 1GB (típico en Render)
+    const usedSpace = systemInfo.uploadDir?.size || 0;
+    const freeSpace = totalSpace - usedSpace;
+    const usagePercentage = Math.round((usedSpace / totalSpace) * 100);
+    
+    // Actualizar valores en el modal
+    $("#totalSpace").textContent = formatBytes(totalSpace);
+    $("#usedSpace").textContent = formatBytes(usedSpace);
+    $("#freeSpace").textContent = formatBytes(freeSpace);
+    $("#usagePercentage").textContent = `${usagePercentage}%`;
+    
+    // Actualizar barra de progreso
+    const progressBar = $("#storageProgress");
+    progressBar.style.width = `${usagePercentage}%`;
+    
+    // Actualizar detalles del sistema
+    $("#dbStatus").textContent = systemInfo.database?.connected ? 'Conectado' : 'Desconectado';
+    $("#dbStatus").style.color = systemInfo.database?.connected ? '#4CAF50' : '#f44336';
+    
+    $("#filesCount").textContent = systemInfo.database?.filesTableExists ? 
+      (systemInfo.database?.tables?.includes('files') ? 'Disponible' : 'No disponible') : 'No disponible';
+    
+    $("#lastUpdate").textContent = new Date().toLocaleString('es-AR');
+    
+    console.log('✅ Estado del almacenamiento actualizado');
+    
+  } catch (error) {
+    console.error('❌ Error actualizando estado del almacenamiento:', error);
+    
+    // Mostrar valores por defecto en caso de error
+    $("#totalSpace").textContent = 'Error';
+    $("#usedSpace").textContent = 'Error';
+    $("#freeSpace").textContent = 'Error';
+    $("#usagePercentage").textContent = 'Error';
+    $("#dbStatus").textContent = 'Error';
+    $("#filesCount").textContent = 'Error';
+    $("#lastUpdate").textContent = 'Error';
+  }
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 Bytes';
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }

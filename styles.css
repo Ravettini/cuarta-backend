@@ -105,6 +105,7 @@ header.appbar{
 .btn-secondary{background:var(--ba-cyan); color:var(--ba-azul)}
 .btn-ghost{background:transparent; color:var(--ba-azul); border:2px solid var(--ba-azul)}
 .btn-danger{background:#ff5a5a; color:white}
+.btn-info{background:var(--ba-cyan); color:var(--ba-azul); border:2px solid var(--ba-cyan)}
 .btn:focus-visible{outline:none; box-shadow:var(--focus)}
 
 /* Variantes con más contraste */
@@ -832,4 +833,70 @@ header.appbar .brand-logo img {
 /* Mostrar solo cuando sea necesario (por ejemplo, en modo debug) */
 #btnInitUsers.show {
   display: inline-block;
+}
+
+/* ===== ESTILOS PARA EL MODAL DE ESTADO DEL ALMACENAMIENTO ===== */
+.storage-status-content {
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.storage-info {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.storage-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.storage-label {
+  font-weight: var(--fw-medium);
+  color: var(--ba-off);
+  font-size: 14px;
+}
+
+.storage-value {
+  font-weight: var(--fw-bold);
+  color: var(--ba-cyan);
+  font-size: 14px;
+}
+
+.storage-bar {
+  width: 100%;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 16px 0;
+}
+
+.storage-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--ba-cyan), var(--ba-amarillo));
+  border-radius: 6px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.storage-details {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.storage-details h4 {
+  margin: 0 0 12px 0;
+  color: var(--ba-off);
+  font-size: 16px;
+  font-weight: var(--fw-medium);
 }
