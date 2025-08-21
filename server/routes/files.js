@@ -7,6 +7,7 @@ const { upload } = require('../middlewares/upload');
 router.get('/health', fileController.health);
 router.get('/diagnose', fileController.diagnose);
 router.get('/test', fileController.test);
+router.get('/debug', fileController.debug);
 router.post('/test-upload', fileController.testUpload);
 router.get('/disk-usage', fileController.getDiskUsage);
 router.get('/recover', fileController.recoverFiles);

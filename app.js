@@ -2534,8 +2534,9 @@ async function renderAdmin() {
     // Configurar event listener para el botón de estado del almacenamiento
     const btnStorageStatus = $("#btnStorageStatus");
     if (btnStorageStatus) {
-      btnStorageStatus.onclick = showStorageStatus;
-      console.log('✅ Event listener configurado para btnStorageStatus');
+      // Temporalmente usar la función de prueba
+      btnStorageStatus.onclick = testStorageModal;
+      console.log('✅ Event listener configurado para btnStorageStatus (modo prueba)');
     } else {
       console.log('⚠️ No se encontró btnStorageStatus');
     }
@@ -3455,25 +3456,72 @@ async function showStorageStatus() {
   try {
     console.log('💾 Mostrando estado del almacenamiento...');
     
-    // Mostrar modal con estado inicial
+    // Verificar que el modal existe
     const storageModal = $("#storageStatusModal");
-    storageModal.classList.add("open");
+    if (!storageModal) {
+      throw new Error('Modal de estado del almacenamiento no encontrado');
+    }
     
-    // Actualizar datos en tiempo real
-    await updateStorageStatus();
+    console.log('✅ Modal encontrado, abriendo...');
+    console.log('🔍 Modal antes de abrir:', storageModal.classList.toString());
+    
+    // Mostrar modal con estado inicial
+    storageModal.classList.add("open");
+    console.log('🔍 Modal después de abrir:', storageModal.classList.toString());
+    
+    // Verificar que se abrió correctamente
+    if (storageModal.classList.contains("open")) {
+      console.log('✅ Modal abierto correctamente');
+    } else {
+      console.log('⚠️ Modal no se abrió correctamente');
+    }
     
     // Configurar event listeners para el modal
-    $("#storageStatusClose").onclick = () => {
-      storageModal.classList.remove("open");
-    };
+    const closeBtn = $("#storageStatusClose");
+    const closeBtn2 = $("#closeStorageStatus");
+    const refreshBtn = $("#refreshStorageStatus");
     
-    $("#closeStorageStatus").onclick = () => {
-      storageModal.classList.remove("open");
-    };
+    console.log('🔍 Botones encontrados:', {
+      closeBtn: !!closeBtn,
+      closeBtn2: !!closeBtn2,
+      refreshBtn: !!refreshBtn
+    });
     
-    $("#refreshStorageStatus").onclick = async () => {
+    if (closeBtn) {
+      closeBtn.onclick = () => {
+        console.log('🔒 Cerrando modal...');
+        storageModal.classList.remove("open");
+      };
+    }
+    
+    if (closeBtn2) {
+      closeBtn2.onclick = () => {
+        console.log('🔒 Cerrando modal (botón 2)...');
+        storageModal.classList.remove("open");
+      };
+    }
+    
+    if (refreshBtn) {
+      refreshBtn.onclick = async () => {
+        console.log('🔄 Actualizando estado...');
+        await updateStorageStatus();
+      };
+    }
+    
+    console.log('✅ Modal de estado del almacenamiento configurado correctamente');
+    
+    // Actualizar datos en tiempo real (después de configurar los botones)
+    try {
       await updateStorageStatus();
-    };
+    } catch (error) {
+      console.error('⚠️ Error actualizando datos, pero modal abierto:', error);
+      // Mostrar valores por defecto
+      const elements = ['totalSpace', 'usedSpace', 'freeSpace', 'usagePercentage', 'dbStatus', 'filesCount', 'lastUpdate'];
+      elements.forEach(id => {
+        const el = $("#" + id);
+        if (el) el.textContent = 'Cargando...';
+      });
+    }
     
   } catch (error) {
     console.error('❌ Error mostrando estado del almacenamiento:', error);
@@ -3487,11 +3535,14 @@ async function updateStorageStatus() {
     
     // Obtener información del sistema desde la API
     const response = await api('/debug', { method: 'GET' });
+    console.log('📡 Respuesta del servidor:', response.status, response.statusText);
+    
     if (!response.ok) {
-      throw new Error(`Error obteniendo estado: ${response.status}`);
+      throw new Error(`Error obteniendo estado: ${response.status} - ${response.statusText}`);
     }
     
     const systemInfo = await response.json();
+    console.log('📊 Información del sistema recibida:', systemInfo);
     
     // Calcular espacio disponible (simulado para Render)
     const totalSpace = 1024 * 1024 * 1024; // 1GB (típico en Render)
@@ -3499,38 +3550,68 @@ async function updateStorageStatus() {
     const freeSpace = totalSpace - usedSpace;
     const usagePercentage = Math.round((usedSpace / totalSpace) * 100);
     
+    console.log('💾 Cálculos de espacio:', {
+      total: totalSpace,
+      used: usedSpace,
+      free: freeSpace,
+      percentage: usagePercentage
+    });
+    
     // Actualizar valores en el modal
-    $("#totalSpace").textContent = formatBytes(totalSpace);
-    $("#usedSpace").textContent = formatBytes(usedSpace);
-    $("#freeSpace").textContent = formatBytes(freeSpace);
-    $("#usagePercentage").textContent = `${usagePercentage}%`;
+    const totalSpaceEl = $("#totalSpace");
+    const usedSpaceEl = $("#usedSpace");
+    const freeSpaceEl = $("#freeSpace");
+    const usagePercentageEl = $("#usagePercentage");
+    const progressBar = $("#storageProgress");
+    const dbStatusEl = $("#dbStatus");
+    const filesCountEl = $("#filesCount");
+    const lastUpdateEl = $("#lastUpdate");
+    
+    if (totalSpaceEl) totalSpaceEl.textContent = formatBytes(totalSpace);
+    if (usedSpaceEl) usedSpaceEl.textContent = formatBytes(usedSpace);
+    if (freeSpaceEl) freeSpaceEl.textContent = formatBytes(freeSpace);
+    if (usagePercentageEl) usagePercentageEl.textContent = `${usagePercentage}%`;
     
     // Actualizar barra de progreso
-    const progressBar = $("#storageProgress");
-    progressBar.style.width = `${usagePercentage}%`;
+    if (progressBar) {
+      progressBar.style.width = `${usagePercentage}%`;
+      console.log('📊 Barra de progreso actualizada:', `${usagePercentage}%`);
+    }
     
     // Actualizar detalles del sistema
-    $("#dbStatus").textContent = systemInfo.database?.connected ? 'Conectado' : 'Desconectado';
-    $("#dbStatus").style.color = systemInfo.database?.connected ? '#4CAF50' : '#f44336';
+    if (dbStatusEl) {
+      const isConnected = systemInfo.database?.connected;
+      dbStatusEl.textContent = isConnected ? 'Conectado' : 'Desconectado';
+      dbStatusEl.style.color = isConnected ? '#4CAF50' : '#f44336';
+      console.log('🗄️ Estado de BD:', isConnected ? 'Conectado' : 'Desconectado');
+    }
     
-    $("#filesCount").textContent = systemInfo.database?.filesTableExists ? 
-      (systemInfo.database?.tables?.includes('files') ? 'Disponible' : 'No disponible') : 'No disponible';
+    if (filesCountEl) {
+      const hasFilesTable = systemInfo.database?.filesTableExists && 
+                           systemInfo.database?.tables?.includes('files');
+      filesCountEl.textContent = hasFilesTable ? 'Disponible' : 'No disponible';
+      console.log('📁 Tabla de archivos:', hasFilesTable ? 'Disponible' : 'No disponible');
+    }
     
-    $("#lastUpdate").textContent = new Date().toLocaleString('es-AR');
+    if (lastUpdateEl) {
+      lastUpdateEl.textContent = new Date().toLocaleString('es-AR');
+      console.log('🕐 Última actualización:', new Date().toLocaleString('es-AR'));
+    }
     
-    console.log('✅ Estado del almacenamiento actualizado');
+    console.log('✅ Estado del almacenamiento actualizado correctamente');
     
   } catch (error) {
     console.error('❌ Error actualizando estado del almacenamiento:', error);
     
     // Mostrar valores por defecto en caso de error
-    $("#totalSpace").textContent = 'Error';
-    $("#usedSpace").textContent = 'Error';
-    $("#freeSpace").textContent = 'Error';
-    $("#usagePercentage").textContent = 'Error';
-    $("#dbStatus").textContent = 'Error';
-    $("#filesCount").textContent = 'Error';
-    $("#lastUpdate").textContent = 'Error';
+    const elements = ['totalSpace', 'usedSpace', 'freeSpace', 'usagePercentage', 'dbStatus', 'filesCount', 'lastUpdate'];
+    elements.forEach(id => {
+      const el = $("#" + id);
+      if (el) el.textContent = 'Error';
+    });
+    
+    // Mostrar mensaje de error más específico
+    alert(`Error actualizando estado del sistema: ${error.message}\n\nVerifica que el servidor esté funcionando correctamente.`);
   }
 }
 
@@ -3540,4 +3621,43 @@ function formatBytes(bytes) {
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const i = Math.floor(Math.log(bytes) / Math.log(k));
   return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+}
+
+// ===== FUNCIÓN DE PRUEBA PARA EL MODAL =====
+function testStorageModal() {
+  console.log('🧪 Probando modal de estado del sistema...');
+  
+  const storageModal = $("#storageStatusModal");
+  if (!storageModal) {
+    console.error('❌ Modal no encontrado');
+    return;
+  }
+  
+  console.log('✅ Modal encontrado');
+  console.log('🔍 Clases del modal:', storageModal.classList.toString());
+  console.log('🔍 Estilo display:', storageModal.style.display);
+  
+  // Abrir modal
+  storageModal.classList.add("open");
+  console.log('🔍 Modal después de abrir:', storageModal.classList.toString());
+  console.log('🔍 Estilo display después de abrir:', storageModal.style.display);
+  
+  // Verificar si se abrió
+  if (storageModal.classList.contains("open")) {
+    console.log('✅ Modal abierto correctamente');
+  } else {
+    console.log('⚠️ Modal no se abrió correctamente');
+  }
+  
+  // Configurar botón de cierre simple
+  const closeBtn = $("#storageStatusClose");
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      console.log('🔒 Cerrando modal de prueba...');
+      storageModal.classList.remove("open");
+    };
+    console.log('✅ Botón de cierre configurado');
+  } else {
+    console.log('⚠️ Botón de cierre no encontrado');
+  }
 }
