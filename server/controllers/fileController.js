@@ -197,9 +197,18 @@ exports.debug = async (req, res) => {
       
       // Obtener información adicional de la base de datos
       try {
-        const [dbInfo] = await sequelize.query('SELECT current_database() as db_name, current_user as user_name, version() as version');
-        debugInfo.database.info = dbInfo[0];
-        console.log('✅ debug - Info de BD:', dbInfo[0]);
+        if (sequelize.getDialect() === 'postgres') {
+          const [dbInfo] = await sequelize.query('SELECT current_database() as db_name, current_user as user_name, version() as version');
+          debugInfo.database.info = dbInfo[0];
+          console.log('✅ debug - Info de BD:', dbInfo[0]);
+        } else if (sequelize.getDialect() === 'sqlite') {
+          debugInfo.database.info = {
+            db_name: 'SQLite Local',
+            user_name: 'Sistema Local',
+            version: 'SQLite'
+          };
+          console.log('✅ debug - Info de BD: SQLite Local');
+        }
       } catch (infoError) {
         console.log('⚠️ debug - No se pudo obtener info adicional de BD:', infoError.message);
       }

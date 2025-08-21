@@ -252,10 +252,28 @@ Si la base de datos muestra "Desconectado" en el modal de estado:
    npm run test:connection
    ```
 
-4. **Verificar variables de entorno en Render:**
+4. **Verificar configuración específica de Render:**
+   ```bash
+   npm run check:render
+   ```
+
+5. **Verificar variables de entorno en Render:**
    - Ir a tu servicio web `cuarta-backend`
    - En la pestaña "Environment", verificar que `DATABASE_URL` esté presente
    - Si no está, hacer redeploy del servicio
+
+6. **Pasos de solución paso a paso:**
+   - Hacer commit y push de los cambios en `render.yaml`
+   - En Render, ir al servicio `cuarta-backend`
+   - Hacer "Manual Deploy" desde la pestaña "Manual Deploy"
+   - Verificar en "Environment" que `DATABASE_URL` aparezca
+   - Si no aparece, verificar que el servicio de BD `cuarta-postgres` esté activo
+   - Hacer redeploy completo del servicio
+
+7. **Verificar logs del servidor:**
+   - En Render, ir a la pestaña "Logs" del servicio `cuarta-backend`
+   - Buscar errores relacionados con "DATABASE_URL" o "sequelize"
+   - Verificar que aparezca "✅ Conexión a la base de datos establecida" al iniciar
 
 ### Error de permisos en uploads
 - Verificar que el directorio `uploads` tenga permisos de escritura

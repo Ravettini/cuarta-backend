@@ -10,14 +10,24 @@ async function initDatabase() {
     console.log('🔍 Inicializando base de datos...');
     console.log('🔍 DATABASE_URL:', process.env.DATABASE_URL ? 'Definido' : 'No definido');
     console.log('🔍 NODE_ENV:', process.env.NODE_ENV);
+    console.log('🔍 Dialect:', sequelize.getDialect());
     
     // Verificar conexión
     await sequelize.authenticate();
     console.log('✅ Conexión a la base de datos establecida');
     
-    // Obtener información de la base de datos
-    const [results] = await sequelize.query('SELECT current_database() as db_name, current_user as user_name');
-    console.log('🔍 Base de datos actual:', results[0]);
+    // Obtener información de la base de datos según el dialecto
+    try {
+      if (sequelize.getDialect() === 'postgres') {
+        const [results] = await sequelize.query('SELECT current_database() as db_name, current_user as user_name');
+        console.log('🔍 Base de datos actual:', results[0]);
+      } else if (sequelize.getDialect() === 'sqlite') {
+        console.log('🔍 Base de datos: SQLite local');
+        console.log('🔍 Usuario: Sistema local');
+      }
+    } catch (infoError) {
+      console.log('⚠️ No se pudo obtener información adicional de la BD:', infoError.message);
+    }
     
     // Crear tabla files si no existe
     const tableExists = await sequelize.getQueryInterface().showAllTables();
