@@ -2534,9 +2534,8 @@ async function renderAdmin() {
     // Configurar event listener para el botón de estado del almacenamiento
     const btnStorageStatus = $("#btnStorageStatus");
     if (btnStorageStatus) {
-      // Temporalmente usar la función de prueba
-      btnStorageStatus.onclick = testStorageModal;
-      console.log('✅ Event listener configurado para btnStorageStatus (modo prueba)');
+      btnStorageStatus.onclick = showStorageStatus;
+      console.log('✅ Event listener configurado para btnStorageStatus');
     } else {
       console.log('⚠️ No se encontró btnStorageStatus');
     }
@@ -3511,17 +3510,8 @@ async function showStorageStatus() {
     console.log('✅ Modal de estado del almacenamiento configurado correctamente');
     
     // Actualizar datos en tiempo real (después de configurar los botones)
-    try {
-      await updateStorageStatus();
-    } catch (error) {
-      console.error('⚠️ Error actualizando datos, pero modal abierto:', error);
-      // Mostrar valores por defecto
-      const elements = ['totalSpace', 'usedSpace', 'freeSpace', 'usagePercentage', 'dbStatus', 'filesCount', 'lastUpdate'];
-      elements.forEach(id => {
-        const el = $("#" + id);
-        if (el) el.textContent = 'Cargando...';
-      });
-    }
+    console.log('🔄 Iniciando actualización de datos...');
+    await updateStorageStatus();
     
   } catch (error) {
     console.error('❌ Error mostrando estado del almacenamiento:', error);
@@ -3533,28 +3523,61 @@ async function updateStorageStatus() {
   try {
     console.log('🔄 Actualizando estado del almacenamiento...');
     
-    // Obtener información del sistema desde la API
-    const response = await api('/debug', { method: 'GET' });
-    console.log('📡 Respuesta del servidor:', response.status, response.statusText);
+    // Obtener información del sistema desde múltiples endpoints
+    const [diskResponse, debugResponse] = await Promise.allSettled([
+      api('/disk-usage', { method: 'GET' }),
+      api('/debug', { method: 'GET' })
+    ]);
     
-    if (!response.ok) {
-      throw new Error(`Error obteniendo estado: ${response.status} - ${response.statusText}`);
+    console.log('📡 Respuestas del servidor:', {
+      disk: diskResponse.status,
+      debug: debugResponse.status
+    });
+    
+    let diskInfo = null;
+    let systemInfo = null;
+    
+    // Procesar respuesta de disk-usage
+    if (diskResponse.status === 'fulfilled' && diskResponse.value.ok) {
+      diskInfo = await diskResponse.value.json();
+      console.log('💾 Información de disco recibida:', diskInfo);
     }
     
-    const systemInfo = await response.json();
-    console.log('📊 Información del sistema recibida:', systemInfo);
+    // Procesar respuesta de debug
+    if (debugResponse.status === 'fulfilled' && debugResponse.value.ok) {
+      systemInfo = await debugResponse.value.json();
+      console.log('🔍 Información de debug recibida:', systemInfo);
+    }
     
-    // Calcular espacio disponible (simulado para Render)
-    const totalSpace = 1024 * 1024 * 1024; // 1GB (típico en Render)
-    const usedSpace = systemInfo.uploadDir?.size || 0;
-    const freeSpace = totalSpace - usedSpace;
-    const usagePercentage = Math.round((usedSpace / totalSpace) * 100);
+    // Calcular espacio disponible usando la información disponible
+    let totalSpace, usedSpace, freeSpace, usagePercentage;
+    
+    if (diskInfo && diskInfo.disk) {
+      // Usar información real del disco si está disponible
+      totalSpace = diskInfo.disk.total || 1024 * 1024 * 1024;
+      usedSpace = diskInfo.disk.used || 0;
+      freeSpace = diskInfo.disk.available || (totalSpace - usedSpace);
+      usagePercentage = diskInfo.disk.usedPercentage || Math.round((usedSpace / totalSpace) * 100);
+    } else if (systemInfo && systemInfo.uploadDir) {
+      // Usar información del directorio de uploads
+      totalSpace = 1024 * 1024 * 1024; // 1GB (típico en Render)
+      usedSpace = systemInfo.uploadDir.size || 0;
+      freeSpace = totalSpace - usedSpace;
+      usagePercentage = Math.round((usedSpace / totalSpace) * 100);
+    } else {
+      // Valores por defecto si no hay información
+      totalSpace = 1024 * 1024 * 1024;
+      usedSpace = 0;
+      freeSpace = totalSpace;
+      usagePercentage = 0;
+    }
     
     console.log('💾 Cálculos de espacio:', {
       total: totalSpace,
       used: usedSpace,
       free: freeSpace,
-      percentage: usagePercentage
+      percentage: usagePercentage,
+      source: diskInfo ? 'disk-usage' : (systemInfo ? 'debug' : 'default')
     });
     
     // Actualizar valores en el modal
@@ -3580,17 +3603,17 @@ async function updateStorageStatus() {
     
     // Actualizar detalles del sistema
     if (dbStatusEl) {
-      const isConnected = systemInfo.database?.connected;
+      const isConnected = systemInfo?.database?.connected || diskInfo?.database?.connected || false;
       dbStatusEl.textContent = isConnected ? 'Conectado' : 'Desconectado';
       dbStatusEl.style.color = isConnected ? '#4CAF50' : '#f44336';
       console.log('🗄️ Estado de BD:', isConnected ? 'Conectado' : 'Desconectado');
     }
     
     if (filesCountEl) {
-      const hasFilesTable = systemInfo.database?.filesTableExists && 
-                           systemInfo.database?.tables?.includes('files');
-      filesCountEl.textContent = hasFilesTable ? 'Disponible' : 'No disponible';
-      console.log('📁 Tabla de archivos:', hasFilesTable ? 'Disponible' : 'No disponible');
+      const filesCount = diskInfo?.files?.count || systemInfo?.files?.count || 0;
+      const totalSize = diskInfo?.files?.totalSize || systemInfo?.files?.totalSize || 0;
+      filesCountEl.textContent = `${filesCount} archivos (${formatBytes(totalSize)})`;
+      console.log('📁 Archivos:', `${filesCount} archivos, ${formatBytes(totalSize)}`);
     }
     
     if (lastUpdateEl) {
@@ -3604,14 +3627,27 @@ async function updateStorageStatus() {
     console.error('❌ Error actualizando estado del almacenamiento:', error);
     
     // Mostrar valores por defecto en caso de error
-    const elements = ['totalSpace', 'usedSpace', 'freeSpace', 'usagePercentage', 'dbStatus', 'filesCount', 'lastUpdate'];
-    elements.forEach(id => {
-      const el = $("#" + id);
-      if (el) el.textContent = 'Error';
+    const elements = [
+      { id: 'totalSpace', value: '1 GB' },
+      { id: 'usedSpace', value: 'Desconocido' },
+      { id: 'freeSpace', value: 'Desconocido' },
+      { id: 'usagePercentage', value: '0%' },
+      { id: 'dbStatus', value: 'Error' },
+      { id: 'filesCount', value: 'Error' },
+      { id: 'lastUpdate', value: new Date().toLocaleString('es-AR') }
+    ];
+    
+    elements.forEach(item => {
+      const el = $("#" + item.id);
+      if (el) {
+        el.textContent = item.value;
+        if (item.id === 'dbStatus') {
+          el.style.color = '#f44336';
+        }
+      }
     });
     
-    // Mostrar mensaje de error más específico
-    alert(`Error actualizando estado del sistema: ${error.message}\n\nVerifica que el servidor esté funcionando correctamente.`);
+    console.log('⚠️ Usando valores por defecto debido al error');
   }
 }
 
