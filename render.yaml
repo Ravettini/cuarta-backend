@@ -18,6 +18,18 @@ services:
         value: "/opt/render/project/src/uploads"
       - key: ALLOWED_MIME_TYPES
         value: "application/pdf,application/zip,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: cuarta-postgres
+          property: connectionString
+      - key: DATABASE_NAME
+        fromDatabase:
+          name: cuarta-postgres
+          property: databaseName
+      - key: DATABASE_USER
+        fromDatabase:
+          name: cuarta-postgres
+          property: user
     disk:
       name: cuarta-storage
       mountPath: /opt/render/project/src/uploads

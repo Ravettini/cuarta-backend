@@ -173,7 +173,14 @@ exports.debug = async (req, res) => {
       },
       database: {
         connected: false,
-        tables: []
+        tables: [],
+        config: {
+          dialect: sequelize.getDialect(),
+          host: sequelize.config.host,
+          port: sequelize.config.port,
+          database: sequelize.config.database,
+          username: sequelize.config.username
+        }
       }
     };
     
@@ -188,9 +195,19 @@ exports.debug = async (req, res) => {
       debugInfo.database.tables = tables;
       console.log('✅ debug - Tablas encontradas:', tables);
       
+      // Obtener información adicional de la base de datos
+      try {
+        const [dbInfo] = await sequelize.query('SELECT current_database() as db_name, current_user as user_name, version() as version');
+        debugInfo.database.info = dbInfo[0];
+        console.log('✅ debug - Info de BD:', dbInfo[0]);
+      } catch (infoError) {
+        console.log('⚠️ debug - No se pudo obtener info adicional de BD:', infoError.message);
+      }
+      
     } catch (dbError) {
       console.error('❌ debug - Error de BD:', dbError);
       debugInfo.database.error = dbError.message;
+      debugInfo.database.stack = dbError.stack;
     }
     
     // Verificar directorio de uploads

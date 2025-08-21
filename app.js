@@ -3604,9 +3604,18 @@ async function updateStorageStatus() {
     // Actualizar detalles del sistema
     if (dbStatusEl) {
       const isConnected = systemInfo?.database?.connected || diskInfo?.database?.connected || false;
+      const dbError = systemInfo?.database?.error;
+      const dbConfig = systemInfo?.database?.config;
+      
       dbStatusEl.textContent = isConnected ? 'Conectado' : 'Desconectado';
       dbStatusEl.style.color = isConnected ? '#4CAF50' : '#f44336';
-      console.log('🗄️ Estado de BD:', isConnected ? 'Conectado' : 'Desconectado');
+      
+      if (!isConnected && dbError) {
+        console.log('❌ Error de BD:', dbError);
+        console.log('🔧 Configuración de BD:', dbConfig);
+      } else {
+        console.log('🗄️ Estado de BD:', isConnected ? 'Conectado' : 'Desconectado');
+      }
     }
     
     if (filesCountEl) {

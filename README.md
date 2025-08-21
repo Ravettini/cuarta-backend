@@ -230,6 +230,33 @@ curl -X DELETE http://localhost:3000/api/v1/files/{id}
 - Verificar credenciales en `DATABASE_URL`
 - Verificar que la base de datos exista
 
+### Problema de conexión en Render
+Si la base de datos muestra "Desconectado" en el modal de estado:
+
+1. **Verificar configuración en `render.yaml`:**
+   ```yaml
+   envVars:
+     - key: DATABASE_URL
+       fromDatabase:
+         name: cuarta-postgres
+         property: connectionString
+   ```
+
+2. **Verificar que la base de datos esté creada en Render:**
+   - Ir a Dashboard de Render
+   - Verificar que existe un servicio de base de datos llamado `cuarta-postgres`
+   - Verificar que esté en estado "Active"
+
+3. **Probar conexión localmente:**
+   ```bash
+   npm run test:connection
+   ```
+
+4. **Verificar variables de entorno en Render:**
+   - Ir a tu servicio web `cuarta-backend`
+   - En la pestaña "Environment", verificar que `DATABASE_URL` esté presente
+   - Si no está, hacer redeploy del servicio
+
 ### Error de permisos en uploads
 - Verificar que el directorio `uploads` tenga permisos de escritura
 - Crear manualmente: `mkdir uploads`
