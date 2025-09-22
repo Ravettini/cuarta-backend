@@ -1,0 +1,44 @@
+services:
+  postgres:
+    image: postgres:15
+    container_name: cuarta-postgres
+    environment:
+      POSTGRES_DB: cuarta_db
+      POSTGRES_USER: cuarta_user
+      POSTGRES_PASSWORD: cuarta_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - cuarta-network
+
+  app:
+    build: .
+    container_name: cuarta-app
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=postgresql://cuarta_user:cuarta_password@postgres:5432/cuarta_db
+      - PORT=3000
+      - NODE_ENV=development
+      - ALLOWED_ORIGIN=http://localhost:3000
+      - UPLOAD_DIR=./uploads
+      - MAX_UPLOAD_BYTES=157286400
+      - ALLOWED_MIME_TYPES=application/pdf,application/zip,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,image/*
+    volumes:
+      - ./uploads:/app/uploads
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - postgres
+    networks:
+      - cuarta-network
+    command: sh -c "npm install && npm run migrate && npm start"
+
+volumes:
+  postgres_data:
+
+networks:
+  cuarta-network:
+    driver: bridge

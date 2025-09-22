@@ -123,6 +123,9 @@ cuarta/
 - `POST /api/v1/files` - Subir archivo (multipart con campo `file`)
 - `GET /api/v1/files/:id/download` - Descargar archivo
 - `DELETE /api/v1/files/:id` - Eliminar archivo
+- `GET /api/v1/files/disk-usage` - Monitorear uso del almacenamiento
+- `GET /api/v1/files/recover` - Recuperar archivos perdidos
+- `GET /api/v1/files/cleanup?clean=true` - Limpiar archivos huérfanos
 
 ## 📊 Base de Datos
 
@@ -223,7 +226,51 @@ curl -O http://localhost:3000/api/v1/files/{id}/download
 curl -X DELETE http://localhost:3000/api/v1/files/{id}
 ```
 
+### 6. Monitorear uso del almacenamiento
+```bash
+curl http://localhost:3000/api/v1/files/disk-usage
+```
+
+### 7. Recuperar archivos perdidos
+```bash
+curl http://localhost:3000/api/v1/files/recover
+```
+
+### 8. Limpiar archivos huérfanos
+```bash
+# Solo verificar
+curl http://localhost:3000/api/v1/files/cleanup
+
+# Limpiar realmente
+curl "http://localhost:3000/api/v1/files/cleanup?clean=true"
+```
+
 ## 🔧 Troubleshooting
+
+### ⚠️ **Problema: Archivos se pierden al reiniciar (Plan Free)**
+
+**Síntoma**: Los archivos subidos desaparecen cuando el servicio entra en reposo o se reinicia.
+
+**Causa**: El plan gratuito de Render no incluye almacenamiento persistente. Los archivos se almacenan en el sistema de archivos temporal que se borra al reiniciar.
+
+**Solución**: 
+1. **Recomendado**: Actualizar a Plan Starter + 5GB Disk ($8.25/mes)
+2. **Alternativa**: Plan Free + 5GB Disk ($1.25/mes) - archivos persisten pero servicio entra en reposo
+3. **Mínimo**: Plan Free + 1GB Disk ($0.25/mes) - archivos persisten pero poco espacio
+
+**Pasos para solucionar**:
+```bash
+# 1. Actualizar render.yaml (ya configurado)
+# 2. Hacer commit y push
+git add .
+git commit -m "Configurar almacenamiento persistente"
+git push origin main
+
+# 3. En Render Dashboard:
+# - Cambiar plan a "Starter" 
+# - Verificar que Disk de 5GB esté montado
+# - Hacer Manual Deploy
+```
 
 ### Error de conexión a PostgreSQL
 - Verificar que PostgreSQL esté corriendo
@@ -289,20 +336,98 @@ Si la base de datos muestra "Desconectado" en el modal de estado:
 
 ## 🚀 Deploy a Producción
 
-### 1. Configurar variables de producción
+### 🎯 **Opción Recomendada: Render.com con Plan Starter + 5GB Disk**
+
+Esta es la **opción más recomendada** para producción, ya que proporciona:
+- ✅ **Sin tiempo de reposo** (servicio siempre activo)
+- ✅ **5GB de almacenamiento persistente** (archivos no se pierden)
+- ✅ **Mejor rendimiento** (512MB RAM, 0.5 CPU)
+- ✅ **Costo razonable** ($8.25/mes)
+
+#### **Presupuesto:**
+- **Plan Starter**: $7/mes
+- **5GB Disk**: $1.25/mes
+- **Total**: **$8.25/mes** (~$99/año)
+
+#### **Pasos para implementar:**
+
+1. **Configurar `render.yaml`** (ya configurado):
+```yaml
+services:
+  - type: web
+    name: cuarta-backend
+    env: node
+    plan: starter  # ← Plan Starter
+    buildCommand: npm install
+    startCommand: npm start
+    disk:
+      name: cuarta-storage
+      mountPath: /opt/render/project/src/uploads
+      sizeGB: 5  # ← 5GB de almacenamiento persistente
+```
+
+2. **Hacer commit y push:**
+```bash
+git add .
+git commit -m "Configurar Plan Starter + 5GB Disk para almacenamiento persistente"
+git push origin main
+```
+
+3. **En Render Dashboard:**
+   - Ir a tu servicio `cuarta-backend`
+   - Cambiar el plan a **"Starter"** ($7/mes)
+   - Verificar que el **Disk de 5GB** esté montado
+   - Hacer **"Manual Deploy"** si es necesario
+
+4. **Verificar funcionamiento:**
+   - Los archivos subidos **NO se perderán** al reiniciar
+   - El servicio **NO entrará en reposo**
+   - Mejor rendimiento general
+
+#### **Ventajas de esta configuración:**
+- 🚀 **Sin tiempo de reposo**: Servicio siempre disponible
+- 💾 **Almacenamiento persistente**: Archivos seguros permanentemente
+- ⚡ **Mejor rendimiento**: Más recursos (RAM/CPU)
+- 🔧 **Fácil mantenimiento**: Configuración automática
+- 💰 **Costo-beneficio**: Excelente relación precio/calidad
+
+### 🔄 **Alternativas más económicas:**
+
+#### **Opción 2: Plan Free + 5GB Disk**
+- **Costo**: $1.25/mes
+- **Ventaja**: Muy barato
+- **Desventaja**: Servicio entra en reposo cada 15 min
+
+#### **Opción 3: Plan Free + 1GB Disk**
+- **Costo**: $0.25/mes
+- **Ventaja**: Mínimo costo
+- **Desventaja**: Reposo + poco espacio
+
+### 📊 **Comparación de opciones:**
+
+| Opción | Costo/mes | Tiempo de reposo | Almacenamiento | Rendimiento |
+|--------|-----------|------------------|----------------|-------------|
+| **Starter + 5GB** | **$8.25** | **❌ Ninguno** | **5GB** | **Alto** |
+| Free + 5GB | $1.25 | ⚠️ 15 min | 5GB | Básico |
+| Free + 1GB | $0.25 | ⚠️ 15 min | 1GB | Básico |
+
+### 🛠️ **Configuración manual (si no usas Render):**
+
+#### 1. Configurar variables de producción
 ```env
 NODE_ENV=production
 DATABASE_URL=postgresql://user:pass@host:5432/db
 ALLOWED_ORIGIN=https://tudominio.com
+UPLOAD_DIR=/opt/render/project/src/uploads
 ```
 
-### 2. Build y deploy
+#### 2. Build y deploy
 ```bash
 npm install --production
 npm start
 ```
 
-### 3. Usar PM2 para producción
+#### 3. Usar PM2 para producción
 ```bash
 npm install -g pm2
 pm2 start server/index.js --name "cuarta-backend"
